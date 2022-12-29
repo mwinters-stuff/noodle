@@ -15,7 +15,7 @@ var (
 
 type Database interface {
 	Connect() error
-	CheckUpgrade() error
+	CheckUpgrade() (bool, error)
 	Create() error
 	Drop() error
 	GetVersion() (int, error)
@@ -41,11 +41,12 @@ func (i *DatabaseImpl) Close() {
 }
 
 // CheckUpgrade implements Database
-func (i *DatabaseImpl) CheckUpgrade() error {
+func (i *DatabaseImpl) CheckUpgrade() (bool, error) {
 	current_version, err := i.GetVersion()
 	if err == nil {
 		if current_version < DATABASE_VERSION {
-			i.Upgrade(current_version)
+			Logger.Info().Msgf("upgrade database required from %d to %d", current_version, DATABASE_VERSION)
+			return true, nil
 		} else if current_version > DATABASE_VERSION {
 			Logger.Error().Msg("cannot downgrade database")
 			err = fmt.Errorf("datatabase downgrade not allowed")
@@ -53,12 +54,13 @@ func (i *DatabaseImpl) CheckUpgrade() error {
 			Logger.Info().Msg("no database upgrade required")
 		}
 	}
-	return err
+	return false, err
 }
 
 // GetVersion implements Database
 func (i *DatabaseImpl) GetVersion() (int, error) {
 	var version int
+
 	err := i.pool.QueryRow(context.Background(), "SELECT version FROM version").Scan(&version)
 	Logger.Info().Msgf("current database version %d", version)
 	return version, err
@@ -82,6 +84,7 @@ func (i *DatabaseImpl) Upgrade(current_version int) error {
 func (i *DatabaseImpl) Connect() error {
 	pool, err := pgxpool.New(context.Background(), i.connectionUrl)
 	if err == nil {
+		pool.Reset()
 		i.pool = pool
 		var num int
 		err = i.pool.QueryRow(context.Background(), "SELECT 1").Scan(&num)

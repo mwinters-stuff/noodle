@@ -12,7 +12,6 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"hbenl.vscode-test-explorer",
 				"golang.go",
 				"eamodio.gitlens",
 				"mads-hartmann.bash-ide-vscode"
