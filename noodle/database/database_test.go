@@ -63,7 +63,7 @@ func (suite *DatabaseTestInitialSuite) TestBadConnect() {
 	db := database.NewDatabase("connectionstring")
 	assert.NotNil(suite.T(), db)
 
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 	err := db.Connect()
 	require.Error(suite.T(), err)
 
@@ -78,7 +78,7 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 	db := database.NewDatabase(suite.connStr)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
@@ -89,32 +89,8 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 
 }
 
-func (suite *DatabaseTestInitialSuite) setupConnectionSteps() {
-	dbf.QueryMock(suite.script, "SELECT 1",
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: nil,
-			Parameters:           nil,
-			ResultFormatCodes:    []int16{1},
-		},
-		[]pgproto3.FieldDescription{
-			{
-				Name:                 []byte("?column?"),
-				TableOID:             0,
-				TableAttributeNumber: 1,
-				DataTypeOID:          23,
-				DataTypeSize:         4,
-				TypeModifier:         -1,
-				Format:               0,
-			},
-		},
-		[][]byte{[]byte("1")})
-
-}
-
 func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -155,7 +131,7 @@ func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -196,7 +172,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -237,7 +213,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -278,7 +254,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestUpgrade() {
-	suite.setupConnectionSteps()
+	dbf.SetupConnectionSteps(suite.script)
 
 	db := database.NewDatabase(suite.connStr)
 	assert.NotNil(suite.T(), db)

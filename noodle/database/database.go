@@ -101,13 +101,17 @@ func (i *DatabaseImpl) Connect() error {
 // Create implements Database
 func (i *DatabaseImpl) Create() error {
 	Logger.Info().Msg("creating database")
-	_, err := i.pool.Exec(context.Background(),
-		`
-		  CREATE TABLE version (version int);
-		`)
+	_, err := i.pool.Exec(context.Background(), `CREATE TABLE IF NOT EXISTS version (version int)`)
 
 	if err == nil {
-		_, err = i.pool.Exec(context.Background(), `INSERT INTO version (version) values ($1);`, DATABASE_VERSION)
+		_, err = i.pool.Exec(context.Background(), `DELETE FROM version`)
+	}
+	if err == nil {
+		_, err = i.pool.Exec(context.Background(), `INSERT INTO version (version) values ($1)`, DATABASE_VERSION)
+	}
+
+	if err == nil {
+		err = NewAppTemplateTable(i).Create()
 	}
 
 	return err
@@ -119,6 +123,7 @@ func (i *DatabaseImpl) Drop() error {
 	_, err := i.pool.Exec(context.Background(),
 		`
 		  DROP TABLE version;
+			DROP TABLE application_template;
 		`)
 
 	return err
