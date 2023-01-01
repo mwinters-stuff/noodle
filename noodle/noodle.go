@@ -74,6 +74,12 @@ func (*NoodleImpl) Run() {
 		Logger.Fatal().Msg(err.Error())
 	}
 
+	result, err := table.Search("AdGuard")
+	if err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
+
+	print(result)
 }
 
 func NewNoodle() Noodle {

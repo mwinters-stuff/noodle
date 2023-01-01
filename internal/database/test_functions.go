@@ -136,7 +136,7 @@ func QueryMock(script *pgmock.Script, statement string, bind pgproto3.Bind, fiel
 
 }
 
-func InsertMock(script *pgmock.Script, statement string, parameterDescription pgproto3.ParameterDescription, bind pgproto3.Bind) {
+func InsertUpdateDeleteMock(script *pgmock.Script, statement string, parameterDescription pgproto3.ParameterDescription, bind pgproto3.Bind) {
 	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Parse{Name: "stmtcache_?", Query: statement, ParameterOIDs: nil}))
 	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Describe{Name: "stmtcache_?", ObjectType: 'S'}))
 	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Sync{}))
@@ -153,6 +153,33 @@ func InsertMock(script *pgmock.Script, statement string, parameterDescription pg
 	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.BindComplete{}))
 	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.NoData{}))
 	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.CommandComplete{CommandTag: []byte("INSERT 0 1")}))
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.ReadyForQuery{TxStatus: 'I'}))
+
+}
+
+func SelectMock(script *pgmock.Script, statement string, parameterDescription pgproto3.ParameterDescription, fields []pgproto3.FieldDescription, bind pgproto3.Bind, values [][]byte) {
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Parse{Name: "stmtcache_?", Query: statement, ParameterOIDs: nil}))
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Describe{Name: "stmtcache_?", ObjectType: 'S'}))
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Sync{}))
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.ParseComplete{}))
+	script.Steps = append(script.Steps, pgmock.SendMessage(&parameterDescription))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.RowDescription{Fields: fields}))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.ReadyForQuery{TxStatus: 'I'}))
+	script.Steps = append(script.Steps, ExpectMessageX(&bind))
+
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Describe{Name: "", ObjectType: 'P'}))
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Execute{Portal: "", MaxRows: 0}))
+	script.Steps = append(script.Steps, ExpectMessageX(&pgproto3.Sync{}))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.BindComplete{}))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.RowDescription{Fields: fields}))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.DataRow{Values: values}))
+
+	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.CommandComplete{CommandTag: []byte(fmt.Sprintf("SELECT %d", len(values)))}))
 	script.Steps = append(script.Steps, pgmock.SendMessage(&pgproto3.ReadyForQuery{TxStatus: 'I'}))
 
 }
