@@ -74,11 +74,15 @@ func (*NoodleImpl) Run() {
 		Logger.Fatal().Msg(err.Error())
 	}
 
-	result, err := table.Search("AdGuard")
+	// result, err := table.Search("AdGuard")
+	// if err != nil {
+	// 	Logger.Fatal().Msg(err.Error())
+	// }
+
+	result, err := table.Exists("140902edbcc424c09736af28ab2de604c3bde936")
 	if err != nil {
 		Logger.Fatal().Msg(err.Error())
 	}
-
 	print(result)
 }
 

@@ -29,7 +29,10 @@
 	// "forwardPorts": [5432],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "go install github.com/jackc/pgmock/pgmockproxy"
+	"postCreateCommand": {
+		"pgmockproxy": "go install github.com/jackc/pgmock/pgmockproxy",
+		"mockery": "go install github.com/vektra/mockery/v2@latest"
+	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"

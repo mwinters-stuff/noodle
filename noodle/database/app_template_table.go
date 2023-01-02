@@ -28,6 +28,11 @@ const insertRow = `INSERT INTO application_template (appid,name,website,license,
 const updateRow = `UPDATE application_template SET name = $2,website = $3,license = $4,description = $5,enhanced = $6,tilebackground = $7,icon = $8,sha = $9 WHERE appid = $1`
 const deleteRow = `DELETE FROM application_template WHERE appid = $1`
 const queryRows = `SELECT * FROM application_template WHERE name LIKE $1`
+const queryExists = `SELECT COUNT(*) FROM application_template WHERE appid = $1`
+
+var (
+	NewAppTemplateTable = NewAppTemplateTableImpl
+)
 
 type AppTemplateTable interface {
 	Create() error
@@ -38,10 +43,18 @@ type AppTemplateTable interface {
 	Delete(app jsontypes.App) error
 
 	Search(search string) ([]jsontypes.App, error)
+	Exists(appid string) (bool, error)
 }
 
 type AppTemplateTableImpl struct {
 	database Database
+}
+
+// Exists implements AppTemplateTable
+func (i *AppTemplateTableImpl) Exists(appid string) (bool, error) {
+	var found int
+	err := i.database.Pool().QueryRow(context.Background(), queryExists, appid).Scan(&found)
+	return found > 0, err
 }
 
 // Create implements AppTemplateTable
@@ -131,7 +144,7 @@ func (*AppTemplateTableImpl) Upgrade(old_version int, new_verison int) error {
 	panic("unimplemented")
 }
 
-func NewAppTemplateTable(database Database) AppTemplateTable {
+func NewAppTemplateTableImpl(database Database) AppTemplateTable {
 	return &AppTemplateTableImpl{
 		database: database,
 	}

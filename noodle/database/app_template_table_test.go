@@ -274,6 +274,82 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 
 }
 
+func (suite *AppTemplateTableTestSuite) TestExists() {
+	dbf.SetupConnectionSteps(suite.script)
+
+	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM application_template WHERE appid = $1`,
+		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
+		[]pgproto3.FieldDescription{
+			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
+		},
+
+		pgproto3.Bind{
+			DestinationPortal:    "",
+			PreparedStatement:    "stmtcache_?",
+			ParameterFormatCodes: []int16{0},
+			Parameters: [][]byte{
+				[]byte("140902edbcc424c09736af28ab2de604c3bde936"),
+			},
+			ResultFormatCodes: []int16{1},
+		},
+		[][]byte{
+			[]byte("0000000000000001"),
+		},
+	)
+
+	db := database.NewDatabase(suite.connStr)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	table := database.NewAppTemplateTable(db)
+
+	result, err := table.Exists("140902edbcc424c09736af28ab2de604c3bde936")
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), result)
+
+}
+
+func (suite *AppTemplateTableTestSuite) TestNotExists() {
+	dbf.SetupConnectionSteps(suite.script)
+
+	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM application_template WHERE appid = $1`,
+		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
+		[]pgproto3.FieldDescription{
+			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
+		},
+
+		pgproto3.Bind{
+			DestinationPortal:    "",
+			PreparedStatement:    "stmtcache_?",
+			ParameterFormatCodes: []int16{0},
+			Parameters: [][]byte{
+				[]byte("140902edbcc424c09736af28ab2de604c3bde936"),
+			},
+			ResultFormatCodes: []int16{1},
+		},
+		[][]byte{
+			[]byte("0000000000000000"),
+		},
+	)
+
+	db := database.NewDatabase(suite.connStr)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	table := database.NewAppTemplateTable(db)
+
+	result, err := table.Exists("140902edbcc424c09736af28ab2de604c3bde936")
+	require.NoError(suite.T(), err)
+	require.False(suite.T(), result)
+
+}
+
 func TestAppTemplateTableSuite(t *testing.T) {
 	suite.Run(t, new(AppTemplateTableTestSuite))
 }
