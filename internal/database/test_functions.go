@@ -10,11 +10,12 @@ import (
 
 	"github.com/jackc/pgmock"
 	"github.com/jackc/pgproto3/v2"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 
 	"github.com/stretchr/testify/require"
 )
 
-func TestStepsRunner(t *testing.T, script *pgmock.Script) (net.Listener, string) {
+func TestStepsRunner(t *testing.T, script *pgmock.Script) (net.Listener, yamltypes.AppConfig) {
 
 	listener, err := net.Listen("tcp", "127.0.0.1:")
 	require.NoError(t, err)
@@ -48,8 +49,31 @@ func TestStepsRunner(t *testing.T, script *pgmock.Script) (net.Listener, string)
 	parts := strings.Split(listener.Addr().String(), ":")
 	host := parts[0]
 	port := parts[1]
-	connStr := fmt.Sprintf("sslmode=disable host=%s port=%s", host, port)
-	return listener, connStr
+
+	yamltext := fmt.Sprintf(`
+postgres:
+  user: postgresuser
+  password: postgrespass
+  db: postgres
+  hostname: %s
+  port: %s
+ldap:
+  url: ldap://example.com
+  base_dn: dc=example,dc=com
+  username_attribute: uid
+  additional_users_dn: ou=people
+  users_filter: (&({username_attribute}={input})(objectClass=person))
+  additional_groups_dn: ou=groups
+  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+  group_name_attribute: cn
+  display_name_attribute: displayName
+  user: CN=readonly,DC=example,DC=com
+  password: readonly
+`, host, port)
+
+	config, _ := yamltypes.UnmarshalConfig([]byte(yamltext))
+
+	return listener, config
 }
 
 func SetupConnectionSteps(script *pgmock.Script) {

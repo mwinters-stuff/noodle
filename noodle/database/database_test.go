@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgproto3/v2"
 	dbf "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -32,10 +33,10 @@ func (h *databaseLogHook) Run(e *zerolog.Event, l zerolog.Level, m string) {
 
 type DatabaseTestInitialSuite struct {
 	suite.Suite
-	loghook  databaseLogHook
-	script   *pgmock.Script
-	listener net.Listener
-	connStr  string
+	loghook   databaseLogHook
+	script    *pgmock.Script
+	listener  net.Listener
+	appConfig yamltypes.AppConfig
 }
 
 func (suite *DatabaseTestInitialSuite) SetupSuite() {
@@ -48,7 +49,7 @@ func (suite *DatabaseTestInitialSuite) SetupTest() {
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 
-	suite.listener, suite.connStr = dbf.TestStepsRunner(suite.T(), suite.script)
+	suite.listener, suite.appConfig = dbf.TestStepsRunner(suite.T(), suite.script)
 }
 
 func (suite *DatabaseTestInitialSuite) TearDownTest() {
@@ -60,7 +61,30 @@ func (suite *DatabaseTestInitialSuite) TearDownSuite() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestBadConnect() {
-	db := database.NewDatabase("connectionstring")
+	yamltext := `
+postgres:
+  user: postgresuser
+  password: postgrespass
+  db: postgres
+  hostname: badhostname
+  port: 1231
+ldap:
+  url: ldap://example.com
+  base_dn: dc=example,dc=com
+  username_attribute: uid
+  additional_users_dn: ou=people
+  users_filter: (&({username_attribute}={input})(objectClass=person))
+  additional_groups_dn: ou=groups
+  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+  group_name_attribute: cn
+  display_name_attribute: displayName
+  user: CN=readonly,DC=example,DC=com
+  password: readonly
+`
+
+	config, _ := yamltypes.UnmarshalConfig([]byte(yamltext))
+
+	db := database.NewDatabase(config)
 	assert.NotNil(suite.T(), db)
 
 	dbf.SetupConnectionSteps(suite.script)
@@ -68,14 +92,14 @@ func (suite *DatabaseTestInitialSuite) TestBadConnect() {
 	require.Error(suite.T(), err)
 
 	assert.Eventually(suite.T(), func() bool {
-		return suite.loghook.LastLevel == zerolog.ErrorLevel && suite.loghook.LastMsg == "database connection failed cannot parse `connectionstring`: failed to parse as DSN (invalid dsn)"
-	}, time.Second, time.Millisecond*100)
+		return suite.loghook.LastLevel == zerolog.ErrorLevel && suite.loghook.LastMsg == "database connection failed failed to connect to `host=badhostname user=postgresuser database=postgres`: hostname resolving error (lookup badhostname: Temporary failure in name resolution)"
+	}, time.Second*3, time.Millisecond*100)
 
 }
 
 func (suite *DatabaseTestInitialSuite) TestConnect() {
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 	dbf.SetupConnectionSteps(suite.script)
@@ -113,7 +137,7 @@ func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
 		},
 		[][]byte{[]byte("1")})
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -154,7 +178,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
 		},
 		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION))})
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -195,7 +219,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
 		},
 		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION - 1))})
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -236,7 +260,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 		},
 		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION + 1))})
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -256,7 +280,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 	dbf.SetupConnectionSteps(suite.script)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 

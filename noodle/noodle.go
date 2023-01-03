@@ -2,10 +2,12 @@ package noodle
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 )
 
 const pgport = 15432
@@ -23,16 +25,19 @@ type NoodleImpl struct {
 func (*NoodleImpl) Run() {
 	Logger.Info().Msg("Noodle Start")
 
-	pguser := os.Getenv("POSTGRES_USER")
-	pgpassword := os.Getenv("POSTGRES_PASSWORD")
-	pgdb := os.Getenv("POSTGRES_DB")
-	pghostname := os.Getenv("POSTGRES_HOSTNAME")
+	yfile, err := ioutil.ReadFile(os.Args[1])
+	if err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
 
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", pguser, pgpassword, pghostname, pgport, pgdb)
+	config, err := yamltypes.UnmarshalConfig(yfile)
 
-	db := database.NewDatabase(connStr)
+	db := database.NewDatabase(config)
+	if err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
 
-	err := db.Connect()
+	err = db.Connect()
 	if err != nil {
 		Logger.Fatal().Msg(err.Error())
 	}

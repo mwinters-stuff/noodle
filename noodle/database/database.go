@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 )
 
 const DATABASE_VERSION int = 1
@@ -26,8 +27,8 @@ type Database interface {
 }
 
 type DatabaseImpl struct {
-	connectionUrl string
-	pool          *pgxpool.Pool
+	appConfig yamltypes.AppConfig
+	pool      *pgxpool.Pool
 }
 
 // Pool implements Database
@@ -66,12 +67,10 @@ func (i *DatabaseImpl) GetVersion() (int, error) {
 	return version, err
 }
 
-func NewDatabaseImpl(connectionUrl string) Database {
-	i := &DatabaseImpl{
-		connectionUrl: connectionUrl,
+func NewDatabaseImpl(appConfig yamltypes.AppConfig) Database {
+	return &DatabaseImpl{
+		appConfig: appConfig,
 	}
-
-	return i
 }
 
 // CheckUpgrade implements Database
@@ -82,7 +81,15 @@ func (i *DatabaseImpl) Upgrade(current_version int) error {
 
 // Connect implements Database
 func (i *DatabaseImpl) Connect() error {
-	pool, err := pgxpool.New(context.Background(), i.connectionUrl)
+
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		i.appConfig.Postgres.User,
+		i.appConfig.Postgres.Password,
+		i.appConfig.Postgres.Hostname,
+		i.appConfig.Postgres.Port,
+		i.appConfig.Postgres.Db)
+
+	pool, err := pgxpool.New(context.Background(), connStr)
 	if err == nil {
 		pool.Reset()
 		i.pool = pool

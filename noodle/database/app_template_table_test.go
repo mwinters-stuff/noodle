@@ -9,6 +9,7 @@ import (
 	dbf "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -16,9 +17,9 @@ import (
 
 type AppTemplateTableTestSuite struct {
 	suite.Suite
-	script   *pgmock.Script
-	listener net.Listener
-	connStr  string
+	script    *pgmock.Script
+	listener  net.Listener
+	appConfig yamltypes.AppConfig
 }
 
 func (suite *AppTemplateTableTestSuite) SetupSuite() {
@@ -29,7 +30,7 @@ func (suite *AppTemplateTableTestSuite) SetupTest() {
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 
-	suite.listener, suite.connStr = dbf.TestStepsRunner(suite.T(), suite.script)
+	suite.listener, suite.appConfig = dbf.TestStepsRunner(suite.T(), suite.script)
 }
 
 func (suite *AppTemplateTableTestSuite) TearDownTest() {
@@ -50,7 +51,7 @@ func (suite *AppTemplateTableTestSuite) TestCreateTable() {
 
 	suite.script.Steps = append(suite.script.Steps, pgmock.SendMessage(&pgproto3.ReadyForQuery{TxStatus: 'I'}))
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -88,7 +89,7 @@ func (suite *AppTemplateTableTestSuite) TestInsert() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -138,7 +139,7 @@ func (suite *AppTemplateTableTestSuite) TestUpdate() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -180,7 +181,7 @@ func (suite *AppTemplateTableTestSuite) TestDelete() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -245,7 +246,7 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -297,7 +298,7 @@ func (suite *AppTemplateTableTestSuite) TestExists() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -335,7 +336,7 @@ func (suite *AppTemplateTableTestSuite) TestNotExists() {
 		},
 	)
 
-	db := database.NewDatabase(suite.connStr)
+	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 

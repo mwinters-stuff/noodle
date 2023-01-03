@@ -8,6 +8,10 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
 )
 
+var (
+	NewHeimdall = NewHeimdallImpl
+)
+
 type Heimdall interface {
 	UpdateFromServer() error
 	FindApps(search string) ([]jsontypes.App, error)
@@ -74,7 +78,7 @@ func (i *HeimdallImpl) UpdateFromServer() error {
 
 }
 
-func NewHeimdall(database database.Database) Heimdall {
+func NewHeimdallImpl(database database.Database) Heimdall {
 	return &HeimdallImpl{
 		database: database,
 	}

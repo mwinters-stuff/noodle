@@ -1,0 +1,19 @@
+postgres:
+  user: postgres
+  password: postgres
+  db: DB=postgres
+  hostname: localhost
+
+ldap:
+  url: ldap://openldap.web-auth.svc
+  base_dn: dc=winters,dc=nz
+  username_attribute: uid
+  additional_users_dn: ou=people
+  users_filter: (&({username_attribute}={input})(objectClass=person))
+  additional_groups_dn: ou=groups
+  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+  group_name_attribute: cn
+  display_name_attribute: displayName
+  user: CN=readonly,DC=winters,DC=nz
+  password: readonly
+
