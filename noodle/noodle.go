@@ -1,7 +1,6 @@
 package noodle
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 

@@ -20,14 +20,16 @@ ldap:
   url: ldap://example.com
   base_dn: dc=example,dc=com
   username_attribute: uid
-  additional_users_dn: ou=people
-  users_filter: (&({username_attribute}={input})(objectClass=person))
-  additional_groups_dn: ou=groups
-  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+  user_filter: (&(objectClass=organizationalPerson)(uid=%s))
+  all_users_filter: (objectclass=organizationalPerson)
+  all_groups_filter: (objectclass=groupOfUniqueNames)
+  user_groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
+  group_users_filter: (&(objectClass=groupOfUniqueNames)(cn=%s))
   group_name_attribute: cn
-  display_name_attribute: displayName
+  user_display_name_attribute: displayName
   user: CN=readonly,DC=example,DC=com
   password: readonly
+  group_member_attribute: uniqueMember
 `
 	data, err := yamltypes.UnmarshalConfig([]byte(yamltext))
 	require.NoError(t, err)
@@ -41,12 +43,15 @@ ldap:
 	assert.Equal(t, "ldap://example.com", data.Ldap.URL)
 	assert.Equal(t, "dc=example,dc=com", data.Ldap.BaseDn)
 	assert.Equal(t, "uid", data.Ldap.UsernameAttribute)
-	assert.Equal(t, "ou=people", data.Ldap.AdditionalUsersDn)
-	assert.Equal(t, "(&({username_attribute}={input})(objectClass=person))", data.Ldap.UsersFilter)
-	assert.Equal(t, "ou=groups", data.Ldap.AdditionalGroupsDn)
-	assert.Equal(t, "(&(uniquemember={dn})(objectclass=groupOfUniqueNames))", data.Ldap.GroupsFilter)
+	assert.Equal(t, "(&(objectClass=organizationalPerson)(uid=%s))", data.Ldap.UserFilter)
+	// assert.Equal(t, "(&(objectClass=groupOfUniqueNames)(cn=%s))", data.Ldap.GroupFilter)
+	assert.Equal(t, "(objectclass=organizationalPerson)", data.Ldap.AllUsersFilter)
+	assert.Equal(t, "(objectclass=groupOfUniqueNames)", data.Ldap.AllGroupsFilter)
+	assert.Equal(t, "(&(uniquemember={dn})(objectclass=groupOfUniqueNames))", data.Ldap.UserGroupsFilter)
+	assert.Equal(t, "(&(objectClass=groupOfUniqueNames)(cn=%s))", data.Ldap.GroupUsersFilter)
 	assert.Equal(t, "cn", data.Ldap.GroupNameAttribute)
-	assert.Equal(t, "displayName", data.Ldap.DisplayNameAttribute)
+	assert.Equal(t, "displayName", data.Ldap.UserDisplayNameAttribute)
 	assert.Equal(t, "CN=readonly,DC=example,DC=com", data.Ldap.User)
 	assert.Equal(t, "readonly", data.Ldap.Password)
+	assert.Equal(t, "uniqueMember", data.Ldap.GroupMemberAttribute)
 }

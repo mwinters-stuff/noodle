@@ -8,12 +8,16 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 )
 
+// You only need **one** of these per package!
+//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+
 const DATABASE_VERSION int = 1
 
 var (
 	NewDatabase = NewDatabaseImpl
 )
 
+//counterfeiter:generate . Database
 type Database interface {
 	Connect() error
 	CheckUpgrade() (bool, error)

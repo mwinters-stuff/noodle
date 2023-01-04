@@ -34,6 +34,7 @@ var (
 	NewAppTemplateTable = NewAppTemplateTableImpl
 )
 
+//counterfeiter:generate . AppTemplateTable
 type AppTemplateTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error
