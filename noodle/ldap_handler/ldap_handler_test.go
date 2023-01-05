@@ -1,15 +1,17 @@
 package ldap_handler_test
 
 import (
+	"crypto/tls"
 	"errors"
 	"testing"
-
-	"github.com/mwinters-stuff/noodle/package-shims/ldap/ldapfakes"
+	"time"
 
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/package-shims/ldap/mocks"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -28,8 +30,10 @@ func (h *ldapHandlerLogHook) Run(e *zerolog.Event, l zerolog.Level, m string) {
 
 type LdapHandlerTestSuite struct {
 	suite.Suite
-	loghook   ldapHandlerLogHook
-	appConfig yamltypes.AppConfig
+	loghook     ldapHandlerLogHook
+	appConfig   yamltypes.AppConfig
+	mockLdap    *mocks.LdapShim
+	ldapHandler ldap_handler.LdapHandler
 }
 
 func (suite *LdapHandlerTestSuite) SetupSuite() {
@@ -65,20 +69,65 @@ ldap:
 
 }
 func (suite *LdapHandlerTestSuite) SetupTest() {
+	suite.mockLdap = mocks.NewLdapShim(suite.T())
+	suite.ldapHandler = ldap_handler.NewLdapHandler(suite.mockLdap, suite.appConfig)
 }
 
 func (suite *LdapHandlerTestSuite) TearDownTest() {
 }
 
-func (suite *LdapHandlerTestSuite) TestConnect() {
-	fakeLdap := &ldapfakes.FakeV3{}
-	ldapHandler := ldap_handler.NewLdapHandler(fakeLdap, suite.appConfig)
+func (suite *LdapHandlerTestSuite) TestConnectFailed() {
 
-	fakeLdap.DialURLReturns(nil, errors.New("it failed"))
+	suite.mockLdap.EXPECT().DialURL("ldap://example.com").Return(errors.New("it failed"))
 
-	err := ldapHandler.Connect()
+	err := suite.ldapHandler.Connect()
 	require.Error(suite.T(), err, "it failed")
-	require.Equal(suite.T(), 1, fakeLdap.DialURLCallCount())
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "DialURL", 1)
+
+}
+
+func (suite *LdapHandlerTestSuite) TestConnectSuccess() {
+	suite.mockLdap.EXPECT().DialURL("ldap://example.com").Return(nil)
+	suite.mockLdap.EXPECT().StartTLS(&tls.Config{InsecureSkipVerify: true}).Return(nil)
+	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=com", "readonly").Return(nil)
+	suite.mockLdap.EXPECT().CloseConn().Return()
+
+	err := suite.ldapHandler.Connect()
+	require.NoError(suite.T(), err)
+
+	assert.Eventually(suite.T(), func() bool {
+		return suite.loghook.LastLevel == zerolog.InfoLevel && suite.loghook.LastMsg == "Connected to LDAP Server"
+	}, time.Second*3, time.Millisecond*100)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "DialURL", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "StartTLS", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "CloseConn", 1)
+
+}
+
+func (suite *LdapHandlerTestSuite) TestAuthUserSuccess() {
+	suite.mockLdap.EXPECT().Bind("CN=bob,DC=example,DC=com", "pass").Return(nil)
+	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=com", "readonly").Return(nil)
+
+	success, err := suite.ldapHandler.AuthUser("CN=bob,DC=example,DC=com", "pass")
+	require.NoError(suite.T(), err)
+	require.True(suite.T(), success)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
+
+}
+
+func (suite *LdapHandlerTestSuite) TestAuthUserFail() {
+	suite.mockLdap.EXPECT().Bind("CN=bob,DC=example,DC=com", "pass").Return(errors.New("Bad Auth"))
+	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=com", "readonly").Return(nil)
+
+	success, err := suite.ldapHandler.AuthUser("CN=bob,DC=example,DC=com", "pass")
+	require.Error(suite.T(), err, "Bad Auth")
+	require.False(suite.T(), success)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
+
 }
 
 func TestDatabaseSuite(t *testing.T) {

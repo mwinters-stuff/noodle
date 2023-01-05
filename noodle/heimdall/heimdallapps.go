@@ -12,6 +12,8 @@ var (
 	NewHeimdall = NewHeimdallImpl
 )
 
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name Heimdall
+
 type Heimdall interface {
 	UpdateFromServer() error
 	FindApps(search string) ([]jsontypes.App, error)

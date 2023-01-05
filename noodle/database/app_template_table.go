@@ -34,7 +34,7 @@ var (
 	NewAppTemplateTable = NewAppTemplateTableImpl
 )
 
-//counterfeiter:generate . AppTemplateTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name AppTemplateTable
 type AppTemplateTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

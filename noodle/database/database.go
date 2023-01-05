@@ -9,7 +9,7 @@ import (
 )
 
 // You only need **one** of these per package!
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name Database
 
 const DATABASE_VERSION int = 1
 

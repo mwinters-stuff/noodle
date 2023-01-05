@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/h2non/gock"
-	mocks "github.com/mwinters-stuff/noodle/internal/mocks/app"
 	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
 	"github.com/stretchr/testify/require"

@@ -8,16 +8,15 @@ import (
 	"github.com/go-ldap/ldap/v3"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
-	v3shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
+	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
 )
 
 var (
 	NewLdapHandler = NewLdapHandlerImpl
 )
 
-//go:generate go run github.com/maxbrunsfeld/counterfeiter/v6 -generate
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name LdapHandler
 
-//counterfeiter:generate . LdapHandler
 type LdapHandler interface {
 	Connect() error
 	GetUsers() ([]database.User, error)
@@ -34,13 +33,12 @@ type LdapHandler interface {
 
 type LdapHandlerImpl struct {
 	appConfig yamltypes.AppConfig
-	conn      *ldap.Conn
-	ldapShim  v3shim.V3
+	ldapShim  ldap_shim.LdapShim
 }
 
 // GetUserByDN implements LdapAuth
 func (i *LdapHandlerImpl) GetUserByDN(dn string) (database.User, error) {
-	searchRequest := ldap.NewSearchRequest(
+	searchRequest := i.ldapShim.NewSearchRequest(
 		dn,
 		ldap.ScopeWholeSubtree,
 		ldap.NeverDerefAliases,
@@ -52,7 +50,7 @@ func (i *LdapHandlerImpl) GetUserByDN(dn string) (database.User, error) {
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return database.User{}, err
@@ -78,22 +76,22 @@ func (i *LdapHandlerImpl) GetUserByDN(dn string) (database.User, error) {
 // Conn	ect implements LdapAuth
 func (i *LdapHandlerImpl) Connect() error {
 	var err error
-	i.conn, err = i.ldapShim.DialURL(i.appConfig.Ldap.URL)
+	err = i.ldapShim.DialURL(i.appConfig.Ldap.URL)
 	if err != nil {
 		Logger.Error().Err(err)
 		return err
 	}
-	defer i.conn.Close()
+	defer i.ldapShim.CloseConn()
 
 	// Reconnect with TLS
-	err = i.conn.StartTLS(&tls.Config{InsecureSkipVerify: true})
+	err = i.ldapShim.StartTLS(&tls.Config{InsecureSkipVerify: true})
 	if err != nil {
 		Logger.Error().Err(err)
 		return err
 	}
 
 	// First bind with a read only user
-	err = i.conn.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
+	err = i.ldapShim.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
 	if err != nil {
 		Logger.Error().Err(err)
 		return err
@@ -106,13 +104,13 @@ func (i *LdapHandlerImpl) Connect() error {
 
 // AuthUser implements LdapAuth
 func (i *LdapHandlerImpl) AuthUser(userdn string, password string) (bool, error) {
-	err := i.conn.Bind(userdn, password)
-	success := err != nil
+	err := i.ldapShim.Bind(userdn, password)
+	success := err == nil
 	if err != nil {
 		Logger.Error().Err(err)
 	}
 
-	nexterr := i.conn.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
+	nexterr := i.ldapShim.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
 	if nexterr != nil {
 		Logger.Error().Err(nexterr)
 	}
@@ -133,7 +131,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGr
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return nil, err
@@ -179,7 +177,7 @@ func (i *LdapHandlerImpl) GetGroups() ([]database.Group, error) {
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return nil, err
@@ -210,7 +208,7 @@ func (i *LdapHandlerImpl) GetUser(username string) (database.User, error) {
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return database.User{}, err
@@ -247,7 +245,7 @@ func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]database.UserGrou
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return nil, err
@@ -283,7 +281,7 @@ func (i *LdapHandlerImpl) GetUsers() ([]database.User, error) {
 		nil,
 	)
 
-	sr, err := i.conn.Search(searchRequest)
+	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
 		return nil, err
@@ -306,7 +304,7 @@ func (i *LdapHandlerImpl) GetUsers() ([]database.User, error) {
 	return results, nil
 }
 
-func NewLdapHandlerImpl(ldapShim v3shim.V3, appConfig yamltypes.AppConfig) LdapHandler {
+func NewLdapHandlerImpl(ldapShim ldap_shim.LdapShim, appConfig yamltypes.AppConfig) LdapHandler {
 	return &LdapHandlerImpl{
 		appConfig: appConfig,
 		ldapShim:  ldapShim,

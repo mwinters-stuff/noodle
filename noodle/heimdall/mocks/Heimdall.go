@@ -20,40 +20,49 @@ func (_m *Heimdall) EXPECT() *Heimdall_Expecter {
 	return &Heimdall_Expecter{mock: &_m.Mock}
 }
 
-// FindApp provides a mock function with given fields: search
-func (_m *Heimdall) FindApp(search string) jsontypes.App {
+// FindApps provides a mock function with given fields: search
+func (_m *Heimdall) FindApps(search string) ([]jsontypes.App, error) {
 	ret := _m.Called(search)
 
-	var r0 jsontypes.App
-	if rf, ok := ret.Get(0).(func(string) jsontypes.App); ok {
+	var r0 []jsontypes.App
+	if rf, ok := ret.Get(0).(func(string) []jsontypes.App); ok {
 		r0 = rf(search)
 	} else {
-		r0 = ret.Get(0).(jsontypes.App)
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]jsontypes.App)
+		}
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(search)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// Heimdall_FindApp_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindApp'
-type Heimdall_FindApp_Call struct {
+// Heimdall_FindApps_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'FindApps'
+type Heimdall_FindApps_Call struct {
 	*mock.Call
 }
 
-// FindApp is a helper method to define mock.On call
+// FindApps is a helper method to define mock.On call
 //   - search string
-func (_e *Heimdall_Expecter) FindApp(search interface{}) *Heimdall_FindApp_Call {
-	return &Heimdall_FindApp_Call{Call: _e.mock.On("FindApp", search)}
+func (_e *Heimdall_Expecter) FindApps(search interface{}) *Heimdall_FindApps_Call {
+	return &Heimdall_FindApps_Call{Call: _e.mock.On("FindApps", search)}
 }
 
-func (_c *Heimdall_FindApp_Call) Run(run func(search string)) *Heimdall_FindApp_Call {
+func (_c *Heimdall_FindApps_Call) Run(run func(search string)) *Heimdall_FindApps_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(string))
 	})
 	return _c
 }
 
-func (_c *Heimdall_FindApp_Call) Return(_a0 jsontypes.App) *Heimdall_FindApp_Call {
-	_c.Call.Return(_a0)
+func (_c *Heimdall_FindApps_Call) Return(_a0 []jsontypes.App, _a1 error) *Heimdall_FindApps_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
