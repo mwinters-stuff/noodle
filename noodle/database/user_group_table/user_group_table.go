@@ -1,4 +1,4 @@
-package database
+package user_group_table
 
 type UserGroup struct {
 	GroupDN   string

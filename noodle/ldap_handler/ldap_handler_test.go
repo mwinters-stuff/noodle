@@ -9,6 +9,8 @@ import (
 
 	"github.com/go-ldap/ldap/v3"
 	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/database/group_table"
+	"github.com/mwinters-stuff/noodle/noodle/database/user_group_table"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/mwinters-stuff/noodle/package-shims/ldap/mocks"
@@ -311,7 +313,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 	suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001)
 	suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
 
-	group := database.Group{
+	group := group_table.Group{
 		DN:          "cn=admins,ou=groups,dc=example,dc=nz",
 		DisplayName: "Admins",
 	}
@@ -320,7 +322,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), usergroups)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []user_group_table.UserGroup{
 		{
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			UserDN:    "uid=testuser1,ou=people,dc=example,dc=nz",
@@ -386,7 +388,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroups() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), groups)
 
-	require.ElementsMatch(suite.T(), []database.Group{
+	require.ElementsMatch(suite.T(), []group_table.Group{
 		{
 			DN:          "cn=admins,ou=groups,dc=example,dc=nz",
 			DisplayName: "Admins",
@@ -509,7 +511,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserGroups() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), usergroups)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []user_group_table.UserGroup{
 		{
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			UserDN:    "uid=testuser1,ou=people,dc=example,dc=nz",

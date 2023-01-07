@@ -88,7 +88,7 @@ ldap:
 	db := database.NewDatabase(config)
 	assert.NotNil(suite.T(), db)
 
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 	err := db.Connect()
 	require.Error(suite.T(), err)
 
@@ -103,7 +103,7 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
@@ -115,7 +115,7 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -156,7 +156,7 @@ func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -197,7 +197,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -238,7 +238,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	dbf.QueryMock(suite.script, "SELECT version FROM version",
 		pgproto3.Bind{
@@ -279,7 +279,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestUpgrade() {
-	dbf.SetupConnectionSteps(suite.script)
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -294,6 +294,45 @@ func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 		return suite.loghook.LastLevel == zerolog.InfoLevel && suite.loghook.LastMsg == fmt.Sprintf("upgrade database from %d to %d", database.DATABASE_VERSION-1, database.DATABASE_VERSION)
 	}, time.Second, time.Millisecond*100)
 
+}
+
+func (suite *DatabaseTestInitialSuite) TestCreate() {
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
+
+	// // application_template
+	dbf.CreateAppTemplateTableSteps(suite.T(), suite.script)
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	err = db.Create()
+	require.NoError(suite.T(), err)
+
+}
+
+func (suite *DatabaseTestInitialSuite) TestDrop() {
+	dbf.SetupConnectionSteps(suite.T(), suite.script)
+
+	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Query","String":"\nDROP TABLE version;\nDROP TABLE application_template;\n"}`,
+		`B {"Type":"CommandComplete","CommandTag":"DROP TABLE"}`,
+		`B {"Type":"CommandComplete","CommandTag":"DROP TABLE"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	err = db.Drop()
+	require.NoError(suite.T(), err)
 }
 
 func TestDatabaseSuite(t *testing.T) {

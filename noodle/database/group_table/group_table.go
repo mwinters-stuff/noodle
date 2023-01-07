@@ -1,4 +1,4 @@
-package database
+package group_table
 
 type Group struct {
 	DN          string

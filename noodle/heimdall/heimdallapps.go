@@ -1,6 +1,7 @@
 package heimdall
 
 import (
+	"errors"
 	"io"
 	"net/http"
 
@@ -40,14 +41,10 @@ func (i *HeimdallImpl) UpdateFromServer() error {
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
-		return err
+		return errors.New(response.Status)
 	}
 
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		Logger.Error().Msgf("UpdateFromServer: %s", err.Error())
-		return err
-	}
+	body, _ := io.ReadAll(response.Body)
 
 	data, err := jsontypes.UnmarshalAppList(body)
 	if err != nil {
