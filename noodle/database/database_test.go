@@ -3,13 +3,11 @@ package database_test
 import (
 	"fmt"
 	"net"
-	"strconv"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgmock"
-	"github.com/jackc/pgproto3/v2"
-	dbf "github.com/mwinters-stuff/noodle/internal/database"
+	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/rs/zerolog"
@@ -33,24 +31,27 @@ func (h *databaseLogHook) Run(e *zerolog.Event, l zerolog.Level, m string) {
 
 type DatabaseTestInitialSuite struct {
 	suite.Suite
-	loghook   databaseLogHook
-	script    *pgmock.Script
-	listener  net.Listener
-	appConfig yamltypes.AppConfig
+	loghook       databaseLogHook
+	script        *pgmock.Script
+	listener      net.Listener
+	appConfig     yamltypes.AppConfig
+	testFunctions database_test.TestFunctions
 }
 
 func (suite *DatabaseTestInitialSuite) SetupSuite() {
+
 	suite.loghook = databaseLogHook{}
 	database.Logger = log.Hook(&suite.loghook)
 
 }
 
 func (suite *DatabaseTestInitialSuite) SetupTest() {
+	suite.testFunctions = database_test.TestFunctions{}
 	suite.script = &pgmock.Script{
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 
-	suite.listener, suite.appConfig = dbf.TestStepsRunner(suite.T(), suite.script)
+	suite.listener, suite.appConfig = suite.testFunctions.TestStepsRunner(suite.T(), suite.script)
 }
 
 func (suite *DatabaseTestInitialSuite) TearDownTest() {
@@ -88,7 +89,7 @@ ldap:
 	db := database.NewDatabase(config)
 	assert.NotNil(suite.T(), db)
 
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 	err := db.Connect()
 	require.Error(suite.T(), err)
 
@@ -103,7 +104,7 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
@@ -114,29 +115,27 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 
 }
 
-func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+func (suite *DatabaseTestInitialSuite) TestGetVersion() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.QueryMock(suite.script, "SELECT version FROM version",
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: nil,
-			Parameters:           nil,
-			ResultFormatCodes:    []int16{1},
-		},
-		[]pgproto3.FieldDescription{
-			{
-				Name:                 []byte("version"),
-				TableOID:             0,
-				TableAttributeNumber: 1,
-				DataTypeOID:          23,
-				DataTypeSize:         4,
-				TypeModifier:         -1,
-				Format:               0,
-			},
-		},
-		[][]byte{[]byte("1")})
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000001"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -156,28 +155,26 @@ func (suite *DatabaseTestInitialSuite) TestGetVersionMocked() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.QueryMock(suite.script, "SELECT version FROM version",
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: nil,
-			Parameters:           nil,
-			ResultFormatCodes:    []int16{1},
-		},
-		[]pgproto3.FieldDescription{
-			{
-				Name:                 []byte("version"),
-				TableOID:             0,
-				TableAttributeNumber: 1,
-				DataTypeOID:          23,
-				DataTypeSize:         4,
-				TypeModifier:         -1,
-				Format:               0,
-			},
-		},
-		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION))})
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		fmt.Sprintf(`B {"Type":"DataRow","Values":[{"binary":"%08x"}]}`, database.DATABASE_VERSION),
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -197,28 +194,26 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.QueryMock(suite.script, "SELECT version FROM version",
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: nil,
-			Parameters:           nil,
-			ResultFormatCodes:    []int16{1},
-		},
-		[]pgproto3.FieldDescription{
-			{
-				Name:                 []byte("version"),
-				TableOID:             0,
-				TableAttributeNumber: 1,
-				DataTypeOID:          23,
-				DataTypeSize:         4,
-				TypeModifier:         -1,
-				Format:               0,
-			},
-		},
-		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION - 1))})
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		fmt.Sprintf(`B {"Type":"DataRow","Values":[{"binary":"%08x"}]}`, database.DATABASE_VERSION-1),
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -238,28 +233,26 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.QueryMock(suite.script, "SELECT version FROM version",
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: nil,
-			Parameters:           nil,
-			ResultFormatCodes:    []int16{1},
-		},
-		[]pgproto3.FieldDescription{
-			{
-				Name:                 []byte("version"),
-				TableOID:             0,
-				TableAttributeNumber: 1,
-				DataTypeOID:          23,
-				DataTypeSize:         4,
-				TypeModifier:         -1,
-				Format:               0,
-			},
-		},
-		[][]byte{[]byte(strconv.Itoa(database.DATABASE_VERSION + 1))})
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		fmt.Sprintf(`B {"Type":"DataRow","Values":[{"binary":"%08x"}]}`, database.DATABASE_VERSION+1),
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -279,7 +272,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestUpgrade() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -297,11 +290,15 @@ func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestCreate() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	// // application_template
-	dbf.CreateAppTemplateTableSteps(suite.T(), suite.script)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		fmt.Sprintf(`F {"Type":"Query","String":"\nCREATE TABLE IF NOT EXISTS version (version int);\nDELETE FROM version;\nINSERT INTO version (version) values (%d)\n"}`, database.DATABASE_VERSION),
+		`B {"Type":"CommandComplete","CommandTag":"CREATE TABLE"}`,
+		`B {"Type":"CommandComplete","CommandTag":"DELETE 0"}`,
+		`B {"Type":"CommandComplete","CommandTag":"INSERT 0 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
@@ -315,11 +312,10 @@ func (suite *DatabaseTestInitialSuite) TestCreate() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestDrop() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
-		`F {"Type":"Query","String":"\nDROP TABLE version;\nDROP TABLE application_template;\n"}`,
-		`B {"Type":"CommandComplete","CommandTag":"DROP TABLE"}`,
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Query","String":"DROP TABLE version"}`,
 		`B {"Type":"CommandComplete","CommandTag":"DROP TABLE"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})

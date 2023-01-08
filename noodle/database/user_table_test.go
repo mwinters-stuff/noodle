@@ -5,8 +5,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgmock"
-	"github.com/jackc/pgproto3/v2"
-	dbf "github.com/mwinters-stuff/noodle/internal/database"
+	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/stretchr/testify/assert"
@@ -16,20 +15,22 @@ import (
 
 type UserTableTestSuite struct {
 	suite.Suite
-	script    *pgmock.Script
-	listener  net.Listener
-	appConfig yamltypes.AppConfig
+	script        *pgmock.Script
+	listener      net.Listener
+	appConfig     yamltypes.AppConfig
+	testFunctions database_test.TestFunctions
 }
 
 func (suite *UserTableTestSuite) SetupSuite() {
 }
 
 func (suite *UserTableTestSuite) SetupTest() {
+	suite.testFunctions = database_test.TestFunctions{}
 	suite.script = &pgmock.Script{
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 
-	suite.listener, suite.appConfig = dbf.TestStepsRunner(suite.T(), suite.script)
+	suite.listener, suite.appConfig = suite.testFunctions.TestStepsRunner(suite.T(), suite.script)
 }
 
 func (suite *UserTableTestSuite) TearDownTest() {
@@ -37,9 +38,9 @@ func (suite *UserTableTestSuite) TearDownTest() {
 }
 
 func (suite *UserTableTestSuite) TestCreateTable() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.CreateUserTableSteps(suite.T(), suite.script)
+	suite.testFunctions.CreateUserTableSteps(suite.T(), suite.script)
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -55,10 +56,38 @@ func (suite *UserTableTestSuite) TestCreateTable() {
 
 }
 
-func (suite *UserTableTestSuite) TestInsert() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+func (suite *UserTableTestSuite) TestUpgrade() {
+	table := database.NewUserTable(nil)
+	require.Panics(suite.T(), func() { table.Upgrade(0, 0) })
+}
 
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+func (suite *UserTableTestSuite) TestDrop() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Query","String":"DROP TABLE users"}`,
+		`B {"Type":"CommandComplete","CommandTag":"DROP TABLE"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	table := database.NewUserTable(db)
+
+	err = table.Drop()
+	require.NoError(suite.T(), err)
+
+}
+
+func (suite *UserTableTestSuite) TestInsert() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_?","Query":"INSERT INTO users (username, dn, displayname, givenname, surname, uidnumber) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_?"}`,
 		`F {"Type":"Sync"}`,
@@ -97,13 +126,14 @@ func (suite *UserTableTestSuite) TestInsert() {
 
 	err = table.Insert(&user)
 	require.NoError(suite.T(), err)
+	require.Greater(suite.T(), user.Id, 0)
 
 }
 
 func (suite *UserTableTestSuite) TestUpdate() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_?","Query":"UPDATE users SET username = $2,dn = $3,displayname = $4,givenname = $5,surname = $6,uidnumber = $7 WHERE id = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_?"}`,
 		`F {"Type":"Sync"}`,
@@ -145,9 +175,9 @@ func (suite *UserTableTestSuite) TestUpdate() {
 }
 
 func (suite *UserTableTestSuite) TestDelete() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_?","Query":"DELETE FROM users WHERE id = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_?"}`,
 		`F {"Type":"Sync"}`,
@@ -189,8 +219,8 @@ func (suite *UserTableTestSuite) TestDelete() {
 }
 
 func (suite *UserTableTestSuite) TestGetAll() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_?","Query":"SELECT * FROM users ORDER BY username","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_?"}`,
 		`F {"Type":"Sync"}`,
@@ -246,8 +276,8 @@ func (suite *UserTableTestSuite) TestGetAll() {
 }
 
 func (suite *UserTableTestSuite) TestGetAllError() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_?","Query":"SELECT * FROM users ORDER BY username","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_?"}`,
 		`F {"Type":"Sync"}`,
@@ -281,8 +311,8 @@ func (suite *UserTableTestSuite) TestGetAllError() {
 }
 
 func (suite *UserTableTestSuite) TestGetDN() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE dn = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
@@ -326,8 +356,8 @@ func (suite *UserTableTestSuite) TestGetDN() {
 }
 
 func (suite *UserTableTestSuite) TestGetDNError() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE dn = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
@@ -361,8 +391,8 @@ func (suite *UserTableTestSuite) TestGetDNError() {
 }
 
 func (suite *UserTableTestSuite) TestGetID() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE id = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
@@ -406,8 +436,8 @@ func (suite *UserTableTestSuite) TestGetID() {
 }
 
 func (suite *UserTableTestSuite) TestGetIDError() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
-	dbf.LoadDatabaseSteps(suite.T(), suite.script, []string{
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE id = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
@@ -441,84 +471,27 @@ func (suite *UserTableTestSuite) TestGetIDError() {
 
 }
 
-// func (suite *UserTableTestSuite) TestSearchQueryFails() {
-// 	dbf.SetupConnectionSteps(suite.T(), suite.script)
-
-// 	dbf.SelectMock(suite.script, `SELECT * FROM application_template WHERE name LIKE $1`,
-// 		pgproto3.ParameterDescription{ParameterOIDs: []uint32{25}},
-// 		[]pgproto3.FieldDescription{
-// 			{Name: []byte("appid"), TableOID: 16666, TableAttributeNumber: 1, DataTypeOID: 1042, DataTypeSize: -1, TypeModifier: 44, Format: 0},
-// 			{Name: []byte("name"), TableOID: 16666, TableAttributeNumber: 2, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 24, Format: 0},
-// 			{Name: []byte("website"), TableOID: 16666, TableAttributeNumber: 3, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 104, Format: 0},
-// 			{Name: []byte("license"), TableOID: 16666, TableAttributeNumber: 4, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 104, Format: 0},
-// 			{Name: []byte("description"), TableOID: 16666, TableAttributeNumber: 5, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 1004, Format: 0},
-// 			{Name: []byte("enhanced"), TableOID: 16666, TableAttributeNumber: 6, DataTypeOID: 16, DataTypeSize: 1, TypeModifier: -1, Format: 0},
-// 			{Name: []byte("tilebackground"), TableOID: 16666, TableAttributeNumber: 7, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 260, Format: 0},
-// 			{Name: []byte("icon"), TableOID: 16666, TableAttributeNumber: 8, DataTypeOID: 1043, DataTypeSize: -1, TypeModifier: 260, Format: 0},
-// 			{Name: []byte("sha"), TableOID: 16666, TableAttributeNumber: 9, DataTypeOID: 1042, DataTypeSize: -1, TypeModifier: 44, Format: 0},
-// 		},
-
-// 		pgproto3.Bind{
-// 			DestinationPortal:    "",
-// 			PreparedStatement:    "stmtcache_?",
-// 			ParameterFormatCodes: []int16{0},
-// 			Parameters: [][]byte{
-// 				[]byte("%AdGuard%"),
-// 			},
-// 			ResultFormatCodes: []int16{0, 0, 0, 0, 0, 1, 0, 0, 0},
-// 		},
-// 		[][]byte{
-// 			[]byte("140902edbcc424c09736af28ab2de604c3bde936"),
-// 			[]byte("AdGuard Home"),
-// 			[]byte("https://github.com/AdguardTeam/AdGuardHome"),
-// 			[]byte("GNU General Public License v3.0 only"),
-// 			[]byte("AdGuard Home is a network-wide software for blocking ads."),
-// 			{1},
-// 			[]byte("light"),
-// 			[]byte("adguardhome.png"),
-// 			[]byte("ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7"),
-// 		},
-// 	)
-
-// 	db := database.NewDatabase(suite.appConfig)
-// 	assert.NotNil(suite.T(), db)
-
-// 	err := db.Connect()
-// 	require.NoError(suite.T(), err)
-
-// 	table := app_template_table.NewAppTemplateTable(db)
-
-// 	db.Close()
-
-// 	result, err := table.Search(`A`)
-// 	require.Error(suite.T(), err)
-// 	require.Nil(suite.T(), result)
-
-// }
-
 func (suite *UserTableTestSuite) TestExistsDN() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM users WHERE dn = $1`,
-		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
-		[]pgproto3.FieldDescription{
-			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
-		},
-
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: []int16{0},
-			Parameters: [][]byte{
-				[]byte("CN=bob,DC=example,DC=nz"),
-			},
-			ResultFormatCodes: []int16{1},
-		},
-		[][]byte{
-			[]byte("0000000000000001"),
-		},
-	)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT COUNT(*) FROM users WHERE dn = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[25]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[0],"Parameters":[{"text":"CN=jack,DC=example,DC=nz"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"0000000000000001"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
@@ -528,34 +501,32 @@ func (suite *UserTableTestSuite) TestExistsDN() {
 
 	table := database.NewUserTable(db)
 
-	result, err := table.ExistsDN("CN=bob,DC=example,DC=nz")
+	result, err := table.ExistsDN("CN=jack,DC=example,DC=nz")
 	require.NoError(suite.T(), err)
 	require.True(suite.T(), result)
 }
 
 func (suite *UserTableTestSuite) TestExistsUsername() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM users WHERE username = $1`,
-		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
-		[]pgproto3.FieldDescription{
-			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
-		},
-
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: []int16{0},
-			Parameters: [][]byte{
-				[]byte("bob"),
-			},
-			ResultFormatCodes: []int16{1},
-		},
-		[][]byte{
-			[]byte("0000000000000001"),
-		},
-	)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT COUNT(*) FROM users WHERE username = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[25]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[0],"Parameters":[{"text":"bobe"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"0000000000000001"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
@@ -565,33 +536,32 @@ func (suite *UserTableTestSuite) TestExistsUsername() {
 
 	table := database.NewUserTable(db)
 
-	result, err := table.ExistsUsername("bob")
+	result, err := table.ExistsUsername("bobe")
 	require.NoError(suite.T(), err)
 	require.True(suite.T(), result)
 }
 
 func (suite *UserTableTestSuite) TestExistsNotDN() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM users WHERE dn = $1`,
-		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
-		[]pgproto3.FieldDescription{
-			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
-		},
-
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: []int16{0},
-			Parameters: [][]byte{
-				[]byte("CN=bob,DC=example,DC=nz"),
-			},
-			ResultFormatCodes: []int16{1},
-		},
-		[][]byte{
-			[]byte("0000000000000000"),
-		},
-	)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT COUNT(*) FROM users WHERE dn = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[25]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[0],"Parameters":[{"text":"CN=bob,DC=example,DC=nz"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"0000000000000000"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
@@ -608,27 +578,26 @@ func (suite *UserTableTestSuite) TestExistsNotDN() {
 }
 
 func (suite *UserTableTestSuite) TestNotExistsUsername() {
-	dbf.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	dbf.SelectMock(suite.script, `SELECT COUNT(*) FROM users WHERE username = $1`,
-		pgproto3.ParameterDescription{ParameterOIDs: []uint32{1042}},
-		[]pgproto3.FieldDescription{
-			{Name: []byte("count"), TableOID: 0, TableAttributeNumber: 0, DataTypeOID: 20, DataTypeSize: 8, TypeModifier: -1, Format: 0},
-		},
-
-		pgproto3.Bind{
-			DestinationPortal:    "",
-			PreparedStatement:    "stmtcache_?",
-			ParameterFormatCodes: []int16{0},
-			Parameters: [][]byte{
-				[]byte("bob"),
-			},
-			ResultFormatCodes: []int16{1},
-		},
-		[][]byte{
-			[]byte("0000000000000000"),
-		},
-	)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT COUNT(*) FROM users WHERE username = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[25]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[0],"Parameters":[{"text":"bob"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"count","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":20,"DataTypeSize":8,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"0000000000000000"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)

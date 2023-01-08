@@ -93,6 +93,42 @@ func (_c *UserTable_Delete_Call) Return(_a0 error) *UserTable_Delete_Call {
 	return _c
 }
 
+// Drop provides a mock function with given fields:
+func (_m *UserTable) Drop() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UserTable_Drop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Drop'
+type UserTable_Drop_Call struct {
+	*mock.Call
+}
+
+// Drop is a helper method to define mock.On call
+func (_e *UserTable_Expecter) Drop() *UserTable_Drop_Call {
+	return &UserTable_Drop_Call{Call: _e.mock.On("Drop")}
+}
+
+func (_c *UserTable_Drop_Call) Run(run func()) *UserTable_Drop_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *UserTable_Drop_Call) Return(_a0 error) *UserTable_Drop_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // ExistsDN provides a mock function with given fields: dn
 func (_m *UserTable) ExistsDN(dn string) (bool, error) {
 	ret := _m.Called(dn)

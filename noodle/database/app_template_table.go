@@ -21,6 +21,7 @@ const appTemplateTableCreate = `CREATE TABLE IF NOT EXISTS application_template 
   icon VARCHAR(256), 
   sha CHAR(40)
 )`
+const appTemplateTableDrop = `DROP TABLE application_template`
 const appTemplateTableIndexCreate = `CREATE INDEX IF NOT EXISTS application_template_idx1 ON application_template(name)`
 const appTemplateTableInsertRow = `INSERT INTO application_template (appid,name,website,license,description,enhanced,tilebackground,icon,sha) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 const appTemplateTableUpdateRow = `UPDATE application_template SET name = $2,website = $3,license = $4,description = $5,enhanced = $6,tilebackground = $7,icon = $8,sha = $9 WHERE appid = $1`
@@ -36,6 +37,7 @@ var (
 type AppTemplateTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error
+	Drop() error
 
 	Insert(app jsontypes.App) error
 	Update(app jsontypes.App) error
@@ -47,6 +49,12 @@ type AppTemplateTable interface {
 
 type AppTemplateTableImpl struct {
 	database Database
+}
+
+// Drop implements AppTemplateTable
+func (i *AppTemplateTableImpl) Drop() error {
+	_, err := i.database.Pool().Exec(context.Background(), appTemplateTableDrop)
+	return err
 }
 
 // Exists implements AppTemplateTable
@@ -95,7 +103,7 @@ func (i *AppTemplateTableImpl) Search(search string) ([]jsontypes.App, error) {
 	results := []jsontypes.App{}
 	var appid, sha pgtype.Text
 	var name, website, license, description, tilebackground, icon string
-	var enhanced string
+	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{&appid,
 		&name,
 		&website,
@@ -112,7 +120,7 @@ func (i *AppTemplateTableImpl) Search(search string) ([]jsontypes.App, error) {
 			Website:        website,
 			License:        license,
 			Description:    description,
-			Enhanced:       enhanced == "\x01",
+			Enhanced:       enhanced,
 			TileBackground: tilebackground,
 			Icon:           icon,
 			SHA:            sha.String,

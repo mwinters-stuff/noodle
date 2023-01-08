@@ -7,7 +7,7 @@ import (
 )
 
 type User struct {
-	Id          int // database id
+	Id          int
 	Username    string
 	DN          string
 	DisplayName string
@@ -27,6 +27,7 @@ const userTableCreate = `CREATE TABLE IF NOT EXISTS users (
 )`
 
 const userTableInsertRow = `INSERT INTO users (username, dn, displayname, givenname, surname, uidnumber) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
+const userTableDrop = `DROP TABLE users`
 const userTableUpdateRow = `UPDATE users SET username = $2,dn = $3,displayname = $4,givenname = $5,surname = $6,uidnumber = $7 WHERE id = $1`
 const userTableDeleteRow = `DELETE FROM users WHERE id = $1`
 const userTableQueryRowsDN = `SELECT * FROM users WHERE dn = $1`
@@ -43,6 +44,7 @@ var (
 type UserTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error
+	Drop() error
 
 	Insert(user *User) error
 	Update(user User) error
@@ -57,6 +59,12 @@ type UserTable interface {
 
 type UserTableImpl struct {
 	database Database
+}
+
+// Drop implements UserTable
+func (i *UserTableImpl) Drop() error {
+	_, err := i.database.Pool().Exec(context.Background(), userTableDrop)
+	return err
 }
 
 // GetAll implements UserTable

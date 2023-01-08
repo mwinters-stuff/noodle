@@ -126,12 +126,7 @@ INSERT INTO version (version) values (%d)
 // Drop implements Database
 func (i *DatabaseImpl) Drop() error {
 	Logger.Info().Msg("dropping database")
-	_, err := i.pool.Exec(context.Background(),
-		`
-DROP TABLE version;
-DROP TABLE application_template;
-DROP TABLE users;
-`)
+	_, err := i.pool.Exec(context.Background(), `DROP TABLE version`)
 
 	return err
 

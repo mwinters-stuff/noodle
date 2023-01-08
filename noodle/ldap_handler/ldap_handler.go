@@ -7,8 +7,6 @@ import (
 
 	"github.com/go-ldap/ldap/v3"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/database/group_table"
-	"github.com/mwinters-stuff/noodle/noodle/database/user_group_table"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
 )
@@ -22,13 +20,13 @@ var (
 type LdapHandler interface {
 	Connect() error
 	GetUsers() ([]database.User, error)
-	GetGroups() ([]group_table.Group, error)
+	GetGroups() ([]database.Group, error)
 
 	GetUser(username string) (database.User, error)
 	GetUserByDN(dn string) (database.User, error)
-	GetUserGroups(database.User) ([]user_group_table.UserGroup, error)
+	GetUserGroups(database.User) ([]database.UserGroup, error)
 
-	GetGroupUsers(group_table.Group) ([]user_group_table.UserGroup, error)
+	GetGroupUsers(database.Group) ([]database.UserGroup, error)
 
 	AuthUser(userdn, password string) (bool, error)
 }
@@ -120,7 +118,7 @@ func (i *LdapHandlerImpl) AuthUser(userdn string, password string) (bool, error)
 }
 
 // GetGroupUsers implements LdapAuth
-func (i *LdapHandlerImpl) GetGroupUsers(group group_table.Group) ([]user_group_table.UserGroup, error) {
+func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGroup, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		group.DN,
 		ldap.ScopeWholeSubtree,
@@ -146,7 +144,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group group_table.Group) ([]user_group_t
 
 	users := sr.Entries[0].GetAttributeValues(i.appConfig.Ldap.GroupMemberAttribute)
 
-	var results []user_group_table.UserGroup
+	var results []database.UserGroup
 	for _, e := range users {
 		user, err := i.GetUserByDN(e)
 		if err != nil {
@@ -154,9 +152,9 @@ func (i *LdapHandlerImpl) GetGroupUsers(group group_table.Group) ([]user_group_t
 			return nil, err
 		}
 
-		results = append(results, user_group_table.UserGroup{
+		results = append(results, database.UserGroup{
 			GroupDN:   group.DN,
-			GroupName: group.DisplayName,
+			GroupName: group.Name,
 			UserDN:    e,
 			UserName:  user.Username,
 		})
@@ -166,7 +164,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group group_table.Group) ([]user_group_t
 }
 
 // GetGroups implements LdapAuth
-func (i *LdapHandlerImpl) GetGroups() ([]group_table.Group, error) {
+func (i *LdapHandlerImpl) GetGroups() ([]database.Group, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -185,11 +183,11 @@ func (i *LdapHandlerImpl) GetGroups() ([]group_table.Group, error) {
 		return nil, err
 	}
 
-	var results []group_table.Group
+	var results []database.Group
 	for _, e := range sr.Entries {
-		results = append(results, group_table.Group{
-			DN:          e.DN,
-			DisplayName: e.GetAttributeValue(i.appConfig.Ldap.GroupNameAttribute),
+		results = append(results, database.Group{
+			DN:   e.DN,
+			Name: e.GetAttributeValue(i.appConfig.Ldap.GroupNameAttribute),
 		})
 	}
 
@@ -234,7 +232,7 @@ func (i *LdapHandlerImpl) GetUser(username string) (database.User, error) {
 }
 
 // GetUserGroups implements LdapAuth
-func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]user_group_table.UserGroup, error) {
+func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]database.UserGroup, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -253,10 +251,10 @@ func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]user_group_table.
 		return nil, err
 	}
 
-	var results []user_group_table.UserGroup
+	var results []database.UserGroup
 	for _, e := range sr.Entries {
 
-		results = append(results, user_group_table.UserGroup{
+		results = append(results, database.UserGroup{
 
 			UserName:  user.DisplayName,
 			UserDN:    user.DN,

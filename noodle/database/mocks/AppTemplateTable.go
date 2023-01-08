@@ -93,6 +93,42 @@ func (_c *AppTemplateTable_Delete_Call) Return(_a0 error) *AppTemplateTable_Dele
 	return _c
 }
 
+// Drop provides a mock function with given fields:
+func (_m *AppTemplateTable) Drop() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// AppTemplateTable_Drop_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Drop'
+type AppTemplateTable_Drop_Call struct {
+	*mock.Call
+}
+
+// Drop is a helper method to define mock.On call
+func (_e *AppTemplateTable_Expecter) Drop() *AppTemplateTable_Drop_Call {
+	return &AppTemplateTable_Drop_Call{Call: _e.mock.On("Drop")}
+}
+
+func (_c *AppTemplateTable_Drop_Call) Run(run func()) *AppTemplateTable_Drop_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *AppTemplateTable_Drop_Call) Return(_a0 error) *AppTemplateTable_Drop_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // Exists provides a mock function with given fields: appid
 func (_m *AppTemplateTable) Exists(appid string) (bool, error) {
 	ret := _m.Called(appid)

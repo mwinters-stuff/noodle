@@ -6,7 +6,6 @@ import (
 
 	"github.com/h2non/gock"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	database1 "github.com/mwinters-stuff/noodle/noodle/database/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
