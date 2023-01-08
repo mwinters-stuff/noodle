@@ -314,3 +314,11 @@ func (i *TestFunctions) CreateApplicationsTableSteps(t *testing.T, script *pgmoc
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 	})
 }
+
+func (i *TestFunctions) CreateTabsTableSteps(t *testing.T, script *pgmock.Script) {
+	i.LoadDatabaseSteps(t, script, []string{
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS tabs (\n  id SERIAL PRIMARY KEY,\n  Label VARCHAR(200) UNIQUE,\n  DisplayOrder int\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
+}

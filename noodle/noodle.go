@@ -148,6 +148,27 @@ func (*NoodleImpl) Run() {
 
 	table5.Insert(&application)
 
+	table6 := database.NewTabTable(db)
+
+	table6.Drop()
+	table6.Create()
+
+	tab1 := database.Tab{
+		Label:        "Servers",
+		DisplayOrder: 1,
+	}
+	tab2 := database.Tab{
+		Label:        "Apps",
+		DisplayOrder: 2,
+	}
+
+	table6.Insert(&tab1)
+	table6.Insert(&tab2)
+
+	table6.Update(tab1)
+	// table6.Delete(tab1)
+	table6.GetAll()
+
 	// fmt.Printf("%#v\n", application)
 
 	// table5.Update(application)
