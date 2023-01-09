@@ -85,7 +85,7 @@ func (suite *ApplicationsTableTestSuite) TestDrop() {
 
 }
 
-func (suite *ApplicationsTableTestSuite) TestInsert() {
+func (suite *ApplicationsTableTestSuite) TestInsertWithTemplate() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
@@ -122,6 +122,52 @@ func (suite *ApplicationsTableTestSuite) TestInsert() {
 		Enhanced:       true,
 		TileBackground: "light",
 		Icon:           "adguardhome.png",
+	}
+
+	table := database.NewApplicationsTable(db)
+
+	err = table.Insert(&application)
+	require.NoError(suite.T(), err)
+	require.Greater(suite.T(), application.Id, 0)
+
+}
+
+func (suite *ApplicationsTableTestSuite) TestInsertWithOutTemplate() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_4","Query":"INSERT INTO applications (name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_4"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[1043,1043,1043,1043,16,1043,1043]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":27006,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_4","ParameterFormatCodes":[0,0,0,0,1,0,0],"Parameters":[{"text":"Adminer"},{"text":"https://www.adminer.org"},{"text":"Apache License 2.0"},{"text":"Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP. Conversely to phpMyAdmin, it consists of a single file ready to deploy to the target server. Adminer is available for MySQL, MariaDB, PostgreSQL, SQLite, MS SQL, Oracle, Firebird, SimpleDB, Elasticsearch and MongoDB."},{"binary":"00"},{"text":"light"},{"text":"adminer.svg"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":27006,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000002"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"INSERT 0 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+	application := database.Application{
+		Name:           "Adminer",
+		Website:        "https://www.adminer.org",
+		License:        "Apache License 2.0",
+		Description:    "Adminer (formerly phpMinAdmin) is a full-featured database management tool written in PHP. Conversely to phpMyAdmin, it consists of a single file ready to deploy to the target server. Adminer is available for MySQL, MariaDB, PostgreSQL, SQLite, MS SQL, Oracle, Firebird, SimpleDB, Elasticsearch and MongoDB.",
+		Enhanced:       false,
+		TileBackground: "light",
+		Icon:           "adminer.svg",
 	}
 
 	table := database.NewApplicationsTable(db)
@@ -336,16 +382,18 @@ func (suite *ApplicationsTableTestSuite) TestGetAppTemplateID() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.Equal(suite.T(), database.Application{
-		Id:             1,
-		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
-		Name:           "AdGuard Home",
-		Website:        "https://github.com/AdguardTeam/AdGuardHome",
-		License:        "GNU General Public License v3.0 only",
-		Description:    "AdGuard Home is a network-wide software for blocking ads.",
-		Enhanced:       true,
-		TileBackground: "light",
-		Icon:           "adguardhome.png",
+	require.ElementsMatch(suite.T(), []database.Application{
+		{
+			Id:             1,
+			TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
+			Name:           "AdGuard Home",
+			Website:        "https://github.com/AdguardTeam/AdGuardHome",
+			License:        "GNU General Public License v3.0 only",
+			Description:    "AdGuard Home is a network-wide software for blocking ads.",
+			Enhanced:       true,
+			TileBackground: "light",
+			Icon:           "adguardhome.png",
+		},
 	}, result)
 
 }

@@ -309,7 +309,7 @@ func (i *TestFunctions) CreateUserGroupsTableSteps(t *testing.T, script *pgmock.
 
 func (i *TestFunctions) CreateApplicationsTableSteps(t *testing.T, script *pgmock.Script) {
 	i.LoadDatabaseSteps(t, script, []string{
-		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS applications (\n  id SERIAL PRIMARY KEY,\n  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE CASCADE,\n  name VARCHAR(20),\n  website VARCHAR(100),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256)\n)"}`,
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS applications (\n  id SERIAL PRIMARY KEY,\n  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE SET NULL,\n  name VARCHAR(20),\n  website VARCHAR(100),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256)\n)"}`,
 		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 	})
@@ -318,6 +318,30 @@ func (i *TestFunctions) CreateApplicationsTableSteps(t *testing.T, script *pgmoc
 func (i *TestFunctions) CreateTabsTableSteps(t *testing.T, script *pgmock.Script) {
 	i.LoadDatabaseSteps(t, script, []string{
 		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS tabs (\n  id SERIAL PRIMARY KEY,\n  Label VARCHAR(200) UNIQUE,\n  DisplayOrder int\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
+}
+
+func (i *TestFunctions) CreateApplicationTabsTableSteps(t *testing.T, script *pgmock.Script) {
+	i.LoadDatabaseSteps(t, script, []string{
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS application_tabs (\n  id SERIAL PRIMARY KEY,\n  tabid int REFERENCES tabs(id) ON DELETE CASCADE,\n  applicationid int REFERENCES applications(id) ON DELETE CASCADE,\n  displayorder int\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
+}
+
+func (i *TestFunctions) CreateGroupApplicationsTableSteps(t *testing.T, script *pgmock.Script) {
+	i.LoadDatabaseSteps(t, script, []string{
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS group_applications (\n  id SERIAL PRIMARY KEY,\n  groupid int REFERENCES groups(id) ON DELETE CASCADE,\n  applicationid int REFERENCES applications(id) ON DELETE CASCADE\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
+}
+
+func (i *TestFunctions) CreateUserApplicationsTableSteps(t *testing.T, script *pgmock.Script) {
+	i.LoadDatabaseSteps(t, script, []string{
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS user_applications (\n  id SERIAL PRIMARY KEY,\n  userid int REFERENCES users(id) ON DELETE CASCADE,\n  applicationid int REFERENCES applications(id) ON DELETE CASCADE\n)"}`,
 		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 	})

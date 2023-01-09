@@ -21,7 +21,7 @@ type Application struct {
 
 const applicationsTableCreate = `CREATE TABLE IF NOT EXISTS applications (
   id SERIAL PRIMARY KEY,
-  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE CASCADE,
+  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE SET NULL,
   name VARCHAR(20),
   website VARCHAR(100),
   license VARCHAR(100),
@@ -31,7 +31,8 @@ const applicationsTableCreate = `CREATE TABLE IF NOT EXISTS applications (
   icon VARCHAR(256)
 )`
 const applicationsTableDrop = `DROP TABLE applications`
-const applicationsTableInsertRow = `INSERT INTO applications (template_appid,name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+const applicationsTableInsertRow1 = `INSERT INTO applications (template_appid,name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+const applicationsTableInsertRow2 = `INSERT INTO applications (name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 const applicationsTableUpdateRow = `UPDATE applications SET template_appid = $2, name = $3, website = $4, license = $5, description = $6, enhanced = $7,tilebackground = $8,icon = $9 WHERE id = $1`
 const applicationsTableDeleteRow = `DELETE FROM applications WHERE id = $1`
 const applicationsTableQueryID = `SELECT * FROM applications WHERE id = $1`
@@ -131,17 +132,30 @@ func (i *ApplicationsTableImpl) Delete(app Application) error {
 
 // Insert implements ApplicationsTable
 func (i *ApplicationsTableImpl) Insert(app *Application) error {
-	err := i.database.Pool().QueryRow(context.Background(), applicationsTableInsertRow,
-		app.TemplateAppid,
-		app.Name,
-		app.Website,
-		app.License,
-		app.Description,
-		app.Enhanced,
-		app.TileBackground,
-		app.Icon,
-	).Scan(&app.Id)
-	return err
+	if app.TemplateAppid != "" {
+		return i.database.Pool().QueryRow(context.Background(), applicationsTableInsertRow1,
+			app.TemplateAppid,
+			app.Name,
+			app.Website,
+			app.License,
+			app.Description,
+			app.Enhanced,
+			app.TileBackground,
+			app.Icon,
+		).Scan(&app.Id)
+
+	} else {
+		return i.database.Pool().QueryRow(context.Background(), applicationsTableInsertRow2,
+			app.Name,
+			app.Website,
+			app.License,
+			app.Description,
+			app.Enhanced,
+			app.TileBackground,
+			app.Icon,
+		).Scan(&app.Id)
+	}
+
 }
 
 // Update implements ApplicationsTable
