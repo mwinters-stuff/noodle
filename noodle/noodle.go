@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
 
 // const pgport = 15432
@@ -64,7 +64,7 @@ func (*NoodleImpl) Run() {
 	table1.Drop()
 	table1.Create()
 
-	appTemplate1 := jsontypes.App{
+	appTemplate1 := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -77,7 +77,7 @@ func (*NoodleImpl) Run() {
 	}
 	table1.Insert(appTemplate1)
 
-	appTemplate2 := jsontypes.App{
+	appTemplate2 := models.ApplicationTemplate{
 		Appid:          "653caf8bdf55d6a99d77ceacd79f622353cd821a",
 		Name:           "Adminer",
 		Website:        "https://www.adminer.org",
@@ -93,7 +93,7 @@ func (*NoodleImpl) Run() {
 	table4 := database.NewUserGroupsTable(db)
 	table4.Drop()
 
-	table2 := database.NewUserTable(db)
+	table2 := database.NewUserTable(db, database.NewTableCache())
 	table2.Drop()
 	table2.Create()
 
@@ -103,22 +103,22 @@ func (*NoodleImpl) Run() {
 
 	table4.Create()
 
-	user1 := database.User{
+	user1 := models.User{
 		DN:          "CN=bob,DC=example,DC=nz",
 		Username:    "bobe",
 		DisplayName: "bobextample",
 		Surname:     "Extample",
 		GivenName:   "Bob",
-		UidNumber:   1001,
+		UIDNumber:   1001,
 	}
 
-	user2 := database.User{
+	user2 := models.User{
 		DN:          "CN=jack,DC=example,DC=nz",
 		Username:    "jack",
 		DisplayName: "Jack M",
 		Surname:     "M",
 		GivenName:   "Jack",
-		UidNumber:   1002,
+		UIDNumber:   1002,
 	}
 
 	table2.Insert(&user1)
@@ -137,15 +137,15 @@ func (*NoodleImpl) Run() {
 
 	usergroup1 := database.UserGroup{
 		GroupId: group1.Id,
-		UserId:  user1.Id,
+		UserId:  user1.ID,
 	}
 	usergroup2 := database.UserGroup{
 		GroupId: group1.Id,
-		UserId:  user2.Id,
+		UserId:  user2.ID,
 	}
 	usergroup3 := database.UserGroup{
 		GroupId: group2.Id,
-		UserId:  user1.Id,
+		UserId:  user1.ID,
 	}
 
 	table4.Insert(&usergroup1)
@@ -154,7 +154,7 @@ func (*NoodleImpl) Run() {
 
 	//	table4.Delete(usergroup2)
 
-	table4.GetUser(user2.Id)
+	table4.GetUser(user2.ID)
 
 	table5.Create()
 
@@ -251,12 +251,12 @@ func (*NoodleImpl) Run() {
 	table9.Create()
 
 	ua1 := database.UserApplications{
-		UserId:        user1.Id,
+		UserId:        user1.ID,
 		ApplicationId: application1.Id,
 	}
 
 	ua2 := database.UserApplications{
-		UserId:        user1.Id,
+		UserId:        user1.ID,
 		ApplicationId: application2.Id,
 	}
 

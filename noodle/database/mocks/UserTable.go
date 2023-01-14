@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	database "github.com/mwinters-stuff/noodle/noodle/database"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +57,11 @@ func (_c *UserTable_Create_Call) Return(_a0 error) *UserTable_Create_Call {
 }
 
 // Delete provides a mock function with given fields: user
-func (_m *UserTable) Delete(user database.User) error {
+func (_m *UserTable) Delete(user models.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.User) error); ok {
+	if rf, ok := ret.Get(0).(func(models.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -76,14 +76,14 @@ type UserTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - user database.User
+//   - user models.User
 func (_e *UserTable_Expecter) Delete(user interface{}) *UserTable_Delete_Call {
 	return &UserTable_Delete_Call{Call: _e.mock.On("Delete", user)}
 }
 
-func (_c *UserTable_Delete_Call) Run(run func(user database.User)) *UserTable_Delete_Call {
+func (_c *UserTable_Delete_Call) Run(run func(user models.User)) *UserTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.User))
+		run(args[0].(models.User))
 	})
 	return _c
 }
@@ -218,15 +218,15 @@ func (_c *UserTable_ExistsUsername_Call) Return(_a0 bool, _a1 error) *UserTable_
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *UserTable) GetAll() ([]database.User, error) {
+func (_m *UserTable) GetAll() ([]models.User, error) {
 	ret := _m.Called()
 
-	var r0 []database.User
-	if rf, ok := ret.Get(0).(func() []database.User); ok {
+	var r0 []models.User
+	if rf, ok := ret.Get(0).(func() []models.User); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.User)
+			r0 = ret.Get(0).([]models.User)
 		}
 	}
 
@@ -257,20 +257,20 @@ func (_c *UserTable_GetAll_Call) Run(run func()) *UserTable_GetAll_Call {
 	return _c
 }
 
-func (_c *UserTable_GetAll_Call) Return(_a0 []database.User, _a1 error) *UserTable_GetAll_Call {
+func (_c *UserTable_GetAll_Call) Return(_a0 []models.User, _a1 error) *UserTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetDN provides a mock function with given fields: dn
-func (_m *UserTable) GetDN(dn string) (database.User, error) {
+func (_m *UserTable) GetDN(dn string) (models.User, error) {
 	ret := _m.Called(dn)
 
-	var r0 database.User
-	if rf, ok := ret.Get(0).(func(string) database.User); ok {
+	var r0 models.User
+	if rf, ok := ret.Get(0).(func(string) models.User); ok {
 		r0 = rf(dn)
 	} else {
-		r0 = ret.Get(0).(database.User)
+		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
@@ -301,20 +301,20 @@ func (_c *UserTable_GetDN_Call) Run(run func(dn string)) *UserTable_GetDN_Call {
 	return _c
 }
 
-func (_c *UserTable_GetDN_Call) Return(_a0 database.User, _a1 error) *UserTable_GetDN_Call {
+func (_c *UserTable_GetDN_Call) Return(_a0 models.User, _a1 error) *UserTable_GetDN_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetID provides a mock function with given fields: id
-func (_m *UserTable) GetID(id int) (database.User, error) {
+func (_m *UserTable) GetID(id int) (models.User, error) {
 	ret := _m.Called(id)
 
-	var r0 database.User
-	if rf, ok := ret.Get(0).(func(int) database.User); ok {
+	var r0 models.User
+	if rf, ok := ret.Get(0).(func(int) models.User); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(database.User)
+		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
@@ -345,17 +345,17 @@ func (_c *UserTable_GetID_Call) Run(run func(id int)) *UserTable_GetID_Call {
 	return _c
 }
 
-func (_c *UserTable_GetID_Call) Return(_a0 database.User, _a1 error) *UserTable_GetID_Call {
+func (_c *UserTable_GetID_Call) Return(_a0 models.User, _a1 error) *UserTable_GetID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // Insert provides a mock function with given fields: user
-func (_m *UserTable) Insert(user *database.User) error {
+func (_m *UserTable) Insert(user *models.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*database.User) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -370,14 +370,14 @@ type UserTable_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - user *database.User
+//   - user *models.User
 func (_e *UserTable_Expecter) Insert(user interface{}) *UserTable_Insert_Call {
 	return &UserTable_Insert_Call{Call: _e.mock.On("Insert", user)}
 }
 
-func (_c *UserTable_Insert_Call) Run(run func(user *database.User)) *UserTable_Insert_Call {
+func (_c *UserTable_Insert_Call) Run(run func(user *models.User)) *UserTable_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*database.User))
+		run(args[0].(*models.User))
 	})
 	return _c
 }
@@ -388,11 +388,11 @@ func (_c *UserTable_Insert_Call) Return(_a0 error) *UserTable_Insert_Call {
 }
 
 // Update provides a mock function with given fields: user
-func (_m *UserTable) Update(user database.User) error {
+func (_m *UserTable) Update(user models.User) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.User) error); ok {
+	if rf, ok := ret.Get(0).(func(models.User) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -407,14 +407,14 @@ type UserTable_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - user database.User
+//   - user models.User
 func (_e *UserTable_Expecter) Update(user interface{}) *UserTable_Update_Call {
 	return &UserTable_Update_Call{Call: _e.mock.On("Update", user)}
 }
 
-func (_c *UserTable_Update_Call) Run(run func(user database.User)) *UserTable_Update_Call {
+func (_c *UserTable_Update_Call) Run(run func(user models.User)) *UserTable_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.User))
+		run(args[0].(models.User))
 	})
 	return _c
 }

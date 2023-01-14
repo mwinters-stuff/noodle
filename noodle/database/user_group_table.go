@@ -4,17 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type UserGroup struct {
-	Id        int
-	GroupId   int
-	GroupDN   string
-	GroupName string
-	UserId    int
-	UserDN    string
-	UserName  string
-}
 
 const userGroupTableCreate = `CREATE TABLE IF NOT EXISTS user_groups (
   id SERIAL PRIMARY KEY,
@@ -40,17 +31,18 @@ type UserGroupsTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(user *UserGroup) error
-	Delete(user UserGroup) error
+	Insert(user *models.UserGroup) error
+	Delete(user models.UserGroup) error
 
-	GetGroup(groupid int) ([]UserGroup, error)
-	GetUser(userid int) ([]UserGroup, error)
-	GetAll() ([]UserGroup, error)
-	Exists(groupid, userid int) (bool, error)
+	GetGroup(groupid int64) ([]models.UserGroup, error)
+	GetUser(userid int64) ([]models.UserGroup, error)
+	GetAll() ([]models.UserGroup, error)
+	Exists(groupid, userid int64) (bool, error)
 }
 
 type UserGroupsTableImpl struct {
 	database Database
+	cache    TableCache[models.UserGroup]
 }
 
 // Create implements UserGroupsTable
@@ -60,8 +52,9 @@ func (i *UserGroupsTableImpl) Create() error {
 }
 
 // Delete implements UserGroupsTable
-func (i *UserGroupsTableImpl) Delete(usergroup UserGroup) error {
-	_, err := i.database.Pool().Exec(context.Background(), userGroupTableDeleteRow, usergroup.Id)
+func (i *UserGroupsTableImpl) Delete(usergroup models.UserGroup) error {
+	i.cache.DeleteIndex(usergroup.ID)
+	_, err := i.database.Pool().Exec(context.Background(), userGroupTableDeleteRow, usergroup.ID)
 	return err
 
 }
@@ -73,14 +66,21 @@ func (i *UserGroupsTableImpl) Drop() error {
 }
 
 // Exists implements UserGroupsTable
-func (i *UserGroupsTableImpl) Exists(groupid int, userid int) (bool, error) {
+func (i *UserGroupsTableImpl) Exists(groupid int64, userid int64) (bool, error) {
+	ok, _ := i.cache.Find((func(index int64, value models.UserGroup) bool {
+		return value.GroupID == groupid && value.UserID == userid
+	}))
+	if ok {
+		return true, nil
+	}
+
 	var found int
 	err := i.database.Pool().QueryRow(context.Background(), userGroupTableQueryExists, groupid, userid).Scan(&found)
 	return found > 0, err
 
 }
 
-func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]UserGroup, error) {
+func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]models.UserGroup, error) {
 	var rows pgx.Rows
 	var err error
 	if value == nil {
@@ -91,9 +91,9 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]UserGroup, er
 	if err != nil {
 		return nil, err
 	}
-	results := []UserGroup{}
+	results := []models.UserGroup{}
 
-	var id, groupid, userid int
+	var id, groupid, userid int64
 	var groupdn, groupname, userdn, username string
 	_, err = pgx.ForEachRow(rows, []any{
 		&id,
@@ -105,15 +105,17 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]UserGroup, er
 		&username,
 	}, func() error {
 
-		results = append(results, UserGroup{
-			Id:        id,
-			GroupId:   groupid,
-			UserId:    userid,
+		usergroup := models.UserGroup{
+			ID:        id,
+			GroupID:   groupid,
+			UserID:    userid,
 			GroupDN:   groupdn,
 			GroupName: groupname,
 			UserDN:    userdn,
 			UserName:  username,
-		})
+		}
+		results = append(results, usergroup)
+		i.cache.Add(id, usergroup)
 		return nil
 	})
 
@@ -121,26 +123,41 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]UserGroup, er
 }
 
 // GetAll implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetAll() ([]UserGroup, error) {
+func (i *UserGroupsTableImpl) GetAll() ([]models.UserGroup, error) {
 	return i.getQuery(userGroupTableQueryAll, nil)
 }
 
 // GetGroup implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetGroup(groupid int) ([]UserGroup, error) {
+func (i *UserGroupsTableImpl) GetGroup(groupid int64) ([]models.UserGroup, error) {
+	ok, usergroups := i.cache.FindAll((func(index int64, value models.UserGroup) bool {
+		return value.GroupID == groupid
+	}))
+	if ok {
+		return usergroups, nil
+	}
+
 	return i.getQuery(userGroupTableQueryRowsGroup, groupid)
 }
 
 // GetUser implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetUser(userid int) ([]UserGroup, error) {
+func (i *UserGroupsTableImpl) GetUser(userid int64) ([]models.UserGroup, error) {
+	ok, usergroups := i.cache.FindAll((func(index int64, value models.UserGroup) bool {
+		return value.UserID == userid
+	}))
+	if ok {
+		return usergroups, nil
+	}
+
 	return i.getQuery(userGroupTableQueryRowsUser, userid)
 }
 
 // Insert implements UserGroupsTable
-func (i *UserGroupsTableImpl) Insert(usergroup *UserGroup) error {
+func (i *UserGroupsTableImpl) Insert(usergroup *models.UserGroup) error {
 	err := i.database.Pool().QueryRow(context.Background(), userGroupTableInsertRow,
-		usergroup.GroupId,
-		usergroup.UserId,
-	).Scan(&usergroup.Id)
+		usergroup.GroupID,
+		usergroup.UserID,
+	).Scan(&usergroup.ID)
+	i.cache.Add(usergroup.ID, *usergroup)
 	return err
 }
 
@@ -149,8 +166,9 @@ func (*UserGroupsTableImpl) Upgrade(old_version int, new_verison int) error {
 	panic("unimplemented")
 }
 
-func NewUserGroupsTableImpl(database Database) UserGroupsTable {
+func NewUserGroupsTableImpl(database Database, cache TableCache[models.UserGroup]) UserGroupsTable {
 	return &UserGroupsTableImpl{
 		database: database,
+		cache:    cache,
 	}
 }

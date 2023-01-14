@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	jsontypes "github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -21,15 +21,15 @@ func (_m *Heimdall) EXPECT() *Heimdall_Expecter {
 }
 
 // FindApps provides a mock function with given fields: search
-func (_m *Heimdall) FindApps(search string) ([]jsontypes.App, error) {
+func (_m *Heimdall) FindApps(search string) ([]models.ApplicationTemplate, error) {
 	ret := _m.Called(search)
 
-	var r0 []jsontypes.App
-	if rf, ok := ret.Get(0).(func(string) []jsontypes.App); ok {
+	var r0 []models.ApplicationTemplate
+	if rf, ok := ret.Get(0).(func(string) []models.ApplicationTemplate); ok {
 		r0 = rf(search)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]jsontypes.App)
+			r0 = ret.Get(0).([]models.ApplicationTemplate)
 		}
 	}
 
@@ -61,7 +61,7 @@ func (_c *Heimdall_FindApps_Call) Run(run func(search string)) *Heimdall_FindApp
 	return _c
 }
 
-func (_c *Heimdall_FindApps_Call) Return(_a0 []jsontypes.App, _a1 error) *Heimdall_FindApps_Call {
+func (_c *Heimdall_FindApps_Call) Return(_a0 []models.ApplicationTemplate, _a1 error) *Heimdall_FindApps_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

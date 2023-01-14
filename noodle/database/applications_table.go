@@ -5,19 +5,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type Application struct {
-	Id             int
-	TemplateAppid  string
-	Name           string
-	Website        string
-	License        string
-	Description    string
-	Enhanced       bool
-	TileBackground string
-	Icon           string
-}
 
 const applicationsTableCreate = `CREATE TABLE IF NOT EXISTS applications (
   id SERIAL PRIMARY KEY,
@@ -48,26 +37,26 @@ type ApplicationsTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(app *Application) error
-	Update(app Application) error
-	Delete(app Application) error
+	Insert(app *models.Application) error
+	Update(app models.Application) error
+	Delete(app models.Application) error
 
-	GetID(id int) (Application, error)
-	GetTemplateID(appid string) ([]Application, error)
+	GetID(id int) (models.Application, error)
+	GetTemplateID(appid string) ([]models.Application, error)
 }
 
 type ApplicationsTableImpl struct {
 	database Database
 }
 
-func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]Application, error) {
+func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]models.Application, error) {
 	rows, err := i.database.Pool().Query(context.Background(), query, value)
 	if err != nil {
 		return nil, err
 	}
-	results := []Application{}
+	results := []models.Application{}
 
-	var id int
+	var id int64
 	var templateappid pgtype.Text
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -82,8 +71,8 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]Application
 		&icon,
 	}, func() error {
 
-		results = append(results, Application{
-			Id:             id,
+		results = append(results, models.Application{
+			ID:             id,
 			TemplateAppid:  templateappid.String,
 			Name:           name,
 			Website:        website,
@@ -99,16 +88,16 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]Application
 }
 
 // GetID implements ApplicationsTable
-func (i *ApplicationsTableImpl) GetID(id int) (Application, error) {
+func (i *ApplicationsTableImpl) GetID(id int) (models.Application, error) {
 	result, err := i.getQuery(applicationsTableQueryID, id)
 	if err != nil {
-		return Application{}, err
+		return models.Application{}, err
 	}
 	return result[0], nil
 }
 
 // GetTemplateID implements ApplicationsTable
-func (i *ApplicationsTableImpl) GetTemplateID(appid string) ([]Application, error) {
+func (i *ApplicationsTableImpl) GetTemplateID(appid string) ([]models.Application, error) {
 	return i.getQuery(applicationsTableQueryTemplateID, appid)
 }
 
@@ -125,13 +114,13 @@ func (i *ApplicationsTableImpl) Create() error {
 }
 
 // Delete implements ApplicationsTable
-func (i *ApplicationsTableImpl) Delete(app Application) error {
-	_, err := i.database.Pool().Exec(context.Background(), applicationsTableDeleteRow, app.Id)
+func (i *ApplicationsTableImpl) Delete(app models.Application) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationsTableDeleteRow, app.ID)
 	return err
 }
 
 // Insert implements ApplicationsTable
-func (i *ApplicationsTableImpl) Insert(app *Application) error {
+func (i *ApplicationsTableImpl) Insert(app *models.Application) error {
 	if app.TemplateAppid != "" {
 		return i.database.Pool().QueryRow(context.Background(), applicationsTableInsertRow1,
 			app.TemplateAppid,
@@ -142,7 +131,7 @@ func (i *ApplicationsTableImpl) Insert(app *Application) error {
 			app.Enhanced,
 			app.TileBackground,
 			app.Icon,
-		).Scan(&app.Id)
+		).Scan(&app.ID)
 
 	} else {
 		return i.database.Pool().QueryRow(context.Background(), applicationsTableInsertRow2,
@@ -153,15 +142,15 @@ func (i *ApplicationsTableImpl) Insert(app *Application) error {
 			app.Enhanced,
 			app.TileBackground,
 			app.Icon,
-		).Scan(&app.Id)
+		).Scan(&app.ID)
 	}
 
 }
 
 // Update implements ApplicationsTable
-func (i *ApplicationsTableImpl) Update(app Application) error {
+func (i *ApplicationsTableImpl) Update(app models.Application) error {
 	_, err := i.database.Pool().Exec(context.Background(), applicationsTableUpdateRow,
-		app.Id,
+		app.ID,
 		app.TemplateAppid,
 		app.Name,
 		app.Website,

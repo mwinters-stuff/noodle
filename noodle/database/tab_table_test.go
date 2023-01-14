@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -114,7 +115,7 @@ func (suite *TabTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	tab1 := database.Tab{
+	tab1 := models.Tab{
 		Label:        "Servers",
 		DisplayOrder: 1,
 	}
@@ -123,7 +124,7 @@ func (suite *TabTableTestSuite) TestInsert() {
 
 	err = table.Insert(&tab1)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), tab1.Id, 0)
+	require.Greater(suite.T(), tab1.ID, int64(0))
 
 }
 
@@ -154,8 +155,8 @@ func (suite *TabTableTestSuite) TestUpdate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	tab1 := database.Tab{
-		Id:           1,
+	tab1 := models.Tab{
+		ID:           1,
 		Label:        "Servers",
 		DisplayOrder: 1,
 	}
@@ -193,8 +194,8 @@ func (suite *TabTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	tab1 := database.Tab{
-		Id:           1,
+	tab1 := models.Tab{
+		ID:           1,
 		Label:        "Servers",
 		DisplayOrder: 1,
 	}
@@ -238,14 +239,14 @@ func (suite *TabTableTestSuite) TestGetAll() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.Tab{
+	require.ElementsMatch(suite.T(), []models.Tab{
 		{
-			Id:           1,
+			ID:           1,
 			Label:        "Servers",
 			DisplayOrder: 1,
 		},
 		{
-			Id:           2,
+			ID:           2,
 			Label:        "Apps",
 			DisplayOrder: 2,
 		},

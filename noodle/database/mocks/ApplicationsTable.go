@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	database "github.com/mwinters-stuff/noodle/noodle/database"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +57,11 @@ func (_c *ApplicationsTable_Create_Call) Return(_a0 error) *ApplicationsTable_Cr
 }
 
 // Delete provides a mock function with given fields: app
-func (_m *ApplicationsTable) Delete(app database.Application) error {
+func (_m *ApplicationsTable) Delete(app models.Application) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.Application) error); ok {
+	if rf, ok := ret.Get(0).(func(models.Application) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -76,14 +76,14 @@ type ApplicationsTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - app database.Application
+//   - app models.Application
 func (_e *ApplicationsTable_Expecter) Delete(app interface{}) *ApplicationsTable_Delete_Call {
 	return &ApplicationsTable_Delete_Call{Call: _e.mock.On("Delete", app)}
 }
 
-func (_c *ApplicationsTable_Delete_Call) Run(run func(app database.Application)) *ApplicationsTable_Delete_Call {
+func (_c *ApplicationsTable_Delete_Call) Run(run func(app models.Application)) *ApplicationsTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.Application))
+		run(args[0].(models.Application))
 	})
 	return _c
 }
@@ -130,14 +130,14 @@ func (_c *ApplicationsTable_Drop_Call) Return(_a0 error) *ApplicationsTable_Drop
 }
 
 // GetID provides a mock function with given fields: id
-func (_m *ApplicationsTable) GetID(id int) (database.Application, error) {
+func (_m *ApplicationsTable) GetID(id int) (models.Application, error) {
 	ret := _m.Called(id)
 
-	var r0 database.Application
-	if rf, ok := ret.Get(0).(func(int) database.Application); ok {
+	var r0 models.Application
+	if rf, ok := ret.Get(0).(func(int) models.Application); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(database.Application)
+		r0 = ret.Get(0).(models.Application)
 	}
 
 	var r1 error
@@ -168,21 +168,21 @@ func (_c *ApplicationsTable_GetID_Call) Run(run func(id int)) *ApplicationsTable
 	return _c
 }
 
-func (_c *ApplicationsTable_GetID_Call) Return(_a0 database.Application, _a1 error) *ApplicationsTable_GetID_Call {
+func (_c *ApplicationsTable_GetID_Call) Return(_a0 models.Application, _a1 error) *ApplicationsTable_GetID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetTemplateID provides a mock function with given fields: appid
-func (_m *ApplicationsTable) GetTemplateID(appid string) ([]database.Application, error) {
+func (_m *ApplicationsTable) GetTemplateID(appid string) ([]models.Application, error) {
 	ret := _m.Called(appid)
 
-	var r0 []database.Application
-	if rf, ok := ret.Get(0).(func(string) []database.Application); ok {
+	var r0 []models.Application
+	if rf, ok := ret.Get(0).(func(string) []models.Application); ok {
 		r0 = rf(appid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.Application)
+			r0 = ret.Get(0).([]models.Application)
 		}
 	}
 
@@ -214,17 +214,17 @@ func (_c *ApplicationsTable_GetTemplateID_Call) Run(run func(appid string)) *App
 	return _c
 }
 
-func (_c *ApplicationsTable_GetTemplateID_Call) Return(_a0 []database.Application, _a1 error) *ApplicationsTable_GetTemplateID_Call {
+func (_c *ApplicationsTable_GetTemplateID_Call) Return(_a0 []models.Application, _a1 error) *ApplicationsTable_GetTemplateID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // Insert provides a mock function with given fields: app
-func (_m *ApplicationsTable) Insert(app *database.Application) error {
+func (_m *ApplicationsTable) Insert(app *models.Application) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*database.Application) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.Application) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -239,14 +239,14 @@ type ApplicationsTable_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - app *database.Application
+//   - app *models.Application
 func (_e *ApplicationsTable_Expecter) Insert(app interface{}) *ApplicationsTable_Insert_Call {
 	return &ApplicationsTable_Insert_Call{Call: _e.mock.On("Insert", app)}
 }
 
-func (_c *ApplicationsTable_Insert_Call) Run(run func(app *database.Application)) *ApplicationsTable_Insert_Call {
+func (_c *ApplicationsTable_Insert_Call) Run(run func(app *models.Application)) *ApplicationsTable_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*database.Application))
+		run(args[0].(*models.Application))
 	})
 	return _c
 }
@@ -257,11 +257,11 @@ func (_c *ApplicationsTable_Insert_Call) Return(_a0 error) *ApplicationsTable_In
 }
 
 // Update provides a mock function with given fields: app
-func (_m *ApplicationsTable) Update(app database.Application) error {
+func (_m *ApplicationsTable) Update(app models.Application) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.Application) error); ok {
+	if rf, ok := ret.Get(0).(func(models.Application) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -276,14 +276,14 @@ type ApplicationsTable_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - app database.Application
+//   - app models.Application
 func (_e *ApplicationsTable_Expecter) Update(app interface{}) *ApplicationsTable_Update_Call {
 	return &ApplicationsTable_Update_Call{Call: _e.mock.On("Update", app)}
 }
 
-func (_c *ApplicationsTable_Update_Call) Run(run func(app database.Application)) *ApplicationsTable_Update_Call {
+func (_c *ApplicationsTable_Update_Call) Run(run func(app models.Application)) *ApplicationsTable_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.Application))
+		run(args[0].(models.Application))
 	})
 	return _c
 }

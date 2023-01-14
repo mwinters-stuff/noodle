@@ -4,15 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type ApplicationTab struct {
-	Id            int
-	ApplicationId int
-	TabId         int
-	DisplayOrder  int
-	Application   Application
-}
 
 const applicationTabTableCreate = `CREATE TABLE IF NOT EXISTS application_tabs (
   id SERIAL PRIMARY KEY,
@@ -37,11 +30,11 @@ type ApplicationTabTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(tab *ApplicationTab) error
-	Update(tab ApplicationTab) error
-	Delete(tab ApplicationTab) error
+	Insert(tab *models.ApplicationTab) error
+	Update(tab models.ApplicationTab) error
+	Delete(tab models.ApplicationTab) error
 
-	GetTabApps(tabid int) ([]ApplicationTab, error)
+	GetTabApps(tabid int64) ([]models.ApplicationTab, error)
 }
 
 type ApplicationTabTableImpl struct {
@@ -56,13 +49,13 @@ func (i *ApplicationTabTableImpl) Drop() error {
 }
 
 // GetAll implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) GetTabApps(tabid int) ([]ApplicationTab, error) {
+func (i *ApplicationTabTableImpl) GetTabApps(tabid int64) ([]models.ApplicationTab, error) {
 	rows, err := i.database.Pool().Query(context.Background(), applicationTabTableQueryAll, tabid)
 	if err != nil {
 		return nil, err
 	}
-	results := []ApplicationTab{}
-	var id, displayorder, applicationid int
+	results := []models.ApplicationTab{}
+	var id, displayorder, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
@@ -78,13 +71,13 @@ func (i *ApplicationTabTableImpl) GetTabApps(tabid int) ([]ApplicationTab, error
 		&icon,
 	}, func() error {
 
-		results = append(results, ApplicationTab{
-			Id:            id,
-			TabId:         tabid,
-			ApplicationId: applicationid,
+		results = append(results, models.ApplicationTab{
+			ID:            id,
+			TabID:         tabid,
+			ApplicationID: applicationid,
 			DisplayOrder:  displayorder,
-			Application: Application{
-				Id:             applicationid,
+			Application: &models.Application{
+				ID:             applicationid,
 				Name:           name,
 				Website:        website,
 				License:        license,
@@ -108,26 +101,26 @@ func (i *ApplicationTabTableImpl) Create() error {
 }
 
 // Delete implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) Delete(tab ApplicationTab) error {
-	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableDeleteRow, tab.Id)
+func (i *ApplicationTabTableImpl) Delete(tab models.ApplicationTab) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableDeleteRow, tab.ID)
 	return err
 
 }
 
 // Insert implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) Insert(tab *ApplicationTab) error {
+func (i *ApplicationTabTableImpl) Insert(tab *models.ApplicationTab) error {
 	err := i.database.Pool().QueryRow(context.Background(), applicationTabTableInsertRow,
-		tab.TabId,
-		tab.ApplicationId,
+		tab.TabID,
+		tab.ApplicationID,
 		tab.DisplayOrder,
-	).Scan(&tab.Id)
+	).Scan(&tab.ID)
 	return err
 }
 
 // Update implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) Update(tab ApplicationTab) error {
+func (i *ApplicationTabTableImpl) Update(tab models.ApplicationTab) error {
 	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableUpdateRow,
-		tab.Id,
+		tab.ID,
 		tab.DisplayOrder,
 	)
 	return err

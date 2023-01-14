@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 
 type Heimdall interface {
 	UpdateFromServer() error
-	FindApps(search string) ([]jsontypes.App, error)
+	FindApps(search string) ([]models.ApplicationTemplate, error)
 }
 
 type HeimdallImpl struct {
@@ -25,7 +25,7 @@ type HeimdallImpl struct {
 }
 
 // FindApp implements Heimdall
-func (i *HeimdallImpl) FindApps(search string) ([]jsontypes.App, error) {
+func (i *HeimdallImpl) FindApps(search string) ([]models.ApplicationTemplate, error) {
 	table := database.NewAppTemplateTable(i.database)
 	return table.Search(search)
 }
@@ -45,8 +45,8 @@ func (i *HeimdallImpl) UpdateFromServer() error {
 	}
 
 	body, _ := io.ReadAll(response.Body)
-
-	data, err := jsontypes.UnmarshalAppList(body)
+	data := models.AppList{}
+	err = data.UnmarshalBinary(body)
 	if err != nil {
 		Logger.Error().Msgf("UpdateFromServer: %s", err.Error())
 		return err
@@ -62,9 +62,9 @@ func (i *HeimdallImpl) UpdateFromServer() error {
 		}
 
 		if found {
-			err = table.Update(app)
+			err = table.Update(*app)
 		} else {
-			err = table.Insert(app)
+			err = table.Insert(*app)
 		}
 		if err != nil {
 			Logger.Error().Msgf("UpdateFromServer: %s", err.Error())

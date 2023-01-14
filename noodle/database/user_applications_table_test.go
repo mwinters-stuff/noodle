@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -114,15 +115,15 @@ func (suite *UserApplicationsTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	ua1 := database.UserApplications{
-		UserId:        1,
-		ApplicationId: 1,
+	ua1 := models.UserApplications{
+		UserID:        1,
+		ApplicationID: 1,
 	}
 	table := database.NewUserApplicationsTable(db)
 
 	err = table.Insert(&ua1)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), ua1.Id, 0)
+	require.Greater(suite.T(), ua1.ID, int64(0))
 
 }
 
@@ -154,10 +155,10 @@ func (suite *UserApplicationsTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := database.UserApplications{
-		Id:            2,
-		UserId:        1,
-		ApplicationId: 1,
+	at1 := models.UserApplications{
+		ID:            2,
+		UserID:        1,
+		ApplicationID: 1,
 	}
 	table := database.NewUserApplicationsTable(db)
 
@@ -199,13 +200,13 @@ func (suite *UserApplicationsTableTestSuite) TestGetUserApps() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.UserApplications{
+	require.ElementsMatch(suite.T(), []models.UserApplications{
 		{
-			Id:            1,
-			UserId:        1,
-			ApplicationId: 1,
-			Application: database.Application{
-				Id:             1,
+			ID:            1,
+			UserID:        1,
+			ApplicationID: 1,
+			Application: &models.Application{
+				ID:             1,
 				TemplateAppid:  "",
 				Name:           "AdGuard Home",
 				Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -217,11 +218,11 @@ func (suite *UserApplicationsTableTestSuite) TestGetUserApps() {
 			},
 		},
 		{
-			Id:            2,
-			UserId:        1,
-			ApplicationId: 2,
-			Application: database.Application{
-				Id:             2,
+			ID:            2,
+			UserID:        1,
+			ApplicationID: 2,
+			Application: &models.Application{
+				ID:             2,
 				Name:           "Adminer",
 				TemplateAppid:  "",
 				Website:        "https://www.adminer.org",

@@ -4,13 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type Group struct {
-	Id   int
-	DN   string
-	Name string
-}
 
 const groupTableCreate = `CREATE TABLE IF NOT EXISTS groups (
   id SERIAL PRIMARY KEY,
@@ -38,13 +33,13 @@ type GroupTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(group *Group) error
-	Update(group Group) error
-	Delete(group Group) error
+	Insert(group *models.Group) error
+	Update(group models.Group) error
+	Delete(group models.Group) error
 
-	GetDN(dn string) (Group, error)
-	GetID(id int) (Group, error)
-	GetAll() ([]Group, error)
+	GetDN(dn string) (models.Group, error)
+	GetID(id int) (models.Group, error)
+	GetAll() ([]models.Group, error)
 	ExistsDN(dn string) (bool, error)
 	ExistsName(groupname string) (bool, error)
 }
@@ -61,7 +56,7 @@ func (i *GroupTableImpl) Drop() error {
 }
 
 // GetAll implements GroupTable
-func (i *GroupTableImpl) getQuery(query string, value any) ([]Group, error) {
+func (i *GroupTableImpl) getQuery(query string, value any) ([]models.Group, error) {
 	var rows pgx.Rows
 	var err error
 	if value == nil {
@@ -72,17 +67,17 @@ func (i *GroupTableImpl) getQuery(query string, value any) ([]Group, error) {
 	if err != nil {
 		return nil, err
 	}
-	results := []Group{}
+	results := []models.Group{}
 	var dn, name string
-	var id int
+	var id int64
 	_, err = pgx.ForEachRow(rows, []any{
 		&id,
 		&dn,
 		&name,
 	}, func() error {
 
-		results = append(results, Group{
-			Id:   id,
+		results = append(results, models.Group{
+			ID:   id,
 			DN:   dn,
 			Name: name,
 		})
@@ -93,26 +88,26 @@ func (i *GroupTableImpl) getQuery(query string, value any) ([]Group, error) {
 }
 
 // GetAll implements GroupTable
-func (i *GroupTableImpl) GetAll() ([]Group, error) {
+func (i *GroupTableImpl) GetAll() ([]models.Group, error) {
 	return i.getQuery(groupTableQueryAll, nil)
 }
 
 // GetDN implements GroupTable
-func (i *GroupTableImpl) GetDN(dn string) (Group, error) {
+func (i *GroupTableImpl) GetDN(dn string) (models.Group, error) {
 	rows, err := i.getQuery(groupTableQueryRowsDN, dn)
 	if err == nil {
 		return rows[0], nil
 	}
-	return Group{}, err
+	return models.Group{}, err
 }
 
 // GetID implements GroupTable
-func (i *GroupTableImpl) GetID(id int) (Group, error) {
+func (i *GroupTableImpl) GetID(id int) (models.Group, error) {
 	rows, err := i.getQuery(groupTableQueryRowsID, id)
 	if err == nil {
 		return rows[0], nil
 	}
-	return Group{}, err
+	return models.Group{}, err
 
 }
 
@@ -123,8 +118,8 @@ func (i *GroupTableImpl) Create() error {
 }
 
 // Delete implements GroupTable
-func (i *GroupTableImpl) Delete(group Group) error {
-	_, err := i.database.Pool().Exec(context.Background(), groupTableDeleteRow, group.Id)
+func (i *GroupTableImpl) Delete(group models.Group) error {
+	_, err := i.database.Pool().Exec(context.Background(), groupTableDeleteRow, group.ID)
 	return err
 
 }
@@ -143,18 +138,18 @@ func (i *GroupTableImpl) ExistsName(name string) (bool, error) {
 }
 
 // Insert implements GroupTable
-func (i *GroupTableImpl) Insert(group *Group) error {
+func (i *GroupTableImpl) Insert(group *models.Group) error {
 	err := i.database.Pool().QueryRow(context.Background(), groupTableInsertRow,
 		group.DN,
 		group.Name,
-	).Scan(&group.Id)
+	).Scan(&group.ID)
 	return err
 }
 
 // Update implements GroupTable
-func (i *GroupTableImpl) Update(group Group) error {
+func (i *GroupTableImpl) Update(group models.Group) error {
 	_, err := i.database.Pool().Exec(context.Background(), groupTableUpdateRow,
-		group.Id,
+		group.ID,
 		group.DN,
 		group.Name,
 	)

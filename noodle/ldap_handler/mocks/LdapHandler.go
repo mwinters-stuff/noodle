@@ -3,8 +3,7 @@
 package mocks
 
 import (
-	database "github.com/mwinters-stuff/noodle/noodle/database"
-
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -103,20 +102,20 @@ func (_c *LdapHandler_Connect_Call) Return(_a0 error) *LdapHandler_Connect_Call 
 }
 
 // GetGroupUsers provides a mock function with given fields: _a0
-func (_m *LdapHandler) GetGroupUsers(_a0 database.Group) ([]database.UserGroup, error) {
+func (_m *LdapHandler) GetGroupUsers(_a0 models.Group) ([]models.UserGroup, error) {
 	ret := _m.Called(_a0)
 
-	var r0 []database.UserGroup
-	if rf, ok := ret.Get(0).(func(database.Group) []database.UserGroup); ok {
+	var r0 []models.UserGroup
+	if rf, ok := ret.Get(0).(func(models.Group) []models.UserGroup); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.UserGroup)
+			r0 = ret.Get(0).([]models.UserGroup)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(database.Group) error); ok {
+	if rf, ok := ret.Get(1).(func(models.Group) error); ok {
 		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
@@ -131,33 +130,33 @@ type LdapHandler_GetGroupUsers_Call struct {
 }
 
 // GetGroupUsers is a helper method to define mock.On call
-//   - _a0 database.Group
+//   - _a0 models.Group
 func (_e *LdapHandler_Expecter) GetGroupUsers(_a0 interface{}) *LdapHandler_GetGroupUsers_Call {
 	return &LdapHandler_GetGroupUsers_Call{Call: _e.mock.On("GetGroupUsers", _a0)}
 }
 
-func (_c *LdapHandler_GetGroupUsers_Call) Run(run func(_a0 database.Group)) *LdapHandler_GetGroupUsers_Call {
+func (_c *LdapHandler_GetGroupUsers_Call) Run(run func(_a0 models.Group)) *LdapHandler_GetGroupUsers_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.Group))
+		run(args[0].(models.Group))
 	})
 	return _c
 }
 
-func (_c *LdapHandler_GetGroupUsers_Call) Return(_a0 []database.UserGroup, _a1 error) *LdapHandler_GetGroupUsers_Call {
+func (_c *LdapHandler_GetGroupUsers_Call) Return(_a0 []models.UserGroup, _a1 error) *LdapHandler_GetGroupUsers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetGroups provides a mock function with given fields:
-func (_m *LdapHandler) GetGroups() ([]database.Group, error) {
+func (_m *LdapHandler) GetGroups() ([]models.Group, error) {
 	ret := _m.Called()
 
-	var r0 []database.Group
-	if rf, ok := ret.Get(0).(func() []database.Group); ok {
+	var r0 []models.Group
+	if rf, ok := ret.Get(0).(func() []models.Group); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.Group)
+			r0 = ret.Get(0).([]models.Group)
 		}
 	}
 
@@ -188,20 +187,20 @@ func (_c *LdapHandler_GetGroups_Call) Run(run func()) *LdapHandler_GetGroups_Cal
 	return _c
 }
 
-func (_c *LdapHandler_GetGroups_Call) Return(_a0 []database.Group, _a1 error) *LdapHandler_GetGroups_Call {
+func (_c *LdapHandler_GetGroups_Call) Return(_a0 []models.Group, _a1 error) *LdapHandler_GetGroups_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUser provides a mock function with given fields: username
-func (_m *LdapHandler) GetUser(username string) (database.User, error) {
+func (_m *LdapHandler) GetUser(username string) (models.User, error) {
 	ret := _m.Called(username)
 
-	var r0 database.User
-	if rf, ok := ret.Get(0).(func(string) database.User); ok {
+	var r0 models.User
+	if rf, ok := ret.Get(0).(func(string) models.User); ok {
 		r0 = rf(username)
 	} else {
-		r0 = ret.Get(0).(database.User)
+		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
@@ -232,20 +231,20 @@ func (_c *LdapHandler_GetUser_Call) Run(run func(username string)) *LdapHandler_
 	return _c
 }
 
-func (_c *LdapHandler_GetUser_Call) Return(_a0 database.User, _a1 error) *LdapHandler_GetUser_Call {
+func (_c *LdapHandler_GetUser_Call) Return(_a0 models.User, _a1 error) *LdapHandler_GetUser_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUserByDN provides a mock function with given fields: dn
-func (_m *LdapHandler) GetUserByDN(dn string) (database.User, error) {
+func (_m *LdapHandler) GetUserByDN(dn string) (models.User, error) {
 	ret := _m.Called(dn)
 
-	var r0 database.User
-	if rf, ok := ret.Get(0).(func(string) database.User); ok {
+	var r0 models.User
+	if rf, ok := ret.Get(0).(func(string) models.User); ok {
 		r0 = rf(dn)
 	} else {
-		r0 = ret.Get(0).(database.User)
+		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
@@ -276,26 +275,26 @@ func (_c *LdapHandler_GetUserByDN_Call) Run(run func(dn string)) *LdapHandler_Ge
 	return _c
 }
 
-func (_c *LdapHandler_GetUserByDN_Call) Return(_a0 database.User, _a1 error) *LdapHandler_GetUserByDN_Call {
+func (_c *LdapHandler_GetUserByDN_Call) Return(_a0 models.User, _a1 error) *LdapHandler_GetUserByDN_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUserGroups provides a mock function with given fields: _a0
-func (_m *LdapHandler) GetUserGroups(_a0 database.User) ([]database.UserGroup, error) {
+func (_m *LdapHandler) GetUserGroups(_a0 models.User) ([]models.UserGroup, error) {
 	ret := _m.Called(_a0)
 
-	var r0 []database.UserGroup
-	if rf, ok := ret.Get(0).(func(database.User) []database.UserGroup); ok {
+	var r0 []models.UserGroup
+	if rf, ok := ret.Get(0).(func(models.User) []models.UserGroup); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.UserGroup)
+			r0 = ret.Get(0).([]models.UserGroup)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(database.User) error); ok {
+	if rf, ok := ret.Get(1).(func(models.User) error); ok {
 		r1 = rf(_a0)
 	} else {
 		r1 = ret.Error(1)
@@ -310,33 +309,33 @@ type LdapHandler_GetUserGroups_Call struct {
 }
 
 // GetUserGroups is a helper method to define mock.On call
-//   - _a0 database.User
+//   - _a0 models.User
 func (_e *LdapHandler_Expecter) GetUserGroups(_a0 interface{}) *LdapHandler_GetUserGroups_Call {
 	return &LdapHandler_GetUserGroups_Call{Call: _e.mock.On("GetUserGroups", _a0)}
 }
 
-func (_c *LdapHandler_GetUserGroups_Call) Run(run func(_a0 database.User)) *LdapHandler_GetUserGroups_Call {
+func (_c *LdapHandler_GetUserGroups_Call) Run(run func(_a0 models.User)) *LdapHandler_GetUserGroups_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.User))
+		run(args[0].(models.User))
 	})
 	return _c
 }
 
-func (_c *LdapHandler_GetUserGroups_Call) Return(_a0 []database.UserGroup, _a1 error) *LdapHandler_GetUserGroups_Call {
+func (_c *LdapHandler_GetUserGroups_Call) Return(_a0 []models.UserGroup, _a1 error) *LdapHandler_GetUserGroups_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUsers provides a mock function with given fields:
-func (_m *LdapHandler) GetUsers() ([]database.User, error) {
+func (_m *LdapHandler) GetUsers() ([]models.User, error) {
 	ret := _m.Called()
 
-	var r0 []database.User
-	if rf, ok := ret.Get(0).(func() []database.User); ok {
+	var r0 []models.User
+	if rf, ok := ret.Get(0).(func() []models.User); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.User)
+			r0 = ret.Get(0).([]models.User)
 		}
 	}
 
@@ -367,7 +366,7 @@ func (_c *LdapHandler_GetUsers_Call) Run(run func()) *LdapHandler_GetUsers_Call 
 	return _c
 }
 
-func (_c *LdapHandler_GetUsers_Call) Return(_a0 []database.User, _a1 error) *LdapHandler_GetUsers_Call {
+func (_c *LdapHandler_GetUsers_Call) Return(_a0 []models.User, _a1 error) *LdapHandler_GetUsers_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

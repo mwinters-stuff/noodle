@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -114,15 +115,15 @@ func (suite *GroupApplicationsTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	ga1 := database.GroupApplications{
-		GroupId:       2,
-		ApplicationId: 1,
+	ga1 := models.GroupApplications{
+		GroupID:       2,
+		ApplicationID: 1,
 	}
 	table := database.NewGroupApplicationsTable(db)
 
 	err = table.Insert(&ga1)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), ga1.Id, 0)
+	require.Greater(suite.T(), ga1.ID, int64(0))
 
 }
 
@@ -154,10 +155,10 @@ func (suite *GroupApplicationsTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := database.GroupApplications{
-		Id:            1,
-		GroupId:       1,
-		ApplicationId: 3,
+	at1 := models.GroupApplications{
+		ID:            1,
+		GroupID:       1,
+		ApplicationID: 3,
 	}
 	table := database.NewGroupApplicationsTable(db)
 
@@ -199,13 +200,13 @@ func (suite *GroupApplicationsTableTestSuite) TestGetGroupApps() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.GroupApplications{
+	require.ElementsMatch(suite.T(), []models.GroupApplications{
 		{
-			Id:            1,
-			GroupId:       2,
-			ApplicationId: 1,
-			Application: database.Application{
-				Id:             1,
+			ID:            1,
+			GroupID:       2,
+			ApplicationID: 1,
+			Application: &models.Application{
+				ID:             1,
 				TemplateAppid:  "",
 				Name:           "AdGuard Home",
 				Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -217,11 +218,11 @@ func (suite *GroupApplicationsTableTestSuite) TestGetGroupApps() {
 			},
 		},
 		{
-			Id:            2,
-			GroupId:       2,
-			ApplicationId: 2,
-			Application: database.Application{
-				Id:             2,
+			ID:            2,
+			GroupID:       2,
+			ApplicationID: 2,
+			Application: &models.Application{
+				ID:             2,
 				Name:           "Adminer",
 				TemplateAppid:  "",
 				Website:        "https://www.adminer.org",

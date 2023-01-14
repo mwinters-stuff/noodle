@@ -6,9 +6,9 @@ import (
 
 	"github.com/jackc/pgmock"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
+	"github.com/mwinters-stuff/noodle/server/models"
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -114,7 +114,7 @@ func (suite *AppTemplateTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	app := jsontypes.App{
+	app := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -161,7 +161,7 @@ func (suite *AppTemplateTableTestSuite) TestUpdate() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	app := jsontypes.App{
+	app := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -207,7 +207,7 @@ func (suite *AppTemplateTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	app := jsontypes.App{
+	app := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -255,7 +255,7 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	app := jsontypes.App{
+	app := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -273,7 +273,7 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []jsontypes.App{app}, result)
+	require.ElementsMatch(suite.T(), []models.ApplicationTemplate{app}, result)
 
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
 
 const appTemplateTableCreate = `CREATE TABLE IF NOT EXISTS application_template (
@@ -39,11 +39,11 @@ type AppTemplateTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(app jsontypes.App) error
-	Update(app jsontypes.App) error
-	Delete(app jsontypes.App) error
+	Insert(app models.ApplicationTemplate) error
+	Update(app models.ApplicationTemplate) error
+	Delete(app models.ApplicationTemplate) error
 
-	Search(search string) ([]jsontypes.App, error)
+	Search(search string) ([]models.ApplicationTemplate, error)
 	Exists(appid string) (bool, error)
 }
 
@@ -74,13 +74,13 @@ func (i *AppTemplateTableImpl) Create() error {
 }
 
 // Delete implements AppTemplateTable
-func (i *AppTemplateTableImpl) Delete(app jsontypes.App) error {
+func (i *AppTemplateTableImpl) Delete(app models.ApplicationTemplate) error {
 	_, err := i.database.Pool().Exec(context.Background(), appTemplateTableDeleteRow, app.Appid)
 	return err
 }
 
 // Insert implements AppTemplateTable
-func (i *AppTemplateTableImpl) Insert(app jsontypes.App) error {
+func (i *AppTemplateTableImpl) Insert(app models.ApplicationTemplate) error {
 	_, err := i.database.Pool().Exec(context.Background(), appTemplateTableInsertRow,
 		app.Appid,
 		app.Name,
@@ -95,12 +95,12 @@ func (i *AppTemplateTableImpl) Insert(app jsontypes.App) error {
 }
 
 // Search implements AppTemplateTable
-func (i *AppTemplateTableImpl) Search(search string) ([]jsontypes.App, error) {
+func (i *AppTemplateTableImpl) Search(search string) ([]models.ApplicationTemplate, error) {
 	rows, err := i.database.Pool().Query(context.Background(), appTemplateTableQueryRows, fmt.Sprintf("%%%s%%", search))
 	if err != nil {
 		return nil, err
 	}
-	results := []jsontypes.App{}
+	results := []models.ApplicationTemplate{}
 	var appid, sha pgtype.Text
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -114,7 +114,7 @@ func (i *AppTemplateTableImpl) Search(search string) ([]jsontypes.App, error) {
 		&icon,
 		&sha}, func() error {
 
-		results = append(results, jsontypes.App{
+		results = append(results, models.ApplicationTemplate{
 			Appid:          appid.String,
 			Name:           name,
 			Website:        website,
@@ -132,7 +132,7 @@ func (i *AppTemplateTableImpl) Search(search string) ([]jsontypes.App, error) {
 }
 
 // Update implements AppTemplateTable
-func (i *AppTemplateTableImpl) Update(app jsontypes.App) error {
+func (i *AppTemplateTableImpl) Update(app models.ApplicationTemplate) error {
 	_, err := i.database.Pool().Exec(context.Background(), appTemplateTableUpdateRow,
 		app.Appid,
 		app.Name,

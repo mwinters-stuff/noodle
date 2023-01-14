@@ -53,7 +53,7 @@ func (e *expectMessageStepX) Step(backend *pgproto3.Backend) error {
 
 	}
 
-	fmt.Printf("Expected => %s\nReceived => %s\n", expected, received)
+	// fmt.Printf("Expected => %s\nReceived => %s\n", expected, received)
 	if expected != received {
 		return fmt.Errorf("not equal")
 	}
@@ -70,8 +70,8 @@ type sendMessageStepX struct {
 }
 
 func (e *sendMessageStepX) Step(backend *pgproto3.Backend) error {
-	str, _ := json.Marshal(e.msg)
-	fmt.Printf("Sending  => %s\n", str)
+	// str, _ := json.Marshal(e.msg)
+	// fmt.Printf("Sending  => %s\n", str)
 	return backend.Send(e.msg)
 }
 
@@ -198,7 +198,7 @@ func (i *TestFunctions) LoadDatabaseSteps(t require.TestingT, script *pgmock.Scr
 				if bind.ParameterFormatCodes == nil || len(bind.ParameterFormatCodes) == 0 {
 					bind.ParameterFormatCodes = []int16{}
 				}
-				fmt.Printf("BIND => %#v\n", bind)
+				// fmt.Printf("BIND => %#v\n", bind)
 				script.Steps = append(script.Steps, ExpectMessageX(bind))
 
 			case "Execute":

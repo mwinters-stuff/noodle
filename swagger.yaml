@@ -1,0 +1,311 @@
+info:
+  contact:
+    name: Source Code
+    url: https://gitea.winters.org.nz/mathew/noodle
+  description: Noodle
+  license:
+    name: Apache License
+    url: https://gitea.winters.org.nz/mathew/noodle/src/branch/master/LICENSE
+  title: Noodle
+  version: "2.0"
+basePath: /api
+securityDefinitions:
+  key:
+    type: apiKey
+    in: header
+    name: Remote-User
+
+paths:
+  /healthz:
+    get:
+      consumes:
+      - application/json
+      description: used by Kubernetes liveness probe
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Liveness check
+      tags:
+      - Kubernetes
+  /readyz:
+    get:
+      consumes:
+      - application/json
+      description: used by Kubernetes readiness probe
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: Readiness check
+      tags:
+      - Kubernetes
+ 
+  
+  /noodle/users:
+    get:
+      description: Gets the list of users
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new user
+      parameters:
+        - name: action
+          in: query
+          type: string
+          enum:
+            - insert
+            - update
+          required: true
+        - name: user
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/user'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/user'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the user
+      parameters:
+        - name: userid
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: User Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '405':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle
+      security: 
+        - key: []
+
+
+
+schemes:
+- http
+swagger: "2.0"
+definitions:
+  error:
+    type: object
+    required:
+       - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
+      fields:
+        type: string
+  user:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      Username:
+        type: string
+      DN:
+        type: string
+      DisplayName:
+        type: string
+      GivenName:
+        type: string
+      Surname:
+        type: string
+      UidNumber:
+        type: integer
+  group:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      DN:
+        type: string
+      Name:
+        type: string
+    
+  principal:
+      type: string
+  user_group:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      GroupId:
+        type: integer
+        format: int64
+      GroupDN:
+        type: string
+      GroupName:
+        type: string
+      UserId:
+        type: integer
+        format: int64
+      UserDN:
+        type: string
+      UserName:
+        type: string
+  user_applications:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      ApplicationId:
+        type: integer
+        format: int64
+      UserId:
+        type: integer
+        format: int64
+      Application:
+        $ref: "#/definitions/application"
+  tab:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      Label:
+        type: string
+      DisplayOrder:
+        type: integer
+  group_applications:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      ApplicationId:
+        type: integer
+        format: int64
+      GroupId:
+        type: integer
+        format: int64
+      Application:
+        $ref: "#/definitions/application"
+  application:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      TemplateAppid:
+        type: string
+      Name:
+        type: string
+      Website:
+        type: string
+      License:
+        type: string
+      Description:
+        type: string
+      Enhanced:
+        type: boolean
+      TileBackground:
+        type: string
+      Icon:
+        type: string
+  application_tab:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      ApplicationId:
+        type: integer
+        format: int64
+      TabId:
+        type: integer
+        format: int64
+      DisplayOrder:
+        type: integer
+      Application:
+        $ref: "#/definitions/application"
+  application_template:
+    type: object
+    properties: 
+      Appid:
+        type: string
+      Name:
+        type: string
+      Website:
+        type: string
+      License:
+        type: string
+      Description:
+        type: string
+      Enhanced:
+        type: boolean
+      tile_background:
+        type: string
+      Icon:
+        type: string
+      SHA:
+        type: string
+  app_list:
+    type: object
+    properties:
+      AppCount:
+        type: integer
+      Apps:
+        type: array
+        items:
+          $ref: "#/definitions/application_template"
+

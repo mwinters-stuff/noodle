@@ -6,9 +6,9 @@ import (
 	"strconv"
 
 	"github.com/go-ldap/ldap/v3"
-	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
 
 var (
@@ -19,14 +19,14 @@ var (
 
 type LdapHandler interface {
 	Connect() error
-	GetUsers() ([]database.User, error)
-	GetGroups() ([]database.Group, error)
+	GetUsers() ([]models.User, error)
+	GetGroups() ([]models.Group, error)
 
-	GetUser(username string) (database.User, error)
-	GetUserByDN(dn string) (database.User, error)
-	GetUserGroups(database.User) ([]database.UserGroup, error)
+	GetUser(username string) (models.User, error)
+	GetUserByDN(dn string) (models.User, error)
+	GetUserGroups(models.User) ([]models.UserGroup, error)
 
-	GetGroupUsers(database.Group) ([]database.UserGroup, error)
+	GetGroupUsers(models.Group) ([]models.UserGroup, error)
 
 	AuthUser(userdn, password string) (bool, error)
 }
@@ -37,7 +37,7 @@ type LdapHandlerImpl struct {
 }
 
 // GetUserByDN implements LdapAuth
-func (i *LdapHandlerImpl) GetUserByDN(dn string) (database.User, error) {
+func (i *LdapHandlerImpl) GetUserByDN(dn string) (models.User, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		dn,
 		ldap.ScopeWholeSubtree,
@@ -53,22 +53,22 @@ func (i *LdapHandlerImpl) GetUserByDN(dn string) (database.User, error) {
 	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
-		return database.User{}, err
+		return models.User{}, err
 	}
 
 	if len(sr.Entries) != 1 {
 		Logger.Error().Msgf("User %s does not exist or too many entries returned", dn)
-		return database.User{}, fmt.Errorf("user %s does not exist or too many entries returned", dn)
+		return models.User{}, fmt.Errorf("user %s does not exist or too many entries returned", dn)
 	}
 
 	uid, _ := strconv.Atoi(sr.Entries[0].GetAttributeValue("uidNumber"))
-	return database.User{
+	return models.User{
 		Username:    sr.Entries[0].GetAttributeValue(i.appConfig.Ldap.UsernameAttribute),
 		DN:          sr.Entries[0].DN,
 		DisplayName: sr.Entries[0].GetAttributeValue(i.appConfig.Ldap.UserDisplayNameAttribute),
 		GivenName:   sr.Entries[0].GetAttributeValue("givenName"),
 		Surname:     sr.Entries[0].GetAttributeValue("sn"),
-		UidNumber:   uid,
+		UIDNumber:   int64(uid),
 	}, nil
 
 }
@@ -118,7 +118,7 @@ func (i *LdapHandlerImpl) AuthUser(userdn string, password string) (bool, error)
 }
 
 // GetGroupUsers implements LdapAuth
-func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGroup, error) {
+func (i *LdapHandlerImpl) GetGroupUsers(group models.Group) ([]models.UserGroup, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		group.DN,
 		ldap.ScopeWholeSubtree,
@@ -144,7 +144,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGr
 
 	users := sr.Entries[0].GetAttributeValues(i.appConfig.Ldap.GroupMemberAttribute)
 
-	var results []database.UserGroup
+	var results []models.UserGroup
 	for _, e := range users {
 		user, err := i.GetUserByDN(e)
 		if err != nil {
@@ -152,7 +152,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGr
 			return nil, err
 		}
 
-		results = append(results, database.UserGroup{
+		results = append(results, models.UserGroup{
 			GroupDN:   group.DN,
 			GroupName: group.Name,
 			UserDN:    e,
@@ -164,7 +164,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group database.Group) ([]database.UserGr
 }
 
 // GetGroups implements LdapAuth
-func (i *LdapHandlerImpl) GetGroups() ([]database.Group, error) {
+func (i *LdapHandlerImpl) GetGroups() ([]models.Group, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -183,9 +183,9 @@ func (i *LdapHandlerImpl) GetGroups() ([]database.Group, error) {
 		return nil, err
 	}
 
-	var results []database.Group
+	var results []models.Group
 	for _, e := range sr.Entries {
-		results = append(results, database.Group{
+		results = append(results, models.Group{
 			DN:   e.DN,
 			Name: e.GetAttributeValue(i.appConfig.Ldap.GroupNameAttribute),
 		})
@@ -195,7 +195,7 @@ func (i *LdapHandlerImpl) GetGroups() ([]database.Group, error) {
 }
 
 // GetUser implements LdapAuth
-func (i *LdapHandlerImpl) GetUser(username string) (database.User, error) {
+func (i *LdapHandlerImpl) GetUser(username string) (models.User, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -211,28 +211,28 @@ func (i *LdapHandlerImpl) GetUser(username string) (database.User, error) {
 	sr, err := i.ldapShim.Search(searchRequest)
 	if err != nil {
 		Logger.Error().Err(err)
-		return database.User{}, err
+		return models.User{}, err
 	}
 
 	if len(sr.Entries) != 1 {
 		Logger.Error().Msgf("User %s does not exist or too many entries returned", username)
-		return database.User{}, fmt.Errorf("user %s does not exist or too many entries returned", username)
+		return models.User{}, fmt.Errorf("user %s does not exist or too many entries returned", username)
 	}
 
 	uid, _ := strconv.Atoi(sr.Entries[0].GetAttributeValue("uidNumber"))
-	return database.User{
+	return models.User{
 		Username:    sr.Entries[0].GetAttributeValue(i.appConfig.Ldap.UsernameAttribute),
 		DN:          sr.Entries[0].DN,
 		DisplayName: sr.Entries[0].GetAttributeValue(i.appConfig.Ldap.UserDisplayNameAttribute),
 		GivenName:   sr.Entries[0].GetAttributeValue("givenName"),
 		Surname:     sr.Entries[0].GetAttributeValue("sn"),
-		UidNumber:   uid,
+		UIDNumber:   int64(uid),
 	}, nil
 
 }
 
 // GetUserGroups implements LdapAuth
-func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]database.UserGroup, error) {
+func (i *LdapHandlerImpl) GetUserGroups(user models.User) ([]models.UserGroup, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -251,10 +251,10 @@ func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]database.UserGrou
 		return nil, err
 	}
 
-	var results []database.UserGroup
+	var results []models.UserGroup
 	for _, e := range sr.Entries {
 
-		results = append(results, database.UserGroup{
+		results = append(results, models.UserGroup{
 
 			UserName:  user.DisplayName,
 			UserDN:    user.DN,
@@ -268,7 +268,7 @@ func (i *LdapHandlerImpl) GetUserGroups(user database.User) ([]database.UserGrou
 }
 
 // GetUsers implements LdapAuth
-func (i *LdapHandlerImpl) GetUsers() ([]database.User, error) {
+func (i *LdapHandlerImpl) GetUsers() ([]models.User, error) {
 	searchRequest := i.ldapShim.NewSearchRequest(
 		i.appConfig.Ldap.BaseDn,
 		ldap.ScopeWholeSubtree,
@@ -287,17 +287,17 @@ func (i *LdapHandlerImpl) GetUsers() ([]database.User, error) {
 		return nil, err
 	}
 
-	var results []database.User
+	var results []models.User
 	for _, e := range sr.Entries {
 		uid, _ := strconv.Atoi(e.GetAttributeValue("uidNumber"))
 
-		results = append(results, database.User{
+		results = append(results, models.User{
 			Username:    e.GetAttributeValue(i.appConfig.Ldap.UsernameAttribute),
 			DN:          e.DN,
 			DisplayName: e.GetAttributeValue(i.appConfig.Ldap.UserDisplayNameAttribute),
 			GivenName:   e.GetAttributeValue("givenName"),
 			Surname:     e.GetAttributeValue("sn"),
-			UidNumber:   uid,
+			UIDNumber:   int64(uid),
 		})
 	}
 

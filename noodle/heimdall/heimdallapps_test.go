@@ -8,7 +8,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
-	"github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -66,7 +66,7 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServer() {
 	]
 	}`
 
-	app1 := jsontypes.App{
+	app1 := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -78,7 +78,7 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServer() {
 		SHA:            "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7",
 	}
 
-	app2 := jsontypes.App{
+	app2 := models.ApplicationTemplate{
 		Appid:          "d17139efd0d8e0cba9bf8380c9818838911dfe0f",
 		Name:           "Zulip",
 		Website:        "https://zulipchat.com",
@@ -223,7 +223,7 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailDatabaseUpdate() {
 	h := heimdall.NewHeimdall(suite.mockDatabase)
 	require.NotNil(suite.T(), h)
 
-	app1 := jsontypes.App{
+	app1 := models.ApplicationTemplate{
 		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -244,7 +244,7 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailDatabaseUpdate() {
 
 func (suite *HeimdallAppsTestSuite) TestFindApps() {
 
-	result := []jsontypes.App{
+	result := []models.ApplicationTemplate{
 		{
 			Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
 			Name:           "AdGuard Home",

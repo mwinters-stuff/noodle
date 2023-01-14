@@ -4,14 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type UserApplications struct {
-	Id            int
-	ApplicationId int
-	UserId        int
-	Application   Application
-}
 
 const userApplicationsTableCreate = `CREATE TABLE IF NOT EXISTS user_applications (
   id SERIAL PRIMARY KEY,
@@ -34,10 +28,10 @@ type UserApplicationsTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(app *UserApplications) error
-	Delete(app UserApplications) error
+	Insert(app *models.UserApplications) error
+	Delete(app models.UserApplications) error
 
-	GetUserApps(userid int) ([]UserApplications, error)
+	GetUserApps(userid int64) ([]models.UserApplications, error)
 }
 
 type UserApplicationsTableImpl struct {
@@ -52,13 +46,13 @@ func (i *UserApplicationsTableImpl) Drop() error {
 }
 
 // GetAll implements UserApplicationsTable
-func (i *UserApplicationsTableImpl) GetUserApps(userid int) ([]UserApplications, error) {
+func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]models.UserApplications, error) {
 	rows, err := i.database.Pool().Query(context.Background(), userApplicationsTableQueryAll, userid)
 	if err != nil {
 		return nil, err
 	}
-	results := []UserApplications{}
-	var id, applicationid int
+	results := []models.UserApplications{}
+	var id, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
@@ -73,12 +67,12 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int) ([]UserApplications,
 		&icon,
 	}, func() error {
 
-		results = append(results, UserApplications{
-			Id:            id,
-			UserId:        userid,
-			ApplicationId: applicationid,
-			Application: Application{
-				Id:             applicationid,
+		results = append(results, models.UserApplications{
+			ID:            id,
+			UserID:        userid,
+			ApplicationID: applicationid,
+			Application: &models.Application{
+				ID:             applicationid,
 				Name:           name,
 				Website:        website,
 				License:        license,
@@ -102,18 +96,18 @@ func (i *UserApplicationsTableImpl) Create() error {
 }
 
 // Delete implements UserApplicationsTable
-func (i *UserApplicationsTableImpl) Delete(app UserApplications) error {
-	_, err := i.database.Pool().Exec(context.Background(), userApplicationsTableDeleteRow, app.Id)
+func (i *UserApplicationsTableImpl) Delete(app models.UserApplications) error {
+	_, err := i.database.Pool().Exec(context.Background(), userApplicationsTableDeleteRow, app.ID)
 	return err
 
 }
 
 // Insert implements UserApplicationsTable
-func (i *UserApplicationsTableImpl) Insert(app *UserApplications) error {
+func (i *UserApplicationsTableImpl) Insert(app *models.UserApplications) error {
 	err := i.database.Pool().QueryRow(context.Background(), userApplicationsTableInsertRow,
-		app.UserId,
-		app.ApplicationId,
-	).Scan(&app.Id)
+		app.UserID,
+		app.ApplicationID,
+	).Scan(&app.ID)
 	return err
 }
 

@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -113,7 +114,7 @@ func (suite *ApplicationsTableTestSuite) TestInsertWithTemplate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	application := database.Application{
+	application := models.Application{
 		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -128,7 +129,7 @@ func (suite *ApplicationsTableTestSuite) TestInsertWithTemplate() {
 
 	err = table.Insert(&application)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), application.Id, 0)
+	require.Greater(suite.T(), application.ID, int64(0))
 
 }
 
@@ -160,7 +161,7 @@ func (suite *ApplicationsTableTestSuite) TestInsertWithOutTemplate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	application := database.Application{
+	application := models.Application{
 		Name:           "Adminer",
 		Website:        "https://www.adminer.org",
 		License:        "Apache License 2.0",
@@ -174,7 +175,7 @@ func (suite *ApplicationsTableTestSuite) TestInsertWithOutTemplate() {
 
 	err = table.Insert(&application)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), application.Id, 0)
+	require.Greater(suite.T(), application.ID, int64(0))
 
 }
 
@@ -205,8 +206,8 @@ func (suite *ApplicationsTableTestSuite) TestUpdate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	application := database.Application{
-		Id:             1,
+	application := models.Application{
+		ID:             1,
 		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -251,8 +252,8 @@ func (suite *ApplicationsTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	application := database.Application{
-		Id:             1,
+	application := models.Application{
+		ID:             1,
 		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -301,8 +302,8 @@ func (suite *ApplicationsTableTestSuite) TestGetID() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.Equal(suite.T(), database.Application{
-		Id:             1,
+	require.Equal(suite.T(), models.Application{
+		ID:             1,
 		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
 		Name:           "AdGuard Home",
 		Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -382,9 +383,9 @@ func (suite *ApplicationsTableTestSuite) TestGetAppTemplateID() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.Application{
+	require.ElementsMatch(suite.T(), []models.Application{
 		{
-			Id:             1,
+			ID:             1,
 			TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
 			Name:           "AdGuard Home",
 			Website:        "https://github.com/AdguardTeam/AdGuardHome",

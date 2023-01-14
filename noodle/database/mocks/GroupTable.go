@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	database "github.com/mwinters-stuff/noodle/noodle/database"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +57,11 @@ func (_c *GroupTable_Create_Call) Return(_a0 error) *GroupTable_Create_Call {
 }
 
 // Delete provides a mock function with given fields: group
-func (_m *GroupTable) Delete(group database.Group) error {
+func (_m *GroupTable) Delete(group models.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.Group) error); ok {
+	if rf, ok := ret.Get(0).(func(models.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -76,14 +76,14 @@ type GroupTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - group database.Group
+//   - group models.Group
 func (_e *GroupTable_Expecter) Delete(group interface{}) *GroupTable_Delete_Call {
 	return &GroupTable_Delete_Call{Call: _e.mock.On("Delete", group)}
 }
 
-func (_c *GroupTable_Delete_Call) Run(run func(group database.Group)) *GroupTable_Delete_Call {
+func (_c *GroupTable_Delete_Call) Run(run func(group models.Group)) *GroupTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.Group))
+		run(args[0].(models.Group))
 	})
 	return _c
 }
@@ -218,15 +218,15 @@ func (_c *GroupTable_ExistsName_Call) Return(_a0 bool, _a1 error) *GroupTable_Ex
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *GroupTable) GetAll() ([]database.Group, error) {
+func (_m *GroupTable) GetAll() ([]models.Group, error) {
 	ret := _m.Called()
 
-	var r0 []database.Group
-	if rf, ok := ret.Get(0).(func() []database.Group); ok {
+	var r0 []models.Group
+	if rf, ok := ret.Get(0).(func() []models.Group); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.Group)
+			r0 = ret.Get(0).([]models.Group)
 		}
 	}
 
@@ -257,20 +257,20 @@ func (_c *GroupTable_GetAll_Call) Run(run func()) *GroupTable_GetAll_Call {
 	return _c
 }
 
-func (_c *GroupTable_GetAll_Call) Return(_a0 []database.Group, _a1 error) *GroupTable_GetAll_Call {
+func (_c *GroupTable_GetAll_Call) Return(_a0 []models.Group, _a1 error) *GroupTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetDN provides a mock function with given fields: dn
-func (_m *GroupTable) GetDN(dn string) (database.Group, error) {
+func (_m *GroupTable) GetDN(dn string) (models.Group, error) {
 	ret := _m.Called(dn)
 
-	var r0 database.Group
-	if rf, ok := ret.Get(0).(func(string) database.Group); ok {
+	var r0 models.Group
+	if rf, ok := ret.Get(0).(func(string) models.Group); ok {
 		r0 = rf(dn)
 	} else {
-		r0 = ret.Get(0).(database.Group)
+		r0 = ret.Get(0).(models.Group)
 	}
 
 	var r1 error
@@ -301,20 +301,20 @@ func (_c *GroupTable_GetDN_Call) Run(run func(dn string)) *GroupTable_GetDN_Call
 	return _c
 }
 
-func (_c *GroupTable_GetDN_Call) Return(_a0 database.Group, _a1 error) *GroupTable_GetDN_Call {
+func (_c *GroupTable_GetDN_Call) Return(_a0 models.Group, _a1 error) *GroupTable_GetDN_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetID provides a mock function with given fields: id
-func (_m *GroupTable) GetID(id int) (database.Group, error) {
+func (_m *GroupTable) GetID(id int) (models.Group, error) {
 	ret := _m.Called(id)
 
-	var r0 database.Group
-	if rf, ok := ret.Get(0).(func(int) database.Group); ok {
+	var r0 models.Group
+	if rf, ok := ret.Get(0).(func(int) models.Group); ok {
 		r0 = rf(id)
 	} else {
-		r0 = ret.Get(0).(database.Group)
+		r0 = ret.Get(0).(models.Group)
 	}
 
 	var r1 error
@@ -345,17 +345,17 @@ func (_c *GroupTable_GetID_Call) Run(run func(id int)) *GroupTable_GetID_Call {
 	return _c
 }
 
-func (_c *GroupTable_GetID_Call) Return(_a0 database.Group, _a1 error) *GroupTable_GetID_Call {
+func (_c *GroupTable_GetID_Call) Return(_a0 models.Group, _a1 error) *GroupTable_GetID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // Insert provides a mock function with given fields: group
-func (_m *GroupTable) Insert(group *database.Group) error {
+func (_m *GroupTable) Insert(group *models.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*database.Group) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -370,14 +370,14 @@ type GroupTable_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - group *database.Group
+//   - group *models.Group
 func (_e *GroupTable_Expecter) Insert(group interface{}) *GroupTable_Insert_Call {
 	return &GroupTable_Insert_Call{Call: _e.mock.On("Insert", group)}
 }
 
-func (_c *GroupTable_Insert_Call) Run(run func(group *database.Group)) *GroupTable_Insert_Call {
+func (_c *GroupTable_Insert_Call) Run(run func(group *models.Group)) *GroupTable_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*database.Group))
+		run(args[0].(*models.Group))
 	})
 	return _c
 }
@@ -388,11 +388,11 @@ func (_c *GroupTable_Insert_Call) Return(_a0 error) *GroupTable_Insert_Call {
 }
 
 // Update provides a mock function with given fields: group
-func (_m *GroupTable) Update(group database.Group) error {
+func (_m *GroupTable) Update(group models.Group) error {
 	ret := _m.Called(group)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.Group) error); ok {
+	if rf, ok := ret.Get(0).(func(models.Group) error); ok {
 		r0 = rf(group)
 	} else {
 		r0 = ret.Error(0)
@@ -407,14 +407,14 @@ type GroupTable_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - group database.Group
+//   - group models.Group
 func (_e *GroupTable_Expecter) Update(group interface{}) *GroupTable_Update_Call {
 	return &GroupTable_Update_Call{Call: _e.mock.On("Update", group)}
 }
 
-func (_c *GroupTable_Update_Call) Run(run func(group database.Group)) *GroupTable_Update_Call {
+func (_c *GroupTable_Update_Call) Run(run func(group models.Group)) *GroupTable_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.Group))
+		run(args[0].(models.Group))
 	})
 	return _c
 }

@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
-	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/mwinters-stuff/noodle/package-shims/ldap/mocks"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -210,13 +210,13 @@ func (suite *LdapHandlerTestSuite) TestGetUserByDN() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), user)
 
-	require.Equal(suite.T(), database.User{
+	require.Equal(suite.T(), models.User{
 		DN:          "CN=bob,DC=example,DC=nz",
 		Username:    "bobe",
 		DisplayName: "bobextample",
 		Surname:     "Extample",
 		GivenName:   "Bob",
-		UidNumber:   1001,
+		UIDNumber:   1001,
 	}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -311,7 +311,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 	suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001)
 	suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
 
-	group := database.Group{
+	group := models.Group{
 		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 		Name: "Admins",
 	}
@@ -320,7 +320,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), usergroups)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []models.UserGroup{
 		{
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			UserDN:    "uid=testuser1,ou=people,dc=example,dc=nz",
@@ -386,7 +386,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroups() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), groups)
 
-	require.ElementsMatch(suite.T(), []database.Group{
+	require.ElementsMatch(suite.T(), []models.Group{
 		{
 			DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			Name: "Admins",
@@ -448,13 +448,13 @@ func (suite *LdapHandlerTestSuite) TestGetUser() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), user)
 
-	require.Equal(suite.T(), database.User{
+	require.Equal(suite.T(), models.User{
 		DN:          "CN=bob,DC=example,DC=nz",
 		Username:    "bobe",
 		DisplayName: "bobextample",
 		Surname:     "Extample",
 		GivenName:   "Bob",
-		UidNumber:   1001,
+		UIDNumber:   1001,
 	}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -505,11 +505,11 @@ func (suite *LdapHandlerTestSuite) TestGetUserGroups() {
 			},
 			)}}, nil)
 
-	usergroups, err := suite.ldapHandler.GetUserGroups(database.User{DN: "uid=testuser1,ou=people,dc=example,dc=nz", DisplayName: "TestUser1"})
+	usergroups, err := suite.ldapHandler.GetUserGroups(models.User{DN: "uid=testuser1,ou=people,dc=example,dc=nz", DisplayName: "TestUser1"})
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), usergroups)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []models.UserGroup{
 		{
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			UserDN:    "uid=testuser1,ou=people,dc=example,dc=nz",
@@ -583,14 +583,14 @@ func (suite *LdapHandlerTestSuite) TestGetUsers() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), users)
 
-	require.ElementsMatch(suite.T(), []database.User{
+	require.ElementsMatch(suite.T(), []models.User{
 		{
 			DN:          "CN=bob,DC=example,DC=nz",
 			Username:    "bobe",
 			DisplayName: "bobextample",
 			Surname:     "Extample",
 			GivenName:   "Bob",
-			UidNumber:   1001,
+			UIDNumber:   1001,
 		},
 		{
 			DN:          "CN=jill,DC=example,DC=nz",
@@ -598,7 +598,7 @@ func (suite *LdapHandlerTestSuite) TestGetUsers() {
 			DisplayName: "jilly",
 			Surname:     "Frill",
 			GivenName:   "Jill",
-			UidNumber:   1002,
+			UIDNumber:   1002,
 		},
 	}, users)
 
@@ -606,7 +606,7 @@ func (suite *LdapHandlerTestSuite) TestGetUsers() {
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
 }
 
-func TestDatabaseSuite(t *testing.T) {
+func TestLDAPHandlerSuite(t *testing.T) {
 	suite.Run(t, new(LdapHandlerTestSuite))
 }
 

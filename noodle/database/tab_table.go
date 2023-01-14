@@ -4,13 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type Tab struct {
-	Id           int
-	Label        string
-	DisplayOrder int
-}
 
 const tabTableCreate = `CREATE TABLE IF NOT EXISTS tabs (
   id SERIAL PRIMARY KEY,
@@ -34,11 +29,11 @@ type TabTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(tab *Tab) error
-	Update(tab Tab) error
-	Delete(tab Tab) error
+	Insert(tab *models.Tab) error
+	Update(tab models.Tab) error
+	Delete(tab models.Tab) error
 
-	GetAll() ([]Tab, error)
+	GetAll() ([]models.Tab, error)
 }
 
 type TabTableImpl struct {
@@ -53,22 +48,22 @@ func (i *TabTableImpl) Drop() error {
 }
 
 // GetAll implements TabTable
-func (i *TabTableImpl) GetAll() ([]Tab, error) {
+func (i *TabTableImpl) GetAll() ([]models.Tab, error) {
 	rows, err := i.database.Pool().Query(context.Background(), tabTableQueryAll)
 	if err != nil {
 		return nil, err
 	}
-	results := []Tab{}
+	results := []models.Tab{}
 	var label string
-	var id, displayorder int
+	var id, displayorder int64
 	_, err = pgx.ForEachRow(rows, []any{
 		&id,
 		&label,
 		&displayorder,
 	}, func() error {
 
-		results = append(results, Tab{
-			Id:           id,
+		results = append(results, models.Tab{
+			ID:           id,
 			Label:        label,
 			DisplayOrder: displayorder,
 		})
@@ -86,25 +81,25 @@ func (i *TabTableImpl) Create() error {
 }
 
 // Delete implements TabTable
-func (i *TabTableImpl) Delete(tab Tab) error {
-	_, err := i.database.Pool().Exec(context.Background(), tabTableDeleteRow, tab.Id)
+func (i *TabTableImpl) Delete(tab models.Tab) error {
+	_, err := i.database.Pool().Exec(context.Background(), tabTableDeleteRow, tab.ID)
 	return err
 
 }
 
 // Insert implements TabTable
-func (i *TabTableImpl) Insert(tab *Tab) error {
+func (i *TabTableImpl) Insert(tab *models.Tab) error {
 	err := i.database.Pool().QueryRow(context.Background(), tabTableInsertRow,
 		tab.Label,
 		tab.DisplayOrder,
-	).Scan(&tab.Id)
+	).Scan(&tab.ID)
 	return err
 }
 
 // Update implements TabTable
-func (i *TabTableImpl) Update(tab Tab) error {
+func (i *TabTableImpl) Update(tab models.Tab) error {
 	_, err := i.database.Pool().Exec(context.Background(), tabTableUpdateRow,
-		tab.Id,
+		tab.ID,
 		tab.Label,
 		tab.DisplayOrder,
 	)

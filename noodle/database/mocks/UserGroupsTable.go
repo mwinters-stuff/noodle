@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	database "github.com/mwinters-stuff/noodle/noodle/database"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +57,11 @@ func (_c *UserGroupsTable_Create_Call) Return(_a0 error) *UserGroupsTable_Create
 }
 
 // Delete provides a mock function with given fields: user
-func (_m *UserGroupsTable) Delete(user database.UserGroup) error {
+func (_m *UserGroupsTable) Delete(user models.UserGroup) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(database.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(models.UserGroup) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -76,14 +76,14 @@ type UserGroupsTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - user database.UserGroup
+//   - user models.UserGroup
 func (_e *UserGroupsTable_Expecter) Delete(user interface{}) *UserGroupsTable_Delete_Call {
 	return &UserGroupsTable_Delete_Call{Call: _e.mock.On("Delete", user)}
 }
 
-func (_c *UserGroupsTable_Delete_Call) Run(run func(user database.UserGroup)) *UserGroupsTable_Delete_Call {
+func (_c *UserGroupsTable_Delete_Call) Run(run func(user models.UserGroup)) *UserGroupsTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(database.UserGroup))
+		run(args[0].(models.UserGroup))
 	})
 	return _c
 }
@@ -130,18 +130,18 @@ func (_c *UserGroupsTable_Drop_Call) Return(_a0 error) *UserGroupsTable_Drop_Cal
 }
 
 // Exists provides a mock function with given fields: groupid, userid
-func (_m *UserGroupsTable) Exists(groupid int, userid int) (bool, error) {
+func (_m *UserGroupsTable) Exists(groupid int64, userid int64) (bool, error) {
 	ret := _m.Called(groupid, userid)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int, int) bool); ok {
+	if rf, ok := ret.Get(0).(func(int64, int64) bool); ok {
 		r0 = rf(groupid, userid)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+	if rf, ok := ret.Get(1).(func(int64, int64) error); ok {
 		r1 = rf(groupid, userid)
 	} else {
 		r1 = ret.Error(1)
@@ -156,15 +156,15 @@ type UserGroupsTable_Exists_Call struct {
 }
 
 // Exists is a helper method to define mock.On call
-//   - groupid int
-//   - userid int
+//   - groupid int64
+//   - userid int64
 func (_e *UserGroupsTable_Expecter) Exists(groupid interface{}, userid interface{}) *UserGroupsTable_Exists_Call {
 	return &UserGroupsTable_Exists_Call{Call: _e.mock.On("Exists", groupid, userid)}
 }
 
-func (_c *UserGroupsTable_Exists_Call) Run(run func(groupid int, userid int)) *UserGroupsTable_Exists_Call {
+func (_c *UserGroupsTable_Exists_Call) Run(run func(groupid int64, userid int64)) *UserGroupsTable_Exists_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int), args[1].(int))
+		run(args[0].(int64), args[1].(int64))
 	})
 	return _c
 }
@@ -175,15 +175,15 @@ func (_c *UserGroupsTable_Exists_Call) Return(_a0 bool, _a1 error) *UserGroupsTa
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *UserGroupsTable) GetAll() ([]database.UserGroup, error) {
+func (_m *UserGroupsTable) GetAll() ([]models.UserGroup, error) {
 	ret := _m.Called()
 
-	var r0 []database.UserGroup
-	if rf, ok := ret.Get(0).(func() []database.UserGroup); ok {
+	var r0 []models.UserGroup
+	if rf, ok := ret.Get(0).(func() []models.UserGroup); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.UserGroup)
+			r0 = ret.Get(0).([]models.UserGroup)
 		}
 	}
 
@@ -214,26 +214,26 @@ func (_c *UserGroupsTable_GetAll_Call) Run(run func()) *UserGroupsTable_GetAll_C
 	return _c
 }
 
-func (_c *UserGroupsTable_GetAll_Call) Return(_a0 []database.UserGroup, _a1 error) *UserGroupsTable_GetAll_Call {
+func (_c *UserGroupsTable_GetAll_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetGroup provides a mock function with given fields: groupid
-func (_m *UserGroupsTable) GetGroup(groupid int) ([]database.UserGroup, error) {
+func (_m *UserGroupsTable) GetGroup(groupid int64) ([]models.UserGroup, error) {
 	ret := _m.Called(groupid)
 
-	var r0 []database.UserGroup
-	if rf, ok := ret.Get(0).(func(int) []database.UserGroup); ok {
+	var r0 []models.UserGroup
+	if rf, ok := ret.Get(0).(func(int64) []models.UserGroup); ok {
 		r0 = rf(groupid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.UserGroup)
+			r0 = ret.Get(0).([]models.UserGroup)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
 		r1 = rf(groupid)
 	} else {
 		r1 = ret.Error(1)
@@ -248,38 +248,38 @@ type UserGroupsTable_GetGroup_Call struct {
 }
 
 // GetGroup is a helper method to define mock.On call
-//   - groupid int
+//   - groupid int64
 func (_e *UserGroupsTable_Expecter) GetGroup(groupid interface{}) *UserGroupsTable_GetGroup_Call {
 	return &UserGroupsTable_GetGroup_Call{Call: _e.mock.On("GetGroup", groupid)}
 }
 
-func (_c *UserGroupsTable_GetGroup_Call) Run(run func(groupid int)) *UserGroupsTable_GetGroup_Call {
+func (_c *UserGroupsTable_GetGroup_Call) Run(run func(groupid int64)) *UserGroupsTable_GetGroup_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(int64))
 	})
 	return _c
 }
 
-func (_c *UserGroupsTable_GetGroup_Call) Return(_a0 []database.UserGroup, _a1 error) *UserGroupsTable_GetGroup_Call {
+func (_c *UserGroupsTable_GetGroup_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetGroup_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUser provides a mock function with given fields: userid
-func (_m *UserGroupsTable) GetUser(userid int) ([]database.UserGroup, error) {
+func (_m *UserGroupsTable) GetUser(userid int64) ([]models.UserGroup, error) {
 	ret := _m.Called(userid)
 
-	var r0 []database.UserGroup
-	if rf, ok := ret.Get(0).(func(int) []database.UserGroup); ok {
+	var r0 []models.UserGroup
+	if rf, ok := ret.Get(0).(func(int64) []models.UserGroup); ok {
 		r0 = rf(userid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]database.UserGroup)
+			r0 = ret.Get(0).([]models.UserGroup)
 		}
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
 		r1 = rf(userid)
 	} else {
 		r1 = ret.Error(1)
@@ -294,29 +294,29 @@ type UserGroupsTable_GetUser_Call struct {
 }
 
 // GetUser is a helper method to define mock.On call
-//   - userid int
+//   - userid int64
 func (_e *UserGroupsTable_Expecter) GetUser(userid interface{}) *UserGroupsTable_GetUser_Call {
 	return &UserGroupsTable_GetUser_Call{Call: _e.mock.On("GetUser", userid)}
 }
 
-func (_c *UserGroupsTable_GetUser_Call) Run(run func(userid int)) *UserGroupsTable_GetUser_Call {
+func (_c *UserGroupsTable_GetUser_Call) Run(run func(userid int64)) *UserGroupsTable_GetUser_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(int64))
 	})
 	return _c
 }
 
-func (_c *UserGroupsTable_GetUser_Call) Return(_a0 []database.UserGroup, _a1 error) *UserGroupsTable_GetUser_Call {
+func (_c *UserGroupsTable_GetUser_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetUser_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // Insert provides a mock function with given fields: user
-func (_m *UserGroupsTable) Insert(user *database.UserGroup) error {
+func (_m *UserGroupsTable) Insert(user *models.UserGroup) error {
 	ret := _m.Called(user)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*database.UserGroup) error); ok {
+	if rf, ok := ret.Get(0).(func(*models.UserGroup) error); ok {
 		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
@@ -331,14 +331,14 @@ type UserGroupsTable_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - user *database.UserGroup
+//   - user *models.UserGroup
 func (_e *UserGroupsTable_Expecter) Insert(user interface{}) *UserGroupsTable_Insert_Call {
 	return &UserGroupsTable_Insert_Call{Call: _e.mock.On("Insert", user)}
 }
 
-func (_c *UserGroupsTable_Insert_Call) Run(run func(user *database.UserGroup)) *UserGroupsTable_Insert_Call {
+func (_c *UserGroupsTable_Insert_Call) Run(run func(user *models.UserGroup)) *UserGroupsTable_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(*database.UserGroup))
+		run(args[0].(*models.UserGroup))
 	})
 	return _c
 }

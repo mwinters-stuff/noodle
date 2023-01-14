@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	jsontypes "github.com/mwinters-stuff/noodle/noodle/jsontypes"
+	models "github.com/mwinters-stuff/noodle/server/models"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -57,11 +57,11 @@ func (_c *AppTemplateTable_Create_Call) Return(_a0 error) *AppTemplateTable_Crea
 }
 
 // Delete provides a mock function with given fields: app
-func (_m *AppTemplateTable) Delete(app jsontypes.App) error {
+func (_m *AppTemplateTable) Delete(app models.ApplicationTemplate) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(jsontypes.App) error); ok {
+	if rf, ok := ret.Get(0).(func(models.ApplicationTemplate) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -76,14 +76,14 @@ type AppTemplateTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - app jsontypes.App
+//   - app models.ApplicationTemplate
 func (_e *AppTemplateTable_Expecter) Delete(app interface{}) *AppTemplateTable_Delete_Call {
 	return &AppTemplateTable_Delete_Call{Call: _e.mock.On("Delete", app)}
 }
 
-func (_c *AppTemplateTable_Delete_Call) Run(run func(app jsontypes.App)) *AppTemplateTable_Delete_Call {
+func (_c *AppTemplateTable_Delete_Call) Run(run func(app models.ApplicationTemplate)) *AppTemplateTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(jsontypes.App))
+		run(args[0].(models.ApplicationTemplate))
 	})
 	return _c
 }
@@ -174,11 +174,11 @@ func (_c *AppTemplateTable_Exists_Call) Return(_a0 bool, _a1 error) *AppTemplate
 }
 
 // Insert provides a mock function with given fields: app
-func (_m *AppTemplateTable) Insert(app jsontypes.App) error {
+func (_m *AppTemplateTable) Insert(app models.ApplicationTemplate) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(jsontypes.App) error); ok {
+	if rf, ok := ret.Get(0).(func(models.ApplicationTemplate) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -193,14 +193,14 @@ type AppTemplateTable_Insert_Call struct {
 }
 
 // Insert is a helper method to define mock.On call
-//   - app jsontypes.App
+//   - app models.ApplicationTemplate
 func (_e *AppTemplateTable_Expecter) Insert(app interface{}) *AppTemplateTable_Insert_Call {
 	return &AppTemplateTable_Insert_Call{Call: _e.mock.On("Insert", app)}
 }
 
-func (_c *AppTemplateTable_Insert_Call) Run(run func(app jsontypes.App)) *AppTemplateTable_Insert_Call {
+func (_c *AppTemplateTable_Insert_Call) Run(run func(app models.ApplicationTemplate)) *AppTemplateTable_Insert_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(jsontypes.App))
+		run(args[0].(models.ApplicationTemplate))
 	})
 	return _c
 }
@@ -211,15 +211,15 @@ func (_c *AppTemplateTable_Insert_Call) Return(_a0 error) *AppTemplateTable_Inse
 }
 
 // Search provides a mock function with given fields: search
-func (_m *AppTemplateTable) Search(search string) ([]jsontypes.App, error) {
+func (_m *AppTemplateTable) Search(search string) ([]models.ApplicationTemplate, error) {
 	ret := _m.Called(search)
 
-	var r0 []jsontypes.App
-	if rf, ok := ret.Get(0).(func(string) []jsontypes.App); ok {
+	var r0 []models.ApplicationTemplate
+	if rf, ok := ret.Get(0).(func(string) []models.ApplicationTemplate); ok {
 		r0 = rf(search)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]jsontypes.App)
+			r0 = ret.Get(0).([]models.ApplicationTemplate)
 		}
 	}
 
@@ -251,17 +251,17 @@ func (_c *AppTemplateTable_Search_Call) Run(run func(search string)) *AppTemplat
 	return _c
 }
 
-func (_c *AppTemplateTable_Search_Call) Return(_a0 []jsontypes.App, _a1 error) *AppTemplateTable_Search_Call {
+func (_c *AppTemplateTable_Search_Call) Return(_a0 []models.ApplicationTemplate, _a1 error) *AppTemplateTable_Search_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // Update provides a mock function with given fields: app
-func (_m *AppTemplateTable) Update(app jsontypes.App) error {
+func (_m *AppTemplateTable) Update(app models.ApplicationTemplate) error {
 	ret := _m.Called(app)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(jsontypes.App) error); ok {
+	if rf, ok := ret.Get(0).(func(models.ApplicationTemplate) error); ok {
 		r0 = rf(app)
 	} else {
 		r0 = ret.Error(0)
@@ -276,14 +276,14 @@ type AppTemplateTable_Update_Call struct {
 }
 
 // Update is a helper method to define mock.On call
-//   - app jsontypes.App
+//   - app models.ApplicationTemplate
 func (_e *AppTemplateTable_Expecter) Update(app interface{}) *AppTemplateTable_Update_Call {
 	return &AppTemplateTable_Update_Call{Call: _e.mock.On("Update", app)}
 }
 
-func (_c *AppTemplateTable_Update_Call) Run(run func(app jsontypes.App)) *AppTemplateTable_Update_Call {
+func (_c *AppTemplateTable_Update_Call) Run(run func(app models.ApplicationTemplate)) *AppTemplateTable_Update_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(jsontypes.App))
+		run(args[0].(models.ApplicationTemplate))
 	})
 	return _c
 }

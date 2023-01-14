@@ -4,14 +4,8 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/mwinters-stuff/noodle/server/models"
 )
-
-type GroupApplications struct {
-	Id            int
-	ApplicationId int
-	GroupId       int
-	Application   Application
-}
 
 const groupApplicationsTableCreate = `CREATE TABLE IF NOT EXISTS group_applications (
   id SERIAL PRIMARY KEY,
@@ -34,10 +28,10 @@ type GroupApplicationsTable interface {
 	Upgrade(old_version, new_verison int) error
 	Drop() error
 
-	Insert(app *GroupApplications) error
-	Delete(app GroupApplications) error
+	Insert(app *models.GroupApplications) error
+	Delete(app models.GroupApplications) error
 
-	GetGroupApps(groupid int) ([]GroupApplications, error)
+	GetGroupApps(groupid int64) ([]models.GroupApplications, error)
 }
 
 type GroupApplicationsTableImpl struct {
@@ -52,13 +46,13 @@ func (i *GroupApplicationsTableImpl) Drop() error {
 }
 
 // GetAll implements GroupApplicationsTable
-func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int) ([]GroupApplications, error) {
+func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int64) ([]models.GroupApplications, error) {
 	rows, err := i.database.Pool().Query(context.Background(), groupApplicationsTableQueryAll, groupid)
 	if err != nil {
 		return nil, err
 	}
-	results := []GroupApplications{}
-	var id, applicationid int
+	results := []models.GroupApplications{}
+	var id, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
@@ -73,12 +67,12 @@ func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int) ([]GroupApplicati
 		&icon,
 	}, func() error {
 
-		results = append(results, GroupApplications{
-			Id:            id,
-			GroupId:       groupid,
-			ApplicationId: applicationid,
-			Application: Application{
-				Id:             applicationid,
+		results = append(results, models.GroupApplications{
+			ID:            id,
+			GroupID:       groupid,
+			ApplicationID: applicationid,
+			Application: &models.Application{
+				ID:             applicationid,
 				Name:           name,
 				Website:        website,
 				License:        license,
@@ -102,18 +96,18 @@ func (i *GroupApplicationsTableImpl) Create() error {
 }
 
 // Delete implements GroupApplicationsTable
-func (i *GroupApplicationsTableImpl) Delete(app GroupApplications) error {
-	_, err := i.database.Pool().Exec(context.Background(), groupApplicationsTableDeleteRow, app.Id)
+func (i *GroupApplicationsTableImpl) Delete(app models.GroupApplications) error {
+	_, err := i.database.Pool().Exec(context.Background(), groupApplicationsTableDeleteRow, app.ID)
 	return err
 
 }
 
 // Insert implements GroupApplicationsTable
-func (i *GroupApplicationsTableImpl) Insert(app *GroupApplications) error {
+func (i *GroupApplicationsTableImpl) Insert(app *models.GroupApplications) error {
 	err := i.database.Pool().QueryRow(context.Background(), groupApplicationsTableInsertRow,
-		app.GroupId,
-		app.ApplicationId,
-	).Scan(&app.Id)
+		app.GroupID,
+		app.ApplicationID,
+	).Scan(&app.ID)
 	return err
 }
 

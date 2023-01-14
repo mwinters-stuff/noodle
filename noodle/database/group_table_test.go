@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -114,7 +115,7 @@ func (suite *GroupTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	group := database.Group{
+	group := models.Group{
 		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 		Name: "Admins",
 	}
@@ -123,7 +124,7 @@ func (suite *GroupTableTestSuite) TestInsert() {
 
 	err = table.Insert(&group)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), group.Id, 0)
+	require.Greater(suite.T(), group.ID, int64(0))
 
 }
 
@@ -154,8 +155,8 @@ func (suite *GroupTableTestSuite) TestUpdate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	group := database.Group{
-		Id:   1,
+	group := models.Group{
+		ID:   1,
 		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 		Name: "Admins",
 	}
@@ -194,8 +195,8 @@ func (suite *GroupTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	group := database.Group{
-		Id:   1,
+	group := models.Group{
+		ID:   1,
 		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 		Name: "Admins",
 	}
@@ -239,14 +240,14 @@ func (suite *GroupTableTestSuite) TestGetAll() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.Group{
+	require.ElementsMatch(suite.T(), []models.Group{
 		{
-			Id:   1,
+			ID:   1,
 			DN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			Name: "Admins",
 		},
 		{
-			Id:   2,
+			ID:   2,
 			DN:   "cn=users,ou=groups,dc=example,dc=nz",
 			Name: "Users",
 		},
@@ -322,8 +323,8 @@ func (suite *GroupTableTestSuite) TestGetDN() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.Equal(suite.T(), database.Group{
-		Id:   2,
+	require.Equal(suite.T(), models.Group{
+		ID:   2,
 		DN:   "cn=users,ou=groups,dc=example,dc=nz",
 		Name: "Users",
 	}, result)
@@ -398,8 +399,8 @@ func (suite *GroupTableTestSuite) TestGetID() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.Equal(suite.T(), database.Group{
-		Id:   2,
+	require.Equal(suite.T(), models.Group{
+		ID:   2,
 		DN:   "cn=users,ou=groups,dc=example,dc=nz",
 		Name: "Users",
 	}, result)

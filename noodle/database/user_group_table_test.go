@@ -8,6 +8,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -49,7 +50,7 @@ func (suite *UserGroupTableTestSuite) TestCreateTable() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	table := database.NewUserGroupsTable(db, nil)
 
 	err = table.Create()
 	require.NoError(suite.T(), err)
@@ -57,7 +58,7 @@ func (suite *UserGroupTableTestSuite) TestCreateTable() {
 }
 
 func (suite *UserGroupTableTestSuite) TestUpgrade() {
-	table := database.NewUserGroupsTable(nil)
+	table := database.NewUserGroupsTable(nil, nil)
 	require.Panics(suite.T(), func() { table.Upgrade(0, 0) })
 }
 
@@ -77,7 +78,7 @@ func (suite *UserGroupTableTestSuite) TestDrop() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	table := database.NewUserGroupsTable(db, nil)
 
 	err = table.Drop()
 	require.NoError(suite.T(), err)
@@ -113,16 +114,17 @@ func (suite *UserGroupTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	usergroup := database.UserGroup{
-		GroupId: 1,
-		UserId:  1,
+	usergroup := models.UserGroup{
+		GroupID: 1,
+		UserID:  1,
 	}
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	err = table.Insert(&usergroup)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), usergroup.Id, 0)
+	require.Greater(suite.T(), usergroup.ID, int64(0))
 
 }
 
@@ -154,13 +156,14 @@ func (suite *UserGroupTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	usergroup2 := database.UserGroup{
-		Id:      2,
-		GroupId: 1,
-		UserId:  1,
+	usergroup2 := models.UserGroup{
+		ID:      2,
+		GroupID: 1,
+		UserID:  1,
 	}
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	err = table.Delete(usergroup2)
 	require.NoError(suite.T(), err)
@@ -194,7 +197,8 @@ func (suite *UserGroupTableTestSuite) TestExists() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	result, err := table.Exists(1, 1)
 	require.NoError(suite.T(), err)
@@ -229,7 +233,8 @@ func (suite *UserGroupTableTestSuite) TestNotExists() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	result, err := table.Exists(1, 1)
 	require.NoError(suite.T(), err)
@@ -265,35 +270,36 @@ func (suite *UserGroupTableTestSuite) TestGetAll() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	result, err := table.GetAll()
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []models.UserGroup{
 		{
-			Id:        1,
-			GroupId:   1,
-			UserId:    1,
+			ID:        1,
+			GroupID:   1,
+			UserID:    1,
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			GroupName: "Admins",
 			UserDN:    "CN=bob,DC=example,DC=nz",
 			UserName:  "bobe",
 		},
 		{
-			Id:        2,
-			GroupId:   1,
-			UserId:    2,
+			ID:        2,
+			GroupID:   1,
+			UserID:    2,
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			GroupName: "Admins",
 			UserDN:    "CN=jack,DC=example,DC=nz",
 			UserName:  "jack",
 		},
 		{
-			Id:        3,
-			GroupId:   2,
-			UserId:    1,
+			ID:        3,
+			GroupID:   2,
+			UserID:    1,
 			GroupDN:   "cn=users,ou=groups,dc=example,dc=nz",
 			GroupName: "Users",
 			UserDN:    "CN=bob,DC=example,DC=nz",
@@ -332,7 +338,8 @@ func (suite *UserGroupTableTestSuite) TestGetAllError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 	db.Close()
 	_, err = table.GetAll()
 	require.Error(suite.T(), err)
@@ -366,17 +373,18 @@ func (suite *UserGroupTableTestSuite) TestGetGroup() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	result, err := table.GetGroup(2)
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []models.UserGroup{
 		{
-			Id:        3,
-			GroupId:   2,
-			UserId:    1,
+			ID:        3,
+			GroupID:   2,
+			UserID:    1,
 			GroupDN:   "cn=users,ou=groups,dc=example,dc=nz",
 			GroupName: "Users",
 			UserDN:    "CN=bob,DC=example,DC=nz",
@@ -413,7 +421,8 @@ func (suite *UserGroupTableTestSuite) TestGetGroupError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 	db.Close()
 	_, err = table.GetGroup(2)
 	require.Error(suite.T(), err)
@@ -447,17 +456,18 @@ func (suite *UserGroupTableTestSuite) TestGetUser() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 
 	result, err := table.GetUser(2)
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.UserGroup{
+	require.ElementsMatch(suite.T(), []models.UserGroup{
 		{
-			Id:        2,
-			GroupId:   1,
-			UserId:    2,
+			ID:        2,
+			GroupID:   1,
+			UserID:    2,
 			GroupDN:   "cn=admins,ou=groups,dc=example,dc=nz",
 			GroupName: "Admins",
 			UserDN:    "CN=jack,DC=example,DC=nz",
@@ -494,7 +504,8 @@ func (suite *UserGroupTableTestSuite) TestGetUserError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserGroupsTable(db)
+	cache := database.NewTableCache[models.UserGroup]()
+	table := database.NewUserGroupsTable(db, cache)
 	db.Close()
 	_, err = table.GetUser(2)
 	require.Error(suite.T(), err)

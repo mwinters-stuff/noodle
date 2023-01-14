@@ -9,6 +9,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -114,9 +115,9 @@ func (suite *ApplicationTabTableTestSuite) TestInsert() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := database.ApplicationTab{
-		TabId:         1,
-		ApplicationId: 1,
+	at1 := models.ApplicationTab{
+		TabID:         1,
+		ApplicationID: 1,
 		DisplayOrder:  1,
 	}
 
@@ -124,7 +125,7 @@ func (suite *ApplicationTabTableTestSuite) TestInsert() {
 
 	err = table.Insert(&at1)
 	require.NoError(suite.T(), err)
-	require.Greater(suite.T(), at1.Id, 0)
+	require.Greater(suite.T(), at1.ID, int64(0))
 
 }
 
@@ -155,10 +156,10 @@ func (suite *ApplicationTabTableTestSuite) TestUpdate() {
 
 	err := db.Connect()
 	require.NoError(suite.T(), err)
-	at3 := database.ApplicationTab{
-		Id:            3,
-		TabId:         2,
-		ApplicationId: 2,
+	at3 := models.ApplicationTab{
+		ID:            3,
+		TabID:         2,
+		ApplicationID: 2,
 		DisplayOrder:  1,
 	}
 	table := database.NewApplicationTabTable(db)
@@ -195,10 +196,10 @@ func (suite *ApplicationTabTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := database.ApplicationTab{
-		Id:            1,
-		TabId:         1,
-		ApplicationId: 3,
+	at1 := models.ApplicationTab{
+		ID:            1,
+		TabID:         1,
+		ApplicationID: 3,
 		DisplayOrder:  1,
 	}
 	table := database.NewApplicationTabTable(db)
@@ -241,14 +242,14 @@ func (suite *ApplicationTabTableTestSuite) TestGetTabApps() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []database.ApplicationTab{
+	require.ElementsMatch(suite.T(), []models.ApplicationTab{
 		{
-			Id:            1,
-			TabId:         1,
-			ApplicationId: 1,
+			ID:            1,
+			TabID:         1,
+			ApplicationID: 1,
 			DisplayOrder:  1,
-			Application: database.Application{
-				Id:             1,
+			Application: &models.Application{
+				ID:             1,
 				TemplateAppid:  "",
 				Name:           "AdGuard Home",
 				Website:        "https://github.com/AdguardTeam/AdGuardHome",
@@ -260,12 +261,12 @@ func (suite *ApplicationTabTableTestSuite) TestGetTabApps() {
 			},
 		},
 		{
-			Id:            2,
-			TabId:         1,
-			ApplicationId: 2,
+			ID:            2,
+			TabID:         1,
+			ApplicationID: 2,
 			DisplayOrder:  2,
-			Application: database.Application{
-				Id:             2,
+			Application: &models.Application{
+				ID:             2,
 				Name:           "Adminer",
 				TemplateAppid:  "",
 				Website:        "https://www.adminer.org",

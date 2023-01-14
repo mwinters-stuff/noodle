@@ -5,9 +5,11 @@ FROM mcr.microsoft.com/devcontainers/go:0-1-bullseye
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
 
 # [Optional] Uncomment the next lines to use go get to install anything else you need
-# USER vscode
-# RUN go get -x <your-dependency-or-tool>
-# USER root
+USER vscode
+# RUN go get github.com/vektra/mockery/v2
+USER root
+ADD getswagger.sh /usr/local/bin
+RUN /usr/local/bin/getswagger.sh
 
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
