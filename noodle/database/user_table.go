@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mwinters-stuff/noodle/server/models"
@@ -42,15 +43,14 @@ type UserTable interface {
 	Delete(user models.User) error
 
 	GetDN(dn string) (models.User, error)
-	GetID(id int) (models.User, error)
-	GetAll() ([]models.User, error)
+	GetID(id int64) (models.User, error)
+	GetAll() ([]*models.User, error)
 	ExistsDN(dn string) (bool, error)
 	ExistsUsername(username string) (bool, error)
 }
 
 type UserTableImpl struct {
 	database Database
-	cache    TableCache[models.User]
 }
 
 // Drop implements UserTable
@@ -60,7 +60,7 @@ func (i *UserTableImpl) Drop() error {
 }
 
 // GetAll implements UserTable
-func (i *UserTableImpl) getQuery(query string, value any) ([]models.User, error) {
+func (i *UserTableImpl) getQuery(query string, value any) ([]*models.User, error) {
 	var rows pgx.Rows
 	var err error
 	if value == nil {
@@ -71,7 +71,7 @@ func (i *UserTableImpl) getQuery(query string, value any) ([]models.User, error)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.User{}
+	results := []*models.User{}
 	var username, dn, displayname, givenname, surname string
 	var id, uidnumber int64
 	_, err = pgx.ForEachRow(rows, []any{
@@ -84,7 +84,7 @@ func (i *UserTableImpl) getQuery(query string, value any) ([]models.User, error)
 		&uidnumber,
 	}, func() error {
 
-		user := models.User{
+		user := &models.User{
 			ID:          id,
 			Username:    username,
 			DN:          dn,
@@ -94,7 +94,6 @@ func (i *UserTableImpl) getQuery(query string, value any) ([]models.User, error)
 			UIDNumber:   uidnumber,
 		}
 		results = append(results, user)
-		i.cache.Add(id, user)
 		return nil
 	})
 
@@ -102,37 +101,27 @@ func (i *UserTableImpl) getQuery(query string, value any) ([]models.User, error)
 }
 
 // GetAll implements UserTable
-func (i *UserTableImpl) GetAll() ([]models.User, error) {
+func (i *UserTableImpl) GetAll() ([]*models.User, error) {
 	return i.getQuery(userTableQueryAll, nil)
 }
 
 // GetDN implements UserTable
 func (i *UserTableImpl) GetDN(dn string) (models.User, error) {
-	ok, user := i.cache.Find((func(index int64, value models.User) bool {
-		return value.DN == dn
-	}))
-	if ok {
-		return *user, nil
-	}
-
 	rows, err := i.getQuery(userTableQueryRowsDN, dn)
 	if err == nil {
-		i.cache.Add(rows[0].ID, rows[0])
-		return rows[0], nil
+		return *rows[0], nil
 	}
 	return models.User{}, err
 }
 
 // GetID implements UserTable
-func (i *UserTableImpl) GetID(id int) (models.User, error) {
-	found, user := i.cache.GetID(int64(id))
-	if found {
-		return user, nil
-	}
-
+func (i *UserTableImpl) GetID(id int64) (models.User, error) {
 	rows, err := i.getQuery(userTableQueryRowsID, id)
-	if err == nil {
-		return rows[0], nil
+	if err == nil && len(rows) > 0 {
+		return *rows[0], nil
+	}
+	if len(rows) == 0 {
+		return models.User{}, fmt.Errorf("no user with id %d", id)
 	}
 	return models.User{}, err
 
@@ -147,33 +136,17 @@ func (i *UserTableImpl) Create() error {
 // Delete implements UserTable
 func (i *UserTableImpl) Delete(user models.User) error {
 	_, err := i.database.Pool().Exec(context.Background(), userTableDeleteRow, user.ID)
-	if err == nil {
-		i.cache.DeleteIndex(user.ID)
-	}
 	return err
 }
 
 // Exists implements UserTable
 func (i *UserTableImpl) ExistsDN(dn string) (bool, error) {
-	ok, _ := i.cache.Find((func(index int64, value models.User) bool {
-		return value.DN == dn
-	}))
-	if ok {
-		return true, nil
-	}
-
 	var found int
 	err := i.database.Pool().QueryRow(context.Background(), userTableQueryExistsDN, dn).Scan(&found)
 	return found > 0, err
 }
 
 func (i *UserTableImpl) ExistsUsername(username string) (bool, error) {
-	ok, _ := i.cache.Find((func(index int64, value models.User) bool {
-		return value.Username == username
-	}))
-	if ok {
-		return true, nil
-	}
 	var found int
 	err := i.database.Pool().QueryRow(context.Background(), userTableQueryExistsUsername, username).Scan(&found)
 	return found > 0, err
@@ -181,6 +154,9 @@ func (i *UserTableImpl) ExistsUsername(username string) (bool, error) {
 
 // Insert implements UserTable
 func (i *UserTableImpl) Insert(user *models.User) error {
+	if user.DisplayName == "" {
+		user.DisplayName = fmt.Sprintf("%s %s", user.GivenName, user.Surname)
+	}
 	err := i.database.Pool().QueryRow(context.Background(), userTableInsertRow,
 		user.Username,
 		user.DN,
@@ -189,14 +165,14 @@ func (i *UserTableImpl) Insert(user *models.User) error {
 		user.Surname,
 		user.UIDNumber,
 	).Scan(&user.ID)
-	if err == nil {
-		i.cache.Add(user.ID, *user)
-	}
 	return err
 }
 
 // Update implements UserTable
 func (i *UserTableImpl) Update(user models.User) error {
+	if user.DisplayName == "" {
+		user.DisplayName = fmt.Sprintf("%s %s", user.GivenName, user.Surname)
+	}
 	_, err := i.database.Pool().Exec(context.Background(), userTableUpdateRow,
 		user.ID,
 		user.Username,
@@ -206,9 +182,6 @@ func (i *UserTableImpl) Update(user models.User) error {
 		user.Surname,
 		user.UIDNumber,
 	)
-	if err == nil {
-		i.cache.Update(user.ID, user)
-	}
 	return err
 }
 
@@ -217,9 +190,8 @@ func (*UserTableImpl) Upgrade(old_version int, new_verison int) error {
 	panic("unimplemented")
 }
 
-func NewUserTableImpl(database Database, cache TableCache[models.User]) UserTable {
+func NewUserTableImpl(database Database) UserTable {
 	return &UserTableImpl{
 		database: database,
-		cache:    cache,
 	}
 }

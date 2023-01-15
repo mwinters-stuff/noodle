@@ -50,9 +50,13 @@ paths:
   
   /noodle/users:
     get:
-      description: Gets the list of users
+      description: Gets the list of users or a single user
       produces:
       - application/json
+      parameters:
+        - name: userid
+          in: query
+          type: integer
       responses:
         '200':
           description: OK
@@ -63,76 +67,98 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
             $ref: '#/definitions/error'
       tags:
-        - noodle
+        - noodle-api
       security: 
         - key: []
-    post:
-      consumes:
-      - application/json
-      description: Adds a new user
-      parameters:
-        - name: action
-          in: query
-          type: string
-          enum:
-            - insert
-            - update
-          required: true
-        - name: user
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/user'
+
+  /noodle/groups:
+    get:
+      description: Gets the list of groups
       produces:
       - application/json
+      parameters:
+        - name: groupid
+          in: query
+          type: integer
       responses:
         '200':
           description: OK
           schema:
-            $ref: '#/definitions/user'
+            type: array
+            items:
+              $ref: '#/definitions/group'
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
             $ref: '#/definitions/error'
       tags:
-        - noodle
+        - noodle-api
       security: 
         - key: []
-    delete:
-      consumes:
+
+  /noodle/user-groups:
+    get:
+      description: Gets the list of Groups for a user or users for a group
+      produces:
       - application/json
-      description: Deletes the user
       parameters:
         - name: userid
           in: query
           type: integer
-          required: true
+        - name: groupid
+          in: query
+          type: integer
       responses:
         '200':
-          description: User Deleted.
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user_group'
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
-        '405':
-          description: Invalid Input
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
-        - noodle
+        - noodle-api
       security: 
         - key: []
 
+        
+  /noodle/ldap/reload:
+    get:
+      description: Loads Users and Groups to Database
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
 
 
 schemes:
@@ -141,8 +167,6 @@ swagger: "2.0"
 definitions:
   error:
     type: object
-    required:
-       - message
     properties:
       code:
         type: integer

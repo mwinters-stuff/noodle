@@ -60,6 +60,136 @@ func init() {
         }
       }
     },
+    "/noodle/groups": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of groups",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "groupid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/group"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/ldap/reload": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Loads Users and Groups to Database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/user-groups": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of Groups for a user or users for a group",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "userid",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "groupid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user_group"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/users": {
       "get": {
         "security": [
@@ -67,12 +197,19 @@ func init() {
             "key": []
           }
         ],
-        "description": "Gets the list of users",
+        "description": "Gets the list of users or a single user",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "noodle"
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "userid",
+            "in": "query"
+          }
         ],
         "responses": {
           "200": {
@@ -92,102 +229,6 @@ func init() {
           },
           "409": {
             "description": "Failed",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "post": {
-        "security": [
-          {
-            "key": []
-          }
-        ],
-        "description": "Adds a new user",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "noodle"
-        ],
-        "parameters": [
-          {
-            "enum": [
-              "insert",
-              "update"
-            ],
-            "type": "string",
-            "name": "action",
-            "in": "query",
-            "required": true
-          },
-          {
-            "name": "user",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/user"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/user"
-            }
-          },
-          "401": {
-            "description": "unauthorized",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "409": {
-            "description": "Failed",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "key": []
-          }
-        ],
-        "description": "Deletes the user",
-        "consumes": [
-          "application/json"
-        ],
-        "tags": [
-          "noodle"
-        ],
-        "parameters": [
-          {
-            "type": "integer",
-            "name": "userid",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User Deleted."
-          },
-          "401": {
-            "description": "unauthorized",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "405": {
-            "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -324,9 +365,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "code": {
           "type": "integer",
@@ -521,6 +559,136 @@ func init() {
         }
       }
     },
+    "/noodle/groups": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of groups",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "groupid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/group"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/ldap/reload": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Loads Users and Groups to Database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/user-groups": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of Groups for a user or users for a group",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "userid",
+            "in": "query"
+          },
+          {
+            "type": "integer",
+            "name": "groupid",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user_group"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/users": {
       "get": {
         "security": [
@@ -528,12 +696,19 @@ func init() {
             "key": []
           }
         ],
-        "description": "Gets the list of users",
+        "description": "Gets the list of users or a single user",
         "produces": [
           "application/json"
         ],
         "tags": [
-          "noodle"
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "userid",
+            "in": "query"
+          }
         ],
         "responses": {
           "200": {
@@ -553,102 +728,6 @@ func init() {
           },
           "409": {
             "description": "Failed",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "post": {
-        "security": [
-          {
-            "key": []
-          }
-        ],
-        "description": "Adds a new user",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "noodle"
-        ],
-        "parameters": [
-          {
-            "enum": [
-              "insert",
-              "update"
-            ],
-            "type": "string",
-            "name": "action",
-            "in": "query",
-            "required": true
-          },
-          {
-            "name": "user",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/user"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/user"
-            }
-          },
-          "401": {
-            "description": "unauthorized",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "409": {
-            "description": "Failed",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          }
-        }
-      },
-      "delete": {
-        "security": [
-          {
-            "key": []
-          }
-        ],
-        "description": "Deletes the user",
-        "consumes": [
-          "application/json"
-        ],
-        "tags": [
-          "noodle"
-        ],
-        "parameters": [
-          {
-            "type": "integer",
-            "name": "userid",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User Deleted."
-          },
-          "401": {
-            "description": "unauthorized",
-            "schema": {
-              "$ref": "#/definitions/error"
-            }
-          },
-          "405": {
-            "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -785,9 +864,6 @@ func init() {
     },
     "error": {
       "type": "object",
-      "required": [
-        "message"
-      ],
       "properties": {
         "code": {
           "type": "integer",

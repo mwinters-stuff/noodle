@@ -218,15 +218,15 @@ func (_c *UserTable_ExistsUsername_Call) Return(_a0 bool, _a1 error) *UserTable_
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *UserTable) GetAll() ([]models.User, error) {
+func (_m *UserTable) GetAll() ([]*models.User, error) {
 	ret := _m.Called()
 
-	var r0 []models.User
-	if rf, ok := ret.Get(0).(func() []models.User); ok {
+	var r0 []*models.User
+	if rf, ok := ret.Get(0).(func() []*models.User); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.User)
+			r0 = ret.Get(0).([]*models.User)
 		}
 	}
 
@@ -257,7 +257,7 @@ func (_c *UserTable_GetAll_Call) Run(run func()) *UserTable_GetAll_Call {
 	return _c
 }
 
-func (_c *UserTable_GetAll_Call) Return(_a0 []models.User, _a1 error) *UserTable_GetAll_Call {
+func (_c *UserTable_GetAll_Call) Return(_a0 []*models.User, _a1 error) *UserTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
@@ -307,18 +307,18 @@ func (_c *UserTable_GetDN_Call) Return(_a0 models.User, _a1 error) *UserTable_Ge
 }
 
 // GetID provides a mock function with given fields: id
-func (_m *UserTable) GetID(id int) (models.User, error) {
+func (_m *UserTable) GetID(id int64) (models.User, error) {
 	ret := _m.Called(id)
 
 	var r0 models.User
-	if rf, ok := ret.Get(0).(func(int) models.User); ok {
+	if rf, ok := ret.Get(0).(func(int64) models.User); ok {
 		r0 = rf(id)
 	} else {
 		r0 = ret.Get(0).(models.User)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
 		r1 = rf(id)
 	} else {
 		r1 = ret.Error(1)
@@ -333,14 +333,14 @@ type UserTable_GetID_Call struct {
 }
 
 // GetID is a helper method to define mock.On call
-//   - id int
+//   - id int64
 func (_e *UserTable_Expecter) GetID(id interface{}) *UserTable_GetID_Call {
 	return &UserTable_GetID_Call{Call: _e.mock.On("GetID", id)}
 }
 
-func (_c *UserTable_GetID_Call) Run(run func(id int)) *UserTable_GetID_Call {
+func (_c *UserTable_GetID_Call) Run(run func(id int64)) *UserTable_GetID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(int64))
 	})
 	return _c
 }

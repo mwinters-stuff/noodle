@@ -15,19 +15,19 @@ import (
 	"github.com/go-openapi/swag"
 )
 
-// NewGetNoodleUsersParams creates a new GetNoodleUsersParams object
+// NewGetNoodleGroupsParams creates a new GetNoodleGroupsParams object
 //
 // There are no default values defined in the spec.
-func NewGetNoodleUsersParams() GetNoodleUsersParams {
+func NewGetNoodleGroupsParams() GetNoodleGroupsParams {
 
-	return GetNoodleUsersParams{}
+	return GetNoodleGroupsParams{}
 }
 
-// GetNoodleUsersParams contains all the bound params for the get noodle users operation
+// GetNoodleGroupsParams contains all the bound params for the get noodle groups operation
 // typically these are obtained from a http.Request
 //
-// swagger:parameters GetNoodleUsers
-type GetNoodleUsersParams struct {
+// swagger:parameters GetNoodleGroups
+type GetNoodleGroupsParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
@@ -35,22 +35,22 @@ type GetNoodleUsersParams struct {
 	/*
 	  In: query
 	*/
-	Userid *int64
+	Groupid *int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
 // for simple values it will use straight method calls.
 //
-// To ensure default values, the struct must have been initialized with NewGetNoodleUsersParams() beforehand.
-func (o *GetNoodleUsersParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
+// To ensure default values, the struct must have been initialized with NewGetNoodleGroupsParams() beforehand.
+func (o *GetNoodleGroupsParams) BindRequest(r *http.Request, route *middleware.MatchedRoute) error {
 	var res []error
 
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
 
-	qUserid, qhkUserid, _ := qs.GetOK("userid")
-	if err := o.bindUserid(qUserid, qhkUserid, route.Formats); err != nil {
+	qGroupid, qhkGroupid, _ := qs.GetOK("groupid")
+	if err := o.bindGroupid(qGroupid, qhkGroupid, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -59,8 +59,8 @@ func (o *GetNoodleUsersParams) BindRequest(r *http.Request, route *middleware.Ma
 	return nil
 }
 
-// bindUserid binds and validates parameter Userid from query.
-func (o *GetNoodleUsersParams) bindUserid(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindGroupid binds and validates parameter Groupid from query.
+func (o *GetNoodleGroupsParams) bindGroupid(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -75,9 +75,9 @@ func (o *GetNoodleUsersParams) bindUserid(rawData []string, hasKey bool, formats
 
 	value, err := swag.ConvertInt64(raw)
 	if err != nil {
-		return errors.InvalidType("userid", "query", "int64", raw)
+		return errors.InvalidType("groupid", "query", "int64", raw)
 	}
-	o.Userid = &value
+	o.Groupid = &value
 
 	return nil
 }

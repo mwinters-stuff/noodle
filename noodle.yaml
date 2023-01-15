@@ -3,18 +3,18 @@ postgres:
   password: postgres
   db: postgres
   hostname: localhost
-  port: 15432
+  port: 5432
 ldap:
-  url: ldap://openldap.web-auth.svc
+  url: ldap://192.168.30.23
   base_dn: dc=winters,dc=nz
-  username_attribute: uid
-  additional_users_dn: ou=people
-  users_filter: (&(objectClass=organizationalPerson)(uid=%s))
-  additional_groups_dn: ou=groups
-  user_groups_filter: (&(uniquemember=%s)(objectclass=groupOfUniqueNames))
-  group_name_attribute: cn
-  group_member_attribute: uniqueMember
-  display_name_attribute: cn
-  user: CN=readonly,DC=winters,DC=nz
+  user: cn=readonly,dc=winters,dc=nz
   password: readonly
-
+  username_attribute: uid
+  user_filter: (&(objectClass=organizationalPerson)(uid=%s))
+  all_users_filter: (objectclass=organizationalPerson)
+  all_groups_filter: (objectclass=groupOfUniqueNames)
+  user_groups_filter: (&(uniquemember=%s)(objectclass=groupOfUniqueNames))
+  group_users_filter: (&(objectClass=groupOfUniqueNames)(cn=%s))
+  group_name_attribute: cn
+  user_display_name_attribute: cn
+  group_member_attribute: uniqueMember

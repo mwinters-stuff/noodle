@@ -7,29 +7,22 @@ import (
 	"github.com/jackc/pgmock"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
 type UserTableTestSuite struct {
 	suite.Suite
-	script         *pgmock.Script
-	listener       net.Listener
-	appConfig      yamltypes.AppConfig
-	testFunctions  database_test.TestFunctions
-	mockTableCache *mocks.TableCache[models.User]
+	script        *pgmock.Script
+	listener      net.Listener
+	appConfig     yamltypes.AppConfig
+	testFunctions database_test.TestFunctions
 }
 
 func (suite *UserTableTestSuite) SetupSuite() {
-}
-
-func (suite *UserTableTestSuite) NewTableCache() database.TableCache[models.User] {
-	return suite.mockTableCache
 }
 
 func (suite *UserTableTestSuite) SetupTest() {
@@ -38,9 +31,6 @@ func (suite *UserTableTestSuite) SetupTest() {
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 	suite.listener, suite.appConfig = suite.testFunctions.TestStepsRunner(suite.T(), suite.script)
-
-	suite.mockTableCache = mocks.NewTableCache[models.User](suite.T())
-
 }
 
 func (suite *UserTableTestSuite) TearDownTest() {
@@ -59,7 +49,7 @@ func (suite *UserTableTestSuite) TestCreateTable() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 
 	err = table.Create()
 	require.NoError(suite.T(), err)
@@ -67,7 +57,7 @@ func (suite *UserTableTestSuite) TestCreateTable() {
 }
 
 func (suite *UserTableTestSuite) TestUpgrade() {
-	table := database.NewUserTable(nil, suite.mockTableCache)
+	table := database.NewUserTable(nil)
 	require.Panics(suite.T(), func() { table.Upgrade(0, 0) })
 }
 
@@ -87,7 +77,7 @@ func (suite *UserTableTestSuite) TestDrop() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 
 	err = table.Drop()
 	require.NoError(suite.T(), err)
@@ -132,17 +122,7 @@ func (suite *UserTableTestSuite) TestInsert() {
 		UIDNumber:   1001,
 	}
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Add(int64(1), models.User{
-		ID:          1,
-		DN:          "CN=bob,DC=example,DC=nz",
-		Username:    "bobe",
-		DisplayName: "bobextample",
-		Surname:     "Extample",
-		GivenName:   "Bob",
-		UIDNumber:   1001,
-	})
+	table := database.NewUserTable(db)
 
 	err = table.Insert(&user)
 	require.NoError(suite.T(), err)
@@ -188,18 +168,7 @@ func (suite *UserTableTestSuite) TestUpdate() {
 		UIDNumber:   1001,
 	}
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Update(int64(1), models.User{
-		ID:          1,
-		DN:          "CN=bob,DC=example,DC=nz",
-		Username:    "bobe",
-		DisplayName: "bobextample",
-		Surname:     "Extample",
-		GivenName:   "Bob",
-		UIDNumber:   1001,
-	})
-
+	table := database.NewUserTable(db)
 	err = table.Update(user)
 	require.NoError(suite.T(), err)
 }
@@ -242,9 +211,7 @@ func (suite *UserTableTestSuite) TestDelete() {
 		UIDNumber:   1001,
 	}
 
-	suite.mockTableCache.EXPECT().DeleteIndex(int64(1))
-
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 
 	err = table.Delete(user)
 	require.NoError(suite.T(), err)
@@ -278,15 +245,13 @@ func (suite *UserTableTestSuite) TestGetAll() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	suite.mockTableCache.EXPECT().Add(mock.Anything, mock.Anything).Times(2)
-
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 
 	result, err := table.GetAll()
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.User{
+	require.ElementsMatch(suite.T(), []*models.User{
 		{
 			ID:          1,
 			DN:          "CN=bob,DC=example,DC=nz",
@@ -337,7 +302,7 @@ func (suite *UserTableTestSuite) TestGetAllError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 	db.Close()
 
 	_, err = table.GetAll()
@@ -373,11 +338,7 @@ func (suite *UserTableTestSuite) TestGetDN() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Add(mock.Anything, mock.Anything).Times(2)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.GetDN("CN=jack,DC=example,DC=nz")
 	require.NoError(suite.T(), err)
@@ -391,30 +352,6 @@ func (suite *UserTableTestSuite) TestGetDN() {
 		Surname:     "M",
 		GivenName:   "Jack",
 		UIDNumber:   1002,
-	}, result)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(true, &models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	}).Times(1)
-
-	result, err = table.GetDN("CN=jack,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
-	require.NotNil(suite.T(), result)
-
-	require.Equal(suite.T(), models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
 	}, result)
 
 }
@@ -446,10 +383,8 @@ func (suite *UserTableTestSuite) TestGetDNError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 	db.Close()
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
 
 	_, err = table.GetDN("CN=jack,DC=example,DC=nz")
 	require.Error(suite.T(), err)
@@ -483,181 +418,12 @@ func (suite *UserTableTestSuite) TestGetID() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Add(mock.Anything, mock.Anything).Times(1)
-	suite.mockTableCache.EXPECT().GetID(int64(2)).Return(false, models.User{}).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.GetID(2)
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.Equal(suite.T(), models.User{
-		ID:          2,
-		DN:          "CN=jack,DC=example,DC=nz",
-		Username:    "jack",
-		DisplayName: "Jack M",
-		Surname:     "M",
-		GivenName:   "Jack",
-		UIDNumber:   1002,
-	}, result)
-
-	suite.mockTableCache.EXPECT().GetID(int64(3)).Return(true, models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	}).Times(1)
-
-	result, err = table.GetID(3)
-	require.NoError(suite.T(), err)
-	require.NotNil(suite.T(), result)
-
-	require.Equal(suite.T(), models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	}, result)
-}
-
-func (suite *UserTableTestSuite) TestExistsUsernameCached() {
-	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
-
-	db := database.NewDatabase(suite.appConfig)
-	assert.NotNil(suite.T(), db)
-	defer db.Close()
-
-	err := db.Connect()
-	require.NoError(suite.T(), err)
-
-	cache := database.NewTableCache[models.User]()
-	table := database.NewUserTable(db, cache)
-
-	cache.Add(1, models.User{
-		ID:          2,
-		DN:          "CN=jack,DC=example,DC=nz",
-		Username:    "jack",
-		DisplayName: "Jack M",
-		Surname:     "M",
-		GivenName:   "Jack",
-		UIDNumber:   1002,
-	})
-
-	cache.Add(2, models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	})
-
-	result, err := table.ExistsUsername("jill")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-
-	result, err = table.ExistsUsername("jack")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-}
-
-func (suite *UserTableTestSuite) TestExistsDNCached() {
-	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
-
-	db := database.NewDatabase(suite.appConfig)
-	assert.NotNil(suite.T(), db)
-	defer db.Close()
-
-	err := db.Connect()
-	require.NoError(suite.T(), err)
-
-	cache := database.NewTableCache[models.User]()
-	table := database.NewUserTable(db, cache)
-
-	cache.Add(1, models.User{
-		ID:          2,
-		DN:          "CN=jack,DC=example,DC=nz",
-		Username:    "jack",
-		DisplayName: "Jack M",
-		Surname:     "M",
-		GivenName:   "Jack",
-		UIDNumber:   1002,
-	})
-
-	cache.Add(2, models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	})
-
-	result, err := table.ExistsDN("CN=jill,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-
-	result, err = table.ExistsDN("CN=jack,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-}
-
-func (suite *UserTableTestSuite) TestGetDNCached() {
-	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
-
-	db := database.NewDatabase(suite.appConfig)
-	assert.NotNil(suite.T(), db)
-	defer db.Close()
-
-	err := db.Connect()
-	require.NoError(suite.T(), err)
-
-	cache := database.NewTableCache[models.User]()
-	table := database.NewUserTable(db, cache)
-
-	cache.Add(1, models.User{
-		ID:          2,
-		DN:          "CN=jack,DC=example,DC=nz",
-		Username:    "jack",
-		DisplayName: "Jack M",
-		Surname:     "M",
-		GivenName:   "Jack",
-		UIDNumber:   1002,
-	})
-
-	cache.Add(2, models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	})
-
-	result, err := table.GetDN("CN=jill,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
-	require.Equal(suite.T(), models.User{
-		ID:          2,
-		DN:          "CN=jill,DC=example,DC=nz",
-		Username:    "jill",
-		DisplayName: "Jill M",
-		Surname:     "M",
-		GivenName:   "Jill",
-		UIDNumber:   1003,
-	}, result)
-
-	result, err = table.GetDN("CN=jack,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
 	require.Equal(suite.T(), models.User{
 		ID:          2,
 		DN:          "CN=jack,DC=example,DC=nz",
@@ -696,10 +462,9 @@ func (suite *UserTableTestSuite) TestGetIDError() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
+	table := database.NewUserTable(db)
 
 	db.Close()
-	suite.mockTableCache.EXPECT().GetID(int64(-1)).Return(false, models.User{}).Times(1)
 
 	_, err = table.GetID(-1)
 	require.Error(suite.T(), err)
@@ -734,17 +499,9 @@ func (suite *UserTableTestSuite) TestExistsDN() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.ExistsDN("CN=jack,DC=example,DC=nz")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(true, &models.User{}).Times(1)
-
-	result, err = table.ExistsDN("CN=jill,DC=example,DC=nz")
 	require.NoError(suite.T(), err)
 	require.True(suite.T(), result)
 
@@ -778,16 +535,9 @@ func (suite *UserTableTestSuite) TestExistsUsername() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.ExistsUsername("bobe")
-	require.NoError(suite.T(), err)
-	require.True(suite.T(), result)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(true, &models.User{}).Times(1)
-	result, err = table.ExistsUsername("joe")
 	require.NoError(suite.T(), err)
 	require.True(suite.T(), result)
 
@@ -822,9 +572,7 @@ func (suite *UserTableTestSuite) TestExistsNotDN() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.ExistsDN("CN=bob,DC=example,DC=nz")
 	require.NoError(suite.T(), err)
@@ -860,9 +608,7 @@ func (suite *UserTableTestSuite) TestNotExistsUsername() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	table := database.NewUserTable(db, suite.mockTableCache)
-
-	suite.mockTableCache.EXPECT().Find(mock.Anything).Return(false, nil).Times(1)
+	table := database.NewUserTable(db)
 
 	result, err := table.ExistsUsername("bob")
 	require.NoError(suite.T(), err)

@@ -38,8 +38,8 @@ type GroupTable interface {
 	Delete(group models.Group) error
 
 	GetDN(dn string) (models.Group, error)
-	GetID(id int) (models.Group, error)
-	GetAll() ([]models.Group, error)
+	GetID(id int64) (models.Group, error)
+	GetAll() ([]*models.Group, error)
 	ExistsDN(dn string) (bool, error)
 	ExistsName(groupname string) (bool, error)
 }
@@ -56,7 +56,7 @@ func (i *GroupTableImpl) Drop() error {
 }
 
 // GetAll implements GroupTable
-func (i *GroupTableImpl) getQuery(query string, value any) ([]models.Group, error) {
+func (i *GroupTableImpl) getQuery(query string, value any) ([]*models.Group, error) {
 	var rows pgx.Rows
 	var err error
 	if value == nil {
@@ -67,7 +67,7 @@ func (i *GroupTableImpl) getQuery(query string, value any) ([]models.Group, erro
 	if err != nil {
 		return nil, err
 	}
-	results := []models.Group{}
+	results := []*models.Group{}
 	var dn, name string
 	var id int64
 	_, err = pgx.ForEachRow(rows, []any{
@@ -76,7 +76,7 @@ func (i *GroupTableImpl) getQuery(query string, value any) ([]models.Group, erro
 		&name,
 	}, func() error {
 
-		results = append(results, models.Group{
+		results = append(results, &models.Group{
 			ID:   id,
 			DN:   dn,
 			Name: name,
@@ -88,7 +88,7 @@ func (i *GroupTableImpl) getQuery(query string, value any) ([]models.Group, erro
 }
 
 // GetAll implements GroupTable
-func (i *GroupTableImpl) GetAll() ([]models.Group, error) {
+func (i *GroupTableImpl) GetAll() ([]*models.Group, error) {
 	return i.getQuery(groupTableQueryAll, nil)
 }
 
@@ -96,16 +96,16 @@ func (i *GroupTableImpl) GetAll() ([]models.Group, error) {
 func (i *GroupTableImpl) GetDN(dn string) (models.Group, error) {
 	rows, err := i.getQuery(groupTableQueryRowsDN, dn)
 	if err == nil {
-		return rows[0], nil
+		return *rows[0], nil
 	}
 	return models.Group{}, err
 }
 
 // GetID implements GroupTable
-func (i *GroupTableImpl) GetID(id int) (models.Group, error) {
+func (i *GroupTableImpl) GetID(id int64) (models.Group, error) {
 	rows, err := i.getQuery(groupTableQueryRowsID, id)
 	if err == nil {
-		return rows[0], nil
+		return *rows[0], nil
 	}
 	return models.Group{}, err
 

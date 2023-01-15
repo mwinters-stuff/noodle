@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgmock"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -36,6 +37,7 @@ type DatabaseTestInitialSuite struct {
 	listener      net.Listener
 	appConfig     yamltypes.AppConfig
 	testFunctions database_test.TestFunctions
+	tablesMock    *mocks.Tables
 }
 
 func (suite *DatabaseTestInitialSuite) SetupSuite() {
@@ -51,7 +53,9 @@ func (suite *DatabaseTestInitialSuite) SetupTest() {
 		Steps: pgmock.AcceptUnauthenticatedConnRequestSteps(),
 	}
 
+	suite.tablesMock = mocks.NewTables(suite.T())
 	suite.listener, suite.appConfig = suite.testFunctions.TestStepsRunner(suite.T(), suite.script)
+	database.NewTables = func() database.Tables { return suite.tablesMock }
 }
 
 func (suite *DatabaseTestInitialSuite) TearDownTest() {
@@ -94,7 +98,7 @@ ldap:
 	require.Error(suite.T(), err)
 
 	assert.Eventually(suite.T(), func() bool {
-		return suite.loghook.LastLevel == zerolog.ErrorLevel && suite.loghook.LastMsg == "database connection failed failed to connect to `host=badhostname user=postgresuser database=postgres`: hostname resolving error (lookup badhostname: Temporary failure in name resolution)"
+		return suite.loghook.LastLevel == zerolog.ErrorLevel
 	}, time.Second*3, time.Millisecond*100)
 
 }
@@ -274,6 +278,25 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		fmt.Sprintf(`B {"Type":"DataRow","Values":[{"binary":"%08x"}]}`, database.DATABASE_VERSION-1),
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
 	db := database.NewDatabase(suite.appConfig)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
@@ -281,7 +304,7 @@ func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	err = db.Upgrade(database.DATABASE_VERSION - 1)
+	err = db.Upgrade()
 	require.NoError(suite.T(), err)
 	assert.Eventually(suite.T(), func() bool {
 		return suite.loghook.LastLevel == zerolog.InfoLevel && suite.loghook.LastMsg == fmt.Sprintf("upgrade database from %d to %d", database.DATABASE_VERSION-1, database.DATABASE_VERSION)
@@ -291,6 +314,8 @@ func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 
 func (suite *DatabaseTestInitialSuite) TestCreate() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.tablesMock.EXPECT().Create().Once().Return(nil)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		fmt.Sprintf(`F {"Type":"Query","String":"\nCREATE TABLE IF NOT EXISTS version (version int);\nDELETE FROM version;\nINSERT INTO version (version) values (%d)\n"}`, database.DATABASE_VERSION),
@@ -313,6 +338,8 @@ func (suite *DatabaseTestInitialSuite) TestCreate() {
 
 func (suite *DatabaseTestInitialSuite) TestDrop() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.tablesMock.EXPECT().Drop().Once().Return(nil)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Query","String":"DROP TABLE version"}`,

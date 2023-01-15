@@ -9,23 +9,17 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
-
-	"github.com/go-openapi/swag"
 )
 
-// GetNoodleUsersURL generates an URL for the get noodle users operation
-type GetNoodleUsersURL struct {
-	Userid *int64
-
+// GetNoodleLdapReloadURL generates an URL for the get noodle ldap reload operation
+type GetNoodleLdapReloadURL struct {
 	_basePath string
-	// avoid unkeyed usage
-	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetNoodleUsersURL) WithBasePath(bp string) *GetNoodleUsersURL {
+func (o *GetNoodleLdapReloadURL) WithBasePath(bp string) *GetNoodleLdapReloadURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -33,15 +27,15 @@ func (o *GetNoodleUsersURL) WithBasePath(bp string) *GetNoodleUsersURL {
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetNoodleUsersURL) SetBasePath(bp string) {
+func (o *GetNoodleLdapReloadURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetNoodleUsersURL) Build() (*url.URL, error) {
+func (o *GetNoodleLdapReloadURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/noodle/users"
+	var _path = "/noodle/ldap/reload"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -49,23 +43,11 @@ func (o *GetNoodleUsersURL) Build() (*url.URL, error) {
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
-	qs := make(url.Values)
-
-	var useridQ string
-	if o.Userid != nil {
-		useridQ = swag.FormatInt64(*o.Userid)
-	}
-	if useridQ != "" {
-		qs.Set("userid", useridQ)
-	}
-
-	_result.RawQuery = qs.Encode()
-
 	return &_result, nil
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetNoodleUsersURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetNoodleLdapReloadURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -76,17 +58,17 @@ func (o *GetNoodleUsersURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetNoodleUsersURL) String() string {
+func (o *GetNoodleLdapReloadURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetNoodleUsersURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetNoodleLdapReloadURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetNoodleUsersURL")
+		return nil, errors.New("scheme is required for a full url on GetNoodleLdapReloadURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetNoodleUsersURL")
+		return nil, errors.New("host is required for a full url on GetNoodleLdapReloadURL")
 	}
 
 	base, err := o.Build()
@@ -100,6 +82,6 @@ func (o *GetNoodleUsersURL) BuildFull(scheme, host string) (*url.URL, error) {
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetNoodleUsersURL) StringFull(scheme, host string) string {
+func (o *GetNoodleLdapReloadURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

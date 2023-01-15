@@ -13,40 +13,40 @@ import (
 	"github.com/mwinters-stuff/noodle/server/models"
 )
 
-// GetNoodleUsersHandlerFunc turns a function with the right signature into a get noodle users handler
-type GetNoodleUsersHandlerFunc func(GetNoodleUsersParams, *models.Principal) middleware.Responder
+// GetNoodleGroupsHandlerFunc turns a function with the right signature into a get noodle groups handler
+type GetNoodleGroupsHandlerFunc func(GetNoodleGroupsParams, *models.Principal) middleware.Responder
 
 // Handle executing the request and returning a response
-func (fn GetNoodleUsersHandlerFunc) Handle(params GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
+func (fn GetNoodleGroupsHandlerFunc) Handle(params GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
 	return fn(params, principal)
 }
 
-// GetNoodleUsersHandler interface for that can handle valid get noodle users params
-type GetNoodleUsersHandler interface {
-	Handle(GetNoodleUsersParams, *models.Principal) middleware.Responder
+// GetNoodleGroupsHandler interface for that can handle valid get noodle groups params
+type GetNoodleGroupsHandler interface {
+	Handle(GetNoodleGroupsParams, *models.Principal) middleware.Responder
 }
 
-// NewGetNoodleUsers creates a new http.Handler for the get noodle users operation
-func NewGetNoodleUsers(ctx *middleware.Context, handler GetNoodleUsersHandler) *GetNoodleUsers {
-	return &GetNoodleUsers{Context: ctx, Handler: handler}
+// NewGetNoodleGroups creates a new http.Handler for the get noodle groups operation
+func NewGetNoodleGroups(ctx *middleware.Context, handler GetNoodleGroupsHandler) *GetNoodleGroups {
+	return &GetNoodleGroups{Context: ctx, Handler: handler}
 }
 
 /*
-	GetNoodleUsers swagger:route GET /noodle/users noodle-api getNoodleUsers
+	GetNoodleGroups swagger:route GET /noodle/groups noodle-api getNoodleGroups
 
-Gets the list of users or a single user
+Gets the list of groups
 */
-type GetNoodleUsers struct {
+type GetNoodleGroups struct {
 	Context *middleware.Context
-	Handler GetNoodleUsersHandler
+	Handler GetNoodleGroupsHandler
 }
 
-func (o *GetNoodleUsers) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+func (o *GetNoodleGroups) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	route, rCtx, _ := o.Context.RouteInfo(r)
 	if rCtx != nil {
 		*r = *rCtx
 	}
-	var Params = NewGetNoodleUsersParams()
+	var Params = NewGetNoodleGroupsParams()
 	uprinc, aCtx, err := o.Context.Authorize(r, route)
 	if err != nil {
 		o.Context.Respond(rw, r, route.Produces, route, err)

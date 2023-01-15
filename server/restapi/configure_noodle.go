@@ -4,33 +4,118 @@ package restapi
 
 import (
 	"crypto/tls"
+	"io/ioutil"
 	"net/http"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
+	"github.com/rs/zerolog"
+	zerologlog "github.com/rs/zerolog/log"
 
+	"github.com/mwinters-stuff/noodle/handlers"
+	"github.com/mwinters-stuff/noodle/noodle"
+	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
+	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
-	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+)
+
+var (
+	Logger = zerologlog.Logger
 )
 
 //go:generate swagger generate server --target ../../server --name Noodle --spec ../../swagger.yaml --principal models.Principal
 
 func configureFlags(api *operations.NoodleAPI) {
-	// api.CommandLineOptionsGroups = []swag.CommandLineOptionsGroup{ ... }
+	opts := &noodle.AllNoodleOptions{}
+
+	api.CommandLineOptionsGroups = append(api.CommandLineOptionsGroups, swag.CommandLineOptionsGroup{
+		ShortDescription: "config",
+		LongDescription:  "Noodle Config",
+		Options:          &opts.NoodleOptions,
+	})
+}
+
+func setupDatabase(config yamltypes.AppConfig) (database.Database, error) {
+	db := database.NewDatabase(config)
+
+	err := db.Connect()
+	if err != nil {
+		return nil, err
+	}
+	db.InitTables()
+
+	created, _ := db.CheckCreated()
+	if !created {
+		err = db.Create()
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		needUpgrade, err := db.CheckUpgrade()
+		if err != nil {
+			return nil, err
+		}
+
+		if needUpgrade {
+			err = db.Upgrade()
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return db, nil
+}
+
+func setupLDAP(config yamltypes.AppConfig) (ldap_handler.LdapHandler, error) {
+	ldap := ldap_handler.NewLdapHandler(ldap_shim.NewLdapShim(), config)
+	return ldap, ldap.Connect()
 }
 
 func configureAPI(api *operations.NoodleAPI) http.Handler {
 	// configure the api here
+	opts := &noodle.AllNoodleOptions{}
+	opts.NoodleOptions = *api.CommandLineOptionsGroups[0].Options.(*noodle.NoodleOptions)
+
 	api.ServeError = errors.ServeError
+
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	if opts.NoodleOptions.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	}
+
+	yfile, err := ioutil.ReadFile(opts.NoodleOptions.Config)
+	if err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
+
+	config, err := yamltypes.UnmarshalConfig(yfile)
+	if err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
+
+	var db database.Database
+	if db, err = setupDatabase(config); err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
+
+	var ldap ldap_handler.LdapHandler
+	if ldap, err = setupLDAP(config); err != nil {
+		Logger.Fatal().Msg(err.Error())
+	}
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})
 	//
 	// Example:
-	// api.Logger = log.Printf
+	api.Logger = Logger.Debug().Msgf
 
 	api.UseSwaggerUI()
 	// To continue using redoc as your UI, uncomment the following line
@@ -57,41 +142,40 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
-	if api.NoodleDeleteNoodleUsersHandler == nil {
-		api.NoodleDeleteNoodleUsersHandler = noodle.DeleteNoodleUsersHandlerFunc(func(params noodle.DeleteNoodleUsersParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation noodle.DeleteNoodleUsers has not yet been implemented")
-		})
-	}
-	if api.KubernetesGetHealthzHandler == nil {
-		api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
-			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
-		})
-	}
+	// USERS
 
-	api.NoodleGetNoodleUsersHandler = noodle.GetNoodleUsersHandlerFunc(func(params noodle.GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
-		return noodle.NewGetNoodleUsersOK().WithPayload([]*models.User{
-			{
-				DN:          "abcdef",
-				DisplayName: "abcdef",
-				GivenName:   "bob",
-				ID:          1,
-				Surname:     "joe",
-				UIDNumber:   0,
-				Username:    "abcdef",
-			},
-		})
+	api.NoodleAPIGetNoodleUsersHandler = noodle_api.GetNoodleUsersHandlerFunc(func(params noodle_api.GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerUsers(db, params, principal)
 	})
 
-	if api.KubernetesGetReadyzHandler == nil {
-		api.KubernetesGetReadyzHandler = kubernetes.GetReadyzHandlerFunc(func(params kubernetes.GetReadyzParams) middleware.Responder {
-			return middleware.NotImplemented("operation kubernetes.GetReadyz has not yet been implemented")
-		})
-	}
-	if api.NoodlePostNoodleUsersHandler == nil {
-		api.NoodlePostNoodleUsersHandler = noodle.PostNoodleUsersHandlerFunc(func(params noodle.PostNoodleUsersParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation noodle.PostNoodleUsers has not yet been implemented")
-		})
-	}
+	// GROUPS
+	api.NoodleAPIGetNoodleGroupsHandler = noodle_api.GetNoodleGroupsHandlerFunc(func(params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerGroups(db, params, principal)
+	})
+
+	// USER GROUPS
+	api.NoodleAPIGetNoodleUserGroupsHandler = noodle_api.GetNoodleUserGroupsHandlerFunc(func(params noodle_api.GetNoodleUserGroupsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerUserGroups(db, params, principal)
+	})
+
+	api.NoodleAPIGetNoodleLdapReloadHandler = noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandleLDAPRefresh(db, ldap, params, principal)
+	})
+
+	api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
+		return kubernetes.NewGetHealthzOK().WithPayload(map[string]string{"status": "OK"})
+	})
+
+	api.KubernetesGetReadyzHandler = kubernetes.GetReadyzHandlerFunc(func(params kubernetes.GetReadyzParams) middleware.Responder {
+		if db != nil {
+			ok, _ := db.CheckCreated()
+			if ok {
+				return kubernetes.NewGetReadyzOK().WithPayload(map[string]string{"status": "OK"})
+			}
+
+		}
+		return middleware.Error(http.StatusNotFound, map[string]string{"status": "UNHEALTHY"})
+	})
 
 	api.PreServerShutdown = func() {}
 

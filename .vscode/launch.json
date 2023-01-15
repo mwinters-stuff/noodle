@@ -18,7 +18,7 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/server/cmd/noodle-server/main.go",
-      "args": ["--port","8080"]
+      "args": ["--port","8080", "--config", "${workspaceFolder}/noodle.yaml"]
     }
   ]
 }

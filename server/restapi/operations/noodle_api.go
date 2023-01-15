@@ -21,7 +21,7 @@ import (
 
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
-	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 )
 
 // NewNoodleAPI creates a new Noodle instance
@@ -46,20 +46,23 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
-		NoodleDeleteNoodleUsersHandler: noodle.DeleteNoodleUsersHandlerFunc(func(params noodle.DeleteNoodleUsersParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation noodle.DeleteNoodleUsers has not yet been implemented")
-		}),
 		KubernetesGetHealthzHandler: kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
 		}),
-		NoodleGetNoodleUsersHandler: noodle.GetNoodleUsersHandlerFunc(func(params noodle.GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation noodle.GetNoodleUsers has not yet been implemented")
+		NoodleAPIGetNoodleGroupsHandler: noodle_api.GetNoodleGroupsHandlerFunc(func(params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleGroups has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleLdapReloadHandler: noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleLdapReload has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleUserGroupsHandler: noodle_api.GetNoodleUserGroupsHandlerFunc(func(params noodle_api.GetNoodleUserGroupsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleUserGroups has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleUsersHandler: noodle_api.GetNoodleUsersHandlerFunc(func(params noodle_api.GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleUsers has not yet been implemented")
 		}),
 		KubernetesGetReadyzHandler: kubernetes.GetReadyzHandlerFunc(func(params kubernetes.GetReadyzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetReadyz has not yet been implemented")
-		}),
-		NoodlePostNoodleUsersHandler: noodle.PostNoodleUsersHandlerFunc(func(params noodle.PostNoodleUsersParams, principal *models.Principal) middleware.Responder {
-			return middleware.NotImplemented("operation noodle.PostNoodleUsers has not yet been implemented")
 		}),
 
 		// Applies when the "Remote-User" header is set
@@ -111,16 +114,18 @@ type NoodleAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
-	// NoodleDeleteNoodleUsersHandler sets the operation handler for the delete noodle users operation
-	NoodleDeleteNoodleUsersHandler noodle.DeleteNoodleUsersHandler
 	// KubernetesGetHealthzHandler sets the operation handler for the get healthz operation
 	KubernetesGetHealthzHandler kubernetes.GetHealthzHandler
-	// NoodleGetNoodleUsersHandler sets the operation handler for the get noodle users operation
-	NoodleGetNoodleUsersHandler noodle.GetNoodleUsersHandler
+	// NoodleAPIGetNoodleGroupsHandler sets the operation handler for the get noodle groups operation
+	NoodleAPIGetNoodleGroupsHandler noodle_api.GetNoodleGroupsHandler
+	// NoodleAPIGetNoodleLdapReloadHandler sets the operation handler for the get noodle ldap reload operation
+	NoodleAPIGetNoodleLdapReloadHandler noodle_api.GetNoodleLdapReloadHandler
+	// NoodleAPIGetNoodleUserGroupsHandler sets the operation handler for the get noodle user groups operation
+	NoodleAPIGetNoodleUserGroupsHandler noodle_api.GetNoodleUserGroupsHandler
+	// NoodleAPIGetNoodleUsersHandler sets the operation handler for the get noodle users operation
+	NoodleAPIGetNoodleUsersHandler noodle_api.GetNoodleUsersHandler
 	// KubernetesGetReadyzHandler sets the operation handler for the get readyz operation
 	KubernetesGetReadyzHandler kubernetes.GetReadyzHandler
-	// NoodlePostNoodleUsersHandler sets the operation handler for the post noodle users operation
-	NoodlePostNoodleUsersHandler noodle.PostNoodleUsersHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -202,20 +207,23 @@ func (o *NoodleAPI) Validate() error {
 		unregistered = append(unregistered, "RemoteUserAuth")
 	}
 
-	if o.NoodleDeleteNoodleUsersHandler == nil {
-		unregistered = append(unregistered, "noodle.DeleteNoodleUsersHandler")
-	}
 	if o.KubernetesGetHealthzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetHealthzHandler")
 	}
-	if o.NoodleGetNoodleUsersHandler == nil {
-		unregistered = append(unregistered, "noodle.GetNoodleUsersHandler")
+	if o.NoodleAPIGetNoodleGroupsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleGroupsHandler")
+	}
+	if o.NoodleAPIGetNoodleLdapReloadHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleLdapReloadHandler")
+	}
+	if o.NoodleAPIGetNoodleUserGroupsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleUserGroupsHandler")
+	}
+	if o.NoodleAPIGetNoodleUsersHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleUsersHandler")
 	}
 	if o.KubernetesGetReadyzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetReadyzHandler")
-	}
-	if o.NoodlePostNoodleUsersHandler == nil {
-		unregistered = append(unregistered, "noodle.PostNoodleUsersHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -316,10 +324,6 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/noodle/users"] = noodle.NewDeleteNoodleUsers(o.context, o.NoodleDeleteNoodleUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -327,15 +331,23 @@ func (o *NoodleAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/noodle/users"] = noodle.NewGetNoodleUsers(o.context, o.NoodleGetNoodleUsersHandler)
+	o.handlers["GET"]["/noodle/groups"] = noodle_api.NewGetNoodleGroups(o.context, o.NoodleAPIGetNoodleGroupsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/ldap/reload"] = noodle_api.NewGetNoodleLdapReload(o.context, o.NoodleAPIGetNoodleLdapReloadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/user-groups"] = noodle_api.NewGetNoodleUserGroups(o.context, o.NoodleAPIGetNoodleUserGroupsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/users"] = noodle_api.NewGetNoodleUsers(o.context, o.NoodleAPIGetNoodleUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/readyz"] = kubernetes.NewGetReadyz(o.context, o.KubernetesGetReadyzHandler)
-	if o.handlers["POST"] == nil {
-		o.handlers["POST"] = make(map[string]http.Handler)
-	}
-	o.handlers["POST"]["/noodle/users"] = noodle.NewPostNoodleUsers(o.context, o.NoodlePostNoodleUsersHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -175,15 +175,15 @@ func (_c *UserGroupsTable_Exists_Call) Return(_a0 bool, _a1 error) *UserGroupsTa
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *UserGroupsTable) GetAll() ([]models.UserGroup, error) {
+func (_m *UserGroupsTable) GetAll() ([]*models.UserGroup, error) {
 	ret := _m.Called()
 
-	var r0 []models.UserGroup
-	if rf, ok := ret.Get(0).(func() []models.UserGroup); ok {
+	var r0 []*models.UserGroup
+	if rf, ok := ret.Get(0).(func() []*models.UserGroup); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.UserGroup)
+			r0 = ret.Get(0).([]*models.UserGroup)
 		}
 	}
 
@@ -214,21 +214,21 @@ func (_c *UserGroupsTable_GetAll_Call) Run(run func()) *UserGroupsTable_GetAll_C
 	return _c
 }
 
-func (_c *UserGroupsTable_GetAll_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetAll_Call {
+func (_c *UserGroupsTable_GetAll_Call) Return(_a0 []*models.UserGroup, _a1 error) *UserGroupsTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetGroup provides a mock function with given fields: groupid
-func (_m *UserGroupsTable) GetGroup(groupid int64) ([]models.UserGroup, error) {
+func (_m *UserGroupsTable) GetGroup(groupid int64) ([]*models.UserGroup, error) {
 	ret := _m.Called(groupid)
 
-	var r0 []models.UserGroup
-	if rf, ok := ret.Get(0).(func(int64) []models.UserGroup); ok {
+	var r0 []*models.UserGroup
+	if rf, ok := ret.Get(0).(func(int64) []*models.UserGroup); ok {
 		r0 = rf(groupid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.UserGroup)
+			r0 = ret.Get(0).([]*models.UserGroup)
 		}
 	}
 
@@ -260,21 +260,21 @@ func (_c *UserGroupsTable_GetGroup_Call) Run(run func(groupid int64)) *UserGroup
 	return _c
 }
 
-func (_c *UserGroupsTable_GetGroup_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetGroup_Call {
+func (_c *UserGroupsTable_GetGroup_Call) Return(_a0 []*models.UserGroup, _a1 error) *UserGroupsTable_GetGroup_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
 // GetUser provides a mock function with given fields: userid
-func (_m *UserGroupsTable) GetUser(userid int64) ([]models.UserGroup, error) {
+func (_m *UserGroupsTable) GetUser(userid int64) ([]*models.UserGroup, error) {
 	ret := _m.Called(userid)
 
-	var r0 []models.UserGroup
-	if rf, ok := ret.Get(0).(func(int64) []models.UserGroup); ok {
+	var r0 []*models.UserGroup
+	if rf, ok := ret.Get(0).(func(int64) []*models.UserGroup); ok {
 		r0 = rf(userid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.UserGroup)
+			r0 = ret.Get(0).([]*models.UserGroup)
 		}
 	}
 
@@ -306,7 +306,7 @@ func (_c *UserGroupsTable_GetUser_Call) Run(run func(userid int64)) *UserGroupsT
 	return _c
 }
 
-func (_c *UserGroupsTable_GetUser_Call) Return(_a0 []models.UserGroup, _a1 error) *UserGroupsTable_GetUser_Call {
+func (_c *UserGroupsTable_GetUser_Call) Return(_a0 []*models.UserGroup, _a1 error) *UserGroupsTable_GetUser_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

@@ -34,15 +34,14 @@ type UserGroupsTable interface {
 	Insert(user *models.UserGroup) error
 	Delete(user models.UserGroup) error
 
-	GetGroup(groupid int64) ([]models.UserGroup, error)
-	GetUser(userid int64) ([]models.UserGroup, error)
-	GetAll() ([]models.UserGroup, error)
+	GetGroup(groupid int64) ([]*models.UserGroup, error)
+	GetUser(userid int64) ([]*models.UserGroup, error)
+	GetAll() ([]*models.UserGroup, error)
 	Exists(groupid, userid int64) (bool, error)
 }
 
 type UserGroupsTableImpl struct {
 	database Database
-	cache    TableCache[models.UserGroup]
 }
 
 // Create implements UserGroupsTable
@@ -53,7 +52,6 @@ func (i *UserGroupsTableImpl) Create() error {
 
 // Delete implements UserGroupsTable
 func (i *UserGroupsTableImpl) Delete(usergroup models.UserGroup) error {
-	i.cache.DeleteIndex(usergroup.ID)
 	_, err := i.database.Pool().Exec(context.Background(), userGroupTableDeleteRow, usergroup.ID)
 	return err
 
@@ -67,20 +65,12 @@ func (i *UserGroupsTableImpl) Drop() error {
 
 // Exists implements UserGroupsTable
 func (i *UserGroupsTableImpl) Exists(groupid int64, userid int64) (bool, error) {
-	ok, _ := i.cache.Find((func(index int64, value models.UserGroup) bool {
-		return value.GroupID == groupid && value.UserID == userid
-	}))
-	if ok {
-		return true, nil
-	}
-
 	var found int
 	err := i.database.Pool().QueryRow(context.Background(), userGroupTableQueryExists, groupid, userid).Scan(&found)
 	return found > 0, err
-
 }
 
-func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]models.UserGroup, error) {
+func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]*models.UserGroup, error) {
 	var rows pgx.Rows
 	var err error
 	if value == nil {
@@ -91,7 +81,7 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]models.UserGr
 	if err != nil {
 		return nil, err
 	}
-	results := []models.UserGroup{}
+	results := []*models.UserGroup{}
 
 	var id, groupid, userid int64
 	var groupdn, groupname, userdn, username string
@@ -114,8 +104,7 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]models.UserGr
 			UserDN:    userdn,
 			UserName:  username,
 		}
-		results = append(results, usergroup)
-		i.cache.Add(id, usergroup)
+		results = append(results, &usergroup)
 		return nil
 	})
 
@@ -123,31 +112,17 @@ func (i *UserGroupsTableImpl) getQuery(query string, value any) ([]models.UserGr
 }
 
 // GetAll implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetAll() ([]models.UserGroup, error) {
+func (i *UserGroupsTableImpl) GetAll() ([]*models.UserGroup, error) {
 	return i.getQuery(userGroupTableQueryAll, nil)
 }
 
 // GetGroup implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetGroup(groupid int64) ([]models.UserGroup, error) {
-	ok, usergroups := i.cache.FindAll((func(index int64, value models.UserGroup) bool {
-		return value.GroupID == groupid
-	}))
-	if ok {
-		return usergroups, nil
-	}
-
+func (i *UserGroupsTableImpl) GetGroup(groupid int64) ([]*models.UserGroup, error) {
 	return i.getQuery(userGroupTableQueryRowsGroup, groupid)
 }
 
 // GetUser implements UserGroupsTable
-func (i *UserGroupsTableImpl) GetUser(userid int64) ([]models.UserGroup, error) {
-	ok, usergroups := i.cache.FindAll((func(index int64, value models.UserGroup) bool {
-		return value.UserID == userid
-	}))
-	if ok {
-		return usergroups, nil
-	}
-
+func (i *UserGroupsTableImpl) GetUser(userid int64) ([]*models.UserGroup, error) {
 	return i.getQuery(userGroupTableQueryRowsUser, userid)
 }
 
@@ -157,7 +132,6 @@ func (i *UserGroupsTableImpl) Insert(usergroup *models.UserGroup) error {
 		usergroup.GroupID,
 		usergroup.UserID,
 	).Scan(&usergroup.ID)
-	i.cache.Add(usergroup.ID, *usergroup)
 	return err
 }
 
@@ -166,9 +140,8 @@ func (*UserGroupsTableImpl) Upgrade(old_version int, new_verison int) error {
 	panic("unimplemented")
 }
 
-func NewUserGroupsTableImpl(database Database, cache TableCache[models.UserGroup]) UserGroupsTable {
+func NewUserGroupsTableImpl(database Database) UserGroupsTable {
 	return &UserGroupsTableImpl{
 		database: database,
-		cache:    cache,
 	}
 }

@@ -81,11 +81,11 @@ func (i *LdapHandlerImpl) Connect() error {
 		Logger.Error().Err(err)
 		return err
 	}
-	defer i.ldapShim.CloseConn()
 
 	// Reconnect with TLS
 	err = i.ldapShim.StartTLS(&tls.Config{InsecureSkipVerify: true})
 	if err != nil {
+		i.ldapShim.CloseConn()
 		Logger.Error().Err(err)
 		return err
 	}
@@ -93,6 +93,7 @@ func (i *LdapHandlerImpl) Connect() error {
 	// First bind with a read only user
 	err = i.ldapShim.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
 	if err != nil {
+		i.ldapShim.CloseConn()
 		Logger.Error().Err(err)
 		return err
 	}

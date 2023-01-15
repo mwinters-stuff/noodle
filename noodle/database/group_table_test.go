@@ -240,7 +240,7 @@ func (suite *GroupTableTestSuite) TestGetAll() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.Group{
+	require.ElementsMatch(suite.T(), []*models.Group{
 		{
 			ID:   1,
 			DN:   "cn=admins,ou=groups,dc=example,dc=nz",

@@ -20,12 +20,15 @@ var (
 //counterfeiter:generate . Database
 type Database interface {
 	Connect() error
+	CheckCreated() (bool, error)
 	CheckUpgrade() (bool, error)
 	Create() error
 	Drop() error
 	GetVersion() (int, error)
-	Upgrade(current_version int) error
+	Upgrade() error
 	Close()
+
+	Tables() Tables
 
 	Pool() *pgxpool.Pool
 }
@@ -33,6 +36,21 @@ type Database interface {
 type DatabaseImpl struct {
 	appConfig yamltypes.AppConfig
 	pool      *pgxpool.Pool
+	tables    Tables
+}
+
+// Tables implements Database
+func (i *DatabaseImpl) Tables() Tables {
+	return i.tables
+}
+
+// CheckCreated implements Database
+func (i *DatabaseImpl) CheckCreated() (bool, error) {
+	_, err := i.GetVersion()
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // Pool implements Database
@@ -71,14 +89,9 @@ func (i *DatabaseImpl) GetVersion() (int, error) {
 	return version, err
 }
 
-func NewDatabaseImpl(appConfig yamltypes.AppConfig) Database {
-	return &DatabaseImpl{
-		appConfig: appConfig,
-	}
-}
-
 // CheckUpgrade implements Database
-func (i *DatabaseImpl) Upgrade(current_version int) error {
+func (i *DatabaseImpl) Upgrade() error {
+	current_version, _ := i.GetVersion()
 	Logger.Info().Msgf("upgrade database from %d to %d", current_version, DATABASE_VERSION)
 	return nil
 }
@@ -119,8 +132,11 @@ CREATE TABLE IF NOT EXISTS version (version int);
 DELETE FROM version;
 INSERT INTO version (version) values (%d)
 `, DATABASE_VERSION))
+	if err != nil {
+		return err
+	}
 
-	return err
+	return i.tables.Create()
 }
 
 // Drop implements Database
@@ -128,6 +144,17 @@ func (i *DatabaseImpl) Drop() error {
 	Logger.Info().Msg("dropping database")
 	_, err := i.pool.Exec(context.Background(), `DROP TABLE version`)
 
-	return err
+	if err != nil {
+		return err
+	}
 
+	return i.tables.Drop()
+
+}
+
+func NewDatabaseImpl(appConfig yamltypes.AppConfig) Database {
+	return &DatabaseImpl{
+		appConfig: appConfig,
+		tables:    NewTables(),
+	}
 }
