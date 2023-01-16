@@ -8,9 +8,7 @@ import (
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 )
 
-func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
-	Logger.Info().Msg("Starting LDAP Refresh")
-
+func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
 	users, err := ldap.GetUsers()
 	if err != nil {
 		Logger.Error().Err(err).Msg("ldap.GetUsers")
@@ -33,12 +31,14 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 		if exists {
 			i := IndexUser(dbusers, user)
 			if i > -1 {
+				user.ID = dbusers[i].ID
 				dbusers = append(dbusers[:i], dbusers[i+1:]...)
-			}
-			Logger.Info().Msgf("Updating LDAP User %s", user.DisplayName)
-			if err = db.Tables().UserTable().Update(user); err != nil {
-				Logger.Error().Err(err).Msg("UserTable.Update")
-				return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+				Logger.Info().Msgf("Updating LDAP User %s", user.DisplayName)
+
+				if err = db.Tables().UserTable().Update(user); err != nil {
+					Logger.Error().Err(err).Msg("UserTable.Update")
+					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+				}
 			}
 		} else {
 			insertusers = append(insertusers, user)
@@ -60,7 +60,10 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
 		}
 	}
+	return nil
+}
 
+func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
 	groups, err := ldap.GetGroups()
 	if err != nil {
 		Logger.Error().Err(err).Msg("ldap.GetGroups")
@@ -83,13 +86,13 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 		if exists {
 			i := IndexGroup(dbgroups, group)
 			if i > -1 {
+				group.ID = dbgroups[i].ID
 				dbgroups = append(dbgroups[:i], dbgroups[i+1:]...)
-			}
-			Logger.Info().Msgf("Updating LDAP Group %s", group.Name)
-			if err = db.Tables().GroupTable().Update(group); err != nil {
-				Logger.Error().Err(err).Msg("GroupTable.Update")
-				return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
-
+				Logger.Info().Msgf("Updating LDAP Group %s", group.Name)
+				if err = db.Tables().GroupTable().Update(group); err != nil {
+					Logger.Error().Err(err).Msg("GroupTable.Update")
+					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+				}
 			}
 		} else {
 			insertgroups = append(insertgroups, group)
@@ -112,7 +115,13 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 		}
 	}
 
-	dbusers, err = db.Tables().UserTable().GetAll()
+	return nil
+
+}
+
+func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
+
+	dbusers, err := db.Tables().UserTable().GetAll()
 	if err != nil {
 		Logger.Error().Err(err).Msg("UserTable.GetAll")
 		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
@@ -144,12 +153,8 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 			usergroup.GroupID = group.ID
 			usergroup.GroupName = group.Name
 
-			exists, err := db.Tables().UserGroupsTable().Exists(usergroup.UserID, usergroup.GroupID)
-			if err != nil {
-				Logger.Error().Err(err).Msg("userGroupTable.Exists")
-				return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
-			}
-			if !exists {
+			i := IndexUserGroup(dbusergroups, usergroup)
+			if i < 0 {
 				Logger.Info().Msgf("Updating User Group Mapping %s => %s", usergroup.UserName, usergroup.GroupName)
 
 				err := db.Tables().UserGroupsTable().Insert(&usergroup)
@@ -158,12 +163,9 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
 				}
 			} else {
-				i := IndexUserGroup(dbusergroups, usergroup)
-				if i > -1 {
-					dbusergroups = append(dbusergroups[:i], dbusergroups[i+1:]...)
-				}
+				usergroup.ID = dbusergroups[i].ID
+				dbusergroups = append(dbusergroups[:i], dbusergroups[i+1:]...)
 			}
-
 		}
 
 		for _, dbusergroup := range dbusergroups {
@@ -175,6 +177,26 @@ func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, para
 			}
 		}
 	}
+	return nil
+}
+
+func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
+	Logger.Info().Msg("Starting LDAP Refresh")
+
+	responder := SyncLDAPUsers(db, ldap)
+	if responder != nil {
+		return responder
+	}
+	responder = SyncLDAPGroups(db, ldap)
+	if responder != nil {
+		return responder
+	}
+
+	responder = SyncLDAPUserGroups(db, ldap)
+	if responder != nil {
+		return responder
+	}
+
 	Logger.Info().Msg("Finished LDAP Refresh")
 	return noodle_api.NewGetNoodleLdapReloadOK()
 }

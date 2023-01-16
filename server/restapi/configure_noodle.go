@@ -49,7 +49,7 @@ func setupDatabase(config yamltypes.AppConfig) (database.Database, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.InitTables()
+	db.Tables().InitTables(db)
 
 	created, _ := db.CheckCreated()
 	if !created {
