@@ -9,7 +9,7 @@ steps:
   - go get github.com/stretchr/gorc
   - go install github.com/stretchr/gorc
   - gorc test
-  - go test ./...Cr
+  - go test ./...
   # - go build -o solar-zero-scrape ./cmd/solar-zero-scrape-api-server/main.go
 
 # - name: build-dev-docker-image
