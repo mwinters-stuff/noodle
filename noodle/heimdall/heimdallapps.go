@@ -62,8 +62,10 @@ func (i *HeimdallImpl) UpdateFromServer() error {
 		}
 
 		if found {
+			Logger.Info().Msgf("Update: %#v", *app)
 			err = table.Update(*app)
 		} else {
+			Logger.Info().Msgf("Insert: %#v", *app)
 			err = table.Insert(*app)
 		}
 		if err != nil {

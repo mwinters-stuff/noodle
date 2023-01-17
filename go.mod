@@ -53,6 +53,8 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stretchr/commander v0.0.0-20130925004555-18f86d1c1da1 // indirect
+	github.com/stretchr/gorc v0.0.0-20130924145046-6dc9c25595e6 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	go.mongodb.org/mongo-driver v1.10.0 // indirect

@@ -31,9 +31,9 @@ type TabTable interface {
 
 	Insert(tab *models.Tab) error
 	Update(tab models.Tab) error
-	Delete(tab models.Tab) error
+	Delete(id int64) error
 
-	GetAll() ([]models.Tab, error)
+	GetAll() ([]*models.Tab, error)
 }
 
 type TabTableImpl struct {
@@ -48,12 +48,12 @@ func (i *TabTableImpl) Drop() error {
 }
 
 // GetAll implements TabTable
-func (i *TabTableImpl) GetAll() ([]models.Tab, error) {
+func (i *TabTableImpl) GetAll() ([]*models.Tab, error) {
 	rows, err := i.database.Pool().Query(context.Background(), tabTableQueryAll)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.Tab{}
+	results := []*models.Tab{}
 	var label string
 	var id, displayorder int64
 	_, err = pgx.ForEachRow(rows, []any{
@@ -62,7 +62,7 @@ func (i *TabTableImpl) GetAll() ([]models.Tab, error) {
 		&displayorder,
 	}, func() error {
 
-		results = append(results, models.Tab{
+		results = append(results, &models.Tab{
 			ID:           id,
 			Label:        label,
 			DisplayOrder: displayorder,
@@ -81,8 +81,8 @@ func (i *TabTableImpl) Create() error {
 }
 
 // Delete implements TabTable
-func (i *TabTableImpl) Delete(tab models.Tab) error {
-	_, err := i.database.Pool().Exec(context.Background(), tabTableDeleteRow, tab.ID)
+func (i *TabTableImpl) Delete(id int64) error {
+	_, err := i.database.Pool().Exec(context.Background(), tabTableDeleteRow, id)
 	return err
 
 }

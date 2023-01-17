@@ -60,6 +60,256 @@ func init() {
         }
       }
     },
+    "/noodle/application-tabs": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of applications under the tab",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/application_tab"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new application in a  tab",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "application_tab",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/application_tab"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/application_tab"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the application_tab",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "application_tab_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Tab Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/group-applications": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of group applications",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/group_applications"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new group application",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "group_application",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/group_applications"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/group_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the group application",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "group_application_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group Application Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/groups": {
       "get": {
         "security": [
@@ -106,6 +356,39 @@ func init() {
         }
       }
     },
+    "/noodle/heimdall/reload": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Loads Hiemdall App Templates to Database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/ldap/reload": {
       "get": {
         "security": [
@@ -132,6 +415,266 @@ func init() {
           },
           "409": {
             "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/tabs": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of tabs",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/tab"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new tab",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "tab",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tab"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/tab"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the tab",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tab Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/user-applications": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of user applications",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user_applications"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new user application",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "user_application",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user_applications"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/user_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the user application",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_application_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Application Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
             }
@@ -559,6 +1102,256 @@ func init() {
         }
       }
     },
+    "/noodle/application-tabs": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of applications under the tab",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/application_tab"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new application in a  tab",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "application_tab",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/application_tab"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/application_tab"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the application_tab",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "application_tab_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Tab Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/group-applications": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of group applications",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/group_applications"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new group application",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "group_application",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/group_applications"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/group_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the group application",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "group_application_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Group Application Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/groups": {
       "get": {
         "security": [
@@ -605,6 +1398,39 @@ func init() {
         }
       }
     },
+    "/noodle/heimdall/reload": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Loads Hiemdall App Templates to Database",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/ldap/reload": {
       "get": {
         "security": [
@@ -631,6 +1457,266 @@ func init() {
           },
           "409": {
             "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/tabs": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of tabs",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/tab"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new tab",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
+          {
+            "name": "tab",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/tab"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/tab"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the tab",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tabid",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tab Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Invalid Input",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/noodle/user-applications": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of user applications",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/user_applications"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "post": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Adds a new user application",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "name": "user_application",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/user_applications"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/user_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      },
+      "delete": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Deletes the user application",
+        "consumes": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_application_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User Application Deleted."
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "405": {
+            "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
             }

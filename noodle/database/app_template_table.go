@@ -12,8 +12,8 @@ import (
 
 const appTemplateTableCreate = `CREATE TABLE IF NOT EXISTS application_template (
   appid CHAR(40) PRIMARY KEY,
-  name VARCHAR(20) UNIQUE,
-  website VARCHAR(100) UNIQUE,
+  name VARCHAR(50) UNIQUE,
+  website VARCHAR(256),
   license VARCHAR(100),
   description VARCHAR(1000),
   enhanced BOOL,

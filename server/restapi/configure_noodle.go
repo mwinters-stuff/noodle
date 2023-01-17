@@ -17,6 +17,7 @@ import (
 	"github.com/mwinters-stuff/noodle/handlers"
 	"github.com/mwinters-stuff/noodle/noodle"
 	"github.com/mwinters-stuff/noodle/noodle/database"
+	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
@@ -40,16 +41,26 @@ func configureFlags(api *operations.NoodleAPI) {
 		LongDescription:  "Noodle Config",
 		Options:          &opts.NoodleOptions,
 	})
+	api.CommandLineOptionsGroups = append(api.CommandLineOptionsGroups, swag.CommandLineOptionsGroup{
+		ShortDescription: "drop",
+		LongDescription:  "Drop Database",
+		Options:          &opts.NoodleOptions,
+	})
 }
 
-func setupDatabase(config yamltypes.AppConfig) (database.Database, error) {
+func setupDatabase(config yamltypes.AppConfig, drop bool) (database.Database, error) {
 	db := database.NewDatabase(config)
 
 	err := db.Connect()
 	if err != nil {
 		return nil, err
 	}
+
 	db.Tables().InitTables(db)
+
+	if drop {
+		db.Drop()
+	}
 
 	created, _ := db.CheckCreated()
 	if !created {
@@ -102,7 +113,7 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 	}
 
 	var db database.Database
-	if db, err = setupDatabase(config); err != nil {
+	if db, err = setupDatabase(config, opts.NoodleOptions.Drop); err != nil {
 		Logger.Fatal().Msg(err.Error())
 	}
 
@@ -110,6 +121,8 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 	if ldap, err = setupLDAP(config); err != nil {
 		Logger.Fatal().Msg(err.Error())
 	}
+
+	heimdall := heimdall.NewHeimdall(db)
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})
@@ -158,8 +171,25 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 		return handlers.HandlerUserGroups(db, params, principal)
 	})
 
+	// LDAP
 	api.NoodleAPIGetNoodleLdapReloadHandler = noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
 		return handlers.HandleLDAPRefresh(db, ldap, params, principal)
+	})
+
+	// HEIMDALL
+	api.NoodleAPIGetNoodleHeimdallReloadHandler = noodle_api.GetNoodleHeimdallReloadHandlerFunc(func(params noodle_api.GetNoodleHeimdallReloadParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandleHeimdallRefresh(db, heimdall, params, principal)
+	})
+
+	// TABS
+	api.NoodleAPIGetNoodleTabsHandler = noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerTabGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleTabsHandler = noodle_api.PostNoodleTabsHandlerFunc(func(params noodle_api.PostNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerTabPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleTabsHandler = noodle_api.DeleteNoodleTabsHandlerFunc(func(params noodle_api.DeleteNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerTabDelete(db, params, principal)
 	})
 
 	api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {

@@ -56,13 +56,13 @@ func (_c *TabTable_Create_Call) Return(_a0 error) *TabTable_Create_Call {
 	return _c
 }
 
-// Delete provides a mock function with given fields: tab
-func (_m *TabTable) Delete(tab models.Tab) error {
-	ret := _m.Called(tab)
+// Delete provides a mock function with given fields: id
+func (_m *TabTable) Delete(id int64) error {
+	ret := _m.Called(id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Tab) error); ok {
-		r0 = rf(tab)
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -76,14 +76,14 @@ type TabTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - tab models.Tab
-func (_e *TabTable_Expecter) Delete(tab interface{}) *TabTable_Delete_Call {
-	return &TabTable_Delete_Call{Call: _e.mock.On("Delete", tab)}
+//   - id int64
+func (_e *TabTable_Expecter) Delete(id interface{}) *TabTable_Delete_Call {
+	return &TabTable_Delete_Call{Call: _e.mock.On("Delete", id)}
 }
 
-func (_c *TabTable_Delete_Call) Run(run func(tab models.Tab)) *TabTable_Delete_Call {
+func (_c *TabTable_Delete_Call) Run(run func(id int64)) *TabTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(models.Tab))
+		run(args[0].(int64))
 	})
 	return _c
 }
@@ -130,15 +130,15 @@ func (_c *TabTable_Drop_Call) Return(_a0 error) *TabTable_Drop_Call {
 }
 
 // GetAll provides a mock function with given fields:
-func (_m *TabTable) GetAll() ([]models.Tab, error) {
+func (_m *TabTable) GetAll() ([]*models.Tab, error) {
 	ret := _m.Called()
 
-	var r0 []models.Tab
-	if rf, ok := ret.Get(0).(func() []models.Tab); ok {
+	var r0 []*models.Tab
+	if rf, ok := ret.Get(0).(func() []*models.Tab); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Tab)
+			r0 = ret.Get(0).([]*models.Tab)
 		}
 	}
 
@@ -169,7 +169,7 @@ func (_c *TabTable_GetAll_Call) Run(run func()) *TabTable_GetAll_Call {
 	return _c
 }
 
-func (_c *TabTable_GetAll_Call) Return(_a0 []models.Tab, _a1 error) *TabTable_GetAll_Call {
+func (_c *TabTable_GetAll_Call) Return(_a0 []*models.Tab, _a1 error) *TabTable_GetAll_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

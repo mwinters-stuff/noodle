@@ -11,8 +11,8 @@ import (
 const applicationsTableCreate = `CREATE TABLE IF NOT EXISTS applications (
   id SERIAL PRIMARY KEY,
   template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE SET NULL,
-  name VARCHAR(20),
-  website VARCHAR(100),
+  name VARCHAR(50),
+  website VARCHAR(256),
   license VARCHAR(100),
   description VARCHAR(1000),
   enhanced BOOL,

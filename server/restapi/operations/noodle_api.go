@@ -46,14 +46,41 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 
 		JSONProducer: runtime.JSONProducer(),
 
+		NoodleAPIDeleteNoodleApplicationTabsHandler: noodle_api.DeleteNoodleApplicationTabsHandlerFunc(func(params noodle_api.DeleteNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.DeleteNoodleApplicationTabs has not yet been implemented")
+		}),
+		NoodleAPIDeleteNoodleGroupApplicationsHandler: noodle_api.DeleteNoodleGroupApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.DeleteNoodleGroupApplications has not yet been implemented")
+		}),
+		NoodleAPIDeleteNoodleTabsHandler: noodle_api.DeleteNoodleTabsHandlerFunc(func(params noodle_api.DeleteNoodleTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.DeleteNoodleTabs has not yet been implemented")
+		}),
+		NoodleAPIDeleteNoodleUserApplicationsHandler: noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.DeleteNoodleUserApplications has not yet been implemented")
+		}),
 		KubernetesGetHealthzHandler: kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleApplicationTabsHandler: noodle_api.GetNoodleApplicationTabsHandlerFunc(func(params noodle_api.GetNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleApplicationTabs has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleGroupApplicationsHandler: noodle_api.GetNoodleGroupApplicationsHandlerFunc(func(params noodle_api.GetNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleGroupApplications has not yet been implemented")
 		}),
 		NoodleAPIGetNoodleGroupsHandler: noodle_api.GetNoodleGroupsHandlerFunc(func(params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleGroups has not yet been implemented")
 		}),
+		NoodleAPIGetNoodleHeimdallReloadHandler: noodle_api.GetNoodleHeimdallReloadHandlerFunc(func(params noodle_api.GetNoodleHeimdallReloadParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleHeimdallReload has not yet been implemented")
+		}),
 		NoodleAPIGetNoodleLdapReloadHandler: noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleLdapReload has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleTabsHandler: noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleTabs has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleUserApplicationsHandler: noodle_api.GetNoodleUserApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleUserApplications has not yet been implemented")
 		}),
 		NoodleAPIGetNoodleUserGroupsHandler: noodle_api.GetNoodleUserGroupsHandlerFunc(func(params noodle_api.GetNoodleUserGroupsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleUserGroups has not yet been implemented")
@@ -63,6 +90,18 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		}),
 		KubernetesGetReadyzHandler: kubernetes.GetReadyzHandlerFunc(func(params kubernetes.GetReadyzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetReadyz has not yet been implemented")
+		}),
+		NoodleAPIPostNoodleApplicationTabsHandler: noodle_api.PostNoodleApplicationTabsHandlerFunc(func(params noodle_api.PostNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.PostNoodleApplicationTabs has not yet been implemented")
+		}),
+		NoodleAPIPostNoodleGroupApplicationsHandler: noodle_api.PostNoodleGroupApplicationsHandlerFunc(func(params noodle_api.PostNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.PostNoodleGroupApplications has not yet been implemented")
+		}),
+		NoodleAPIPostNoodleTabsHandler: noodle_api.PostNoodleTabsHandlerFunc(func(params noodle_api.PostNoodleTabsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.PostNoodleTabs has not yet been implemented")
+		}),
+		NoodleAPIPostNoodleUserApplicationsHandler: noodle_api.PostNoodleUserApplicationsHandlerFunc(func(params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.PostNoodleUserApplications has not yet been implemented")
 		}),
 
 		// Applies when the "Remote-User" header is set
@@ -114,18 +153,44 @@ type NoodleAPI struct {
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
 
+	// NoodleAPIDeleteNoodleApplicationTabsHandler sets the operation handler for the delete noodle application tabs operation
+	NoodleAPIDeleteNoodleApplicationTabsHandler noodle_api.DeleteNoodleApplicationTabsHandler
+	// NoodleAPIDeleteNoodleGroupApplicationsHandler sets the operation handler for the delete noodle group applications operation
+	NoodleAPIDeleteNoodleGroupApplicationsHandler noodle_api.DeleteNoodleGroupApplicationsHandler
+	// NoodleAPIDeleteNoodleTabsHandler sets the operation handler for the delete noodle tabs operation
+	NoodleAPIDeleteNoodleTabsHandler noodle_api.DeleteNoodleTabsHandler
+	// NoodleAPIDeleteNoodleUserApplicationsHandler sets the operation handler for the delete noodle user applications operation
+	NoodleAPIDeleteNoodleUserApplicationsHandler noodle_api.DeleteNoodleUserApplicationsHandler
 	// KubernetesGetHealthzHandler sets the operation handler for the get healthz operation
 	KubernetesGetHealthzHandler kubernetes.GetHealthzHandler
+	// NoodleAPIGetNoodleApplicationTabsHandler sets the operation handler for the get noodle application tabs operation
+	NoodleAPIGetNoodleApplicationTabsHandler noodle_api.GetNoodleApplicationTabsHandler
+	// NoodleAPIGetNoodleGroupApplicationsHandler sets the operation handler for the get noodle group applications operation
+	NoodleAPIGetNoodleGroupApplicationsHandler noodle_api.GetNoodleGroupApplicationsHandler
 	// NoodleAPIGetNoodleGroupsHandler sets the operation handler for the get noodle groups operation
 	NoodleAPIGetNoodleGroupsHandler noodle_api.GetNoodleGroupsHandler
+	// NoodleAPIGetNoodleHeimdallReloadHandler sets the operation handler for the get noodle heimdall reload operation
+	NoodleAPIGetNoodleHeimdallReloadHandler noodle_api.GetNoodleHeimdallReloadHandler
 	// NoodleAPIGetNoodleLdapReloadHandler sets the operation handler for the get noodle ldap reload operation
 	NoodleAPIGetNoodleLdapReloadHandler noodle_api.GetNoodleLdapReloadHandler
+	// NoodleAPIGetNoodleTabsHandler sets the operation handler for the get noodle tabs operation
+	NoodleAPIGetNoodleTabsHandler noodle_api.GetNoodleTabsHandler
+	// NoodleAPIGetNoodleUserApplicationsHandler sets the operation handler for the get noodle user applications operation
+	NoodleAPIGetNoodleUserApplicationsHandler noodle_api.GetNoodleUserApplicationsHandler
 	// NoodleAPIGetNoodleUserGroupsHandler sets the operation handler for the get noodle user groups operation
 	NoodleAPIGetNoodleUserGroupsHandler noodle_api.GetNoodleUserGroupsHandler
 	// NoodleAPIGetNoodleUsersHandler sets the operation handler for the get noodle users operation
 	NoodleAPIGetNoodleUsersHandler noodle_api.GetNoodleUsersHandler
 	// KubernetesGetReadyzHandler sets the operation handler for the get readyz operation
 	KubernetesGetReadyzHandler kubernetes.GetReadyzHandler
+	// NoodleAPIPostNoodleApplicationTabsHandler sets the operation handler for the post noodle application tabs operation
+	NoodleAPIPostNoodleApplicationTabsHandler noodle_api.PostNoodleApplicationTabsHandler
+	// NoodleAPIPostNoodleGroupApplicationsHandler sets the operation handler for the post noodle group applications operation
+	NoodleAPIPostNoodleGroupApplicationsHandler noodle_api.PostNoodleGroupApplicationsHandler
+	// NoodleAPIPostNoodleTabsHandler sets the operation handler for the post noodle tabs operation
+	NoodleAPIPostNoodleTabsHandler noodle_api.PostNoodleTabsHandler
+	// NoodleAPIPostNoodleUserApplicationsHandler sets the operation handler for the post noodle user applications operation
+	NoodleAPIPostNoodleUserApplicationsHandler noodle_api.PostNoodleUserApplicationsHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -207,14 +272,41 @@ func (o *NoodleAPI) Validate() error {
 		unregistered = append(unregistered, "RemoteUserAuth")
 	}
 
+	if o.NoodleAPIDeleteNoodleApplicationTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.DeleteNoodleApplicationTabsHandler")
+	}
+	if o.NoodleAPIDeleteNoodleGroupApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.DeleteNoodleGroupApplicationsHandler")
+	}
+	if o.NoodleAPIDeleteNoodleTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.DeleteNoodleTabsHandler")
+	}
+	if o.NoodleAPIDeleteNoodleUserApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.DeleteNoodleUserApplicationsHandler")
+	}
 	if o.KubernetesGetHealthzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetHealthzHandler")
+	}
+	if o.NoodleAPIGetNoodleApplicationTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleApplicationTabsHandler")
+	}
+	if o.NoodleAPIGetNoodleGroupApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleGroupApplicationsHandler")
 	}
 	if o.NoodleAPIGetNoodleGroupsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleGroupsHandler")
 	}
+	if o.NoodleAPIGetNoodleHeimdallReloadHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleHeimdallReloadHandler")
+	}
 	if o.NoodleAPIGetNoodleLdapReloadHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleLdapReloadHandler")
+	}
+	if o.NoodleAPIGetNoodleTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleTabsHandler")
+	}
+	if o.NoodleAPIGetNoodleUserApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleUserApplicationsHandler")
 	}
 	if o.NoodleAPIGetNoodleUserGroupsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleUserGroupsHandler")
@@ -224,6 +316,18 @@ func (o *NoodleAPI) Validate() error {
 	}
 	if o.KubernetesGetReadyzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetReadyzHandler")
+	}
+	if o.NoodleAPIPostNoodleApplicationTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.PostNoodleApplicationTabsHandler")
+	}
+	if o.NoodleAPIPostNoodleGroupApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.PostNoodleGroupApplicationsHandler")
+	}
+	if o.NoodleAPIPostNoodleTabsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.PostNoodleTabsHandler")
+	}
+	if o.NoodleAPIPostNoodleUserApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.PostNoodleUserApplicationsHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -324,6 +428,22 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers = make(map[string]map[string]http.Handler)
 	}
 
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/noodle/application-tabs"] = noodle_api.NewDeleteNoodleApplicationTabs(o.context, o.NoodleAPIDeleteNoodleApplicationTabsHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/noodle/group-applications"] = noodle_api.NewDeleteNoodleGroupApplications(o.context, o.NoodleAPIDeleteNoodleGroupApplicationsHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/noodle/tabs"] = noodle_api.NewDeleteNoodleTabs(o.context, o.NoodleAPIDeleteNoodleTabsHandler)
+	if o.handlers["DELETE"] == nil {
+		o.handlers["DELETE"] = make(map[string]http.Handler)
+	}
+	o.handlers["DELETE"]["/noodle/user-applications"] = noodle_api.NewDeleteNoodleUserApplications(o.context, o.NoodleAPIDeleteNoodleUserApplicationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -331,11 +451,31 @@ func (o *NoodleAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/noodle/application-tabs"] = noodle_api.NewGetNoodleApplicationTabs(o.context, o.NoodleAPIGetNoodleApplicationTabsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/group-applications"] = noodle_api.NewGetNoodleGroupApplications(o.context, o.NoodleAPIGetNoodleGroupApplicationsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/noodle/groups"] = noodle_api.NewGetNoodleGroups(o.context, o.NoodleAPIGetNoodleGroupsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/noodle/heimdall/reload"] = noodle_api.NewGetNoodleHeimdallReload(o.context, o.NoodleAPIGetNoodleHeimdallReloadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/noodle/ldap/reload"] = noodle_api.NewGetNoodleLdapReload(o.context, o.NoodleAPIGetNoodleLdapReloadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/tabs"] = noodle_api.NewGetNoodleTabs(o.context, o.NoodleAPIGetNoodleTabsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/user-applications"] = noodle_api.NewGetNoodleUserApplications(o.context, o.NoodleAPIGetNoodleUserApplicationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -348,6 +488,22 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/readyz"] = kubernetes.NewGetReadyz(o.context, o.KubernetesGetReadyzHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/noodle/application-tabs"] = noodle_api.NewPostNoodleApplicationTabs(o.context, o.NoodleAPIPostNoodleApplicationTabsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/noodle/group-applications"] = noodle_api.NewPostNoodleGroupApplications(o.context, o.NoodleAPIPostNoodleGroupApplicationsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/noodle/tabs"] = noodle_api.NewPostNoodleTabs(o.context, o.NoodleAPIPostNoodleTabsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/noodle/user-applications"] = noodle_api.NewPostNoodleUserApplications(o.context, o.NoodleAPIPostNoodleUserApplicationsHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

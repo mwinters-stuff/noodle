@@ -123,9 +123,6 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersDBError() {
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
-
-	// args := mock.Arguments{}
-
 	mockWriter.EXPECT().Write([]byte(`{"message":"DB Failed"}`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())

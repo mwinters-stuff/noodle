@@ -274,7 +274,7 @@ func (i *TestFunctions) SetupConnectionSteps(t require.TestingT, script *pgmock.
 
 func (i *TestFunctions) CreateAppTemplateTableSteps(t *testing.T, script *pgmock.Script) {
 	i.LoadDatabaseSteps(t, script, []string{
-		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS application_template (\n  appid CHAR(40) PRIMARY KEY,\n  name VARCHAR(20) UNIQUE,\n  website VARCHAR(100) UNIQUE,\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256), \n  sha CHAR(40)\n)"}`,
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS application_template (\n  appid CHAR(40) PRIMARY KEY,\n  name VARCHAR(50) UNIQUE,\n  website VARCHAR(256),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256), \n  sha CHAR(40)\n)"}`,
 		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 		`F {"Type": "Query", "String": "CREATE INDEX IF NOT EXISTS application_template_idx1 ON application_template(name)"}`,
@@ -309,7 +309,7 @@ func (i *TestFunctions) CreateUserGroupsTableSteps(t *testing.T, script *pgmock.
 
 func (i *TestFunctions) CreateApplicationsTableSteps(t *testing.T, script *pgmock.Script) {
 	i.LoadDatabaseSteps(t, script, []string{
-		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS applications (\n  id SERIAL PRIMARY KEY,\n  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE SET NULL,\n  name VARCHAR(20),\n  website VARCHAR(100),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256)\n)"}`,
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS applications (\n  id SERIAL PRIMARY KEY,\n  template_appid CHAR(40) REFERENCES application_template(appid) ON DELETE SET NULL,\n  name VARCHAR(50),\n  website VARCHAR(256),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256)\n)"}`,
 		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 	})

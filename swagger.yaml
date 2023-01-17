@@ -160,7 +160,345 @@ paths:
       security: 
         - key: []
 
+  /noodle/heimdall/reload:
+    get:
+      description: Loads Hiemdall App Templates to Database
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: Success
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
 
+  /noodle/tabs:
+    get:
+      description: Gets the list of tabs
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/tab'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new tab
+      parameters:
+        - name: action
+          in: query
+          type: string
+          enum:
+            - insert
+            - update
+          required: true
+        - name: tab
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/tab'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/tab'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the tab
+      parameters:
+        - name: tabid
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Tab Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+
+  /noodle/application-tabs:
+    get:
+      description: Gets the list of applications under the tab
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/application_tab'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new application in a  tab
+      parameters:
+        - name: application_tab
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/application_tab'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/application_tab'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the application_tab
+      parameters:
+        - name: application_tab_id
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Application Tab Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '405':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+
+  /noodle/user-applications:
+    get:
+      description: Gets the list of user applications 
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/user_applications'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new user application
+      parameters:
+        - name: user_application
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/user_applications'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/user_applications'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the user application
+      parameters:
+        - name: user_application_id
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: User Application Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '405':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+
+  /noodle/group-applications:
+    get:
+      description: Gets the list of group applications 
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/group_applications'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new group application
+      parameters:
+        - name: group_application
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/group_applications'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/group_applications'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the group application
+      parameters:
+        - name: group_application_id
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Group Application Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '405':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle-api
+      security: 
+        - key: []
 schemes:
 - http
 swagger: "2.0"
