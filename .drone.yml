@@ -6,33 +6,29 @@ steps:
 - name: build-go
   image: golang
   commands:
-  - go get github.com/stretchr/gorc
-  - go install github.com/stretchr/gorc
-  - gorc test
-  - go test ./...
-  - go test -cover ./...
-  # - go build -o solar-zero-scrape ./cmd/solar-zero-scrape-api-server/main.go
+  - ./run-tests.sh
+  - go build -o noodle ./server/cmd/noodle-server/main.go
 
-# - name: build-dev-docker-image
-#   image: plugins/docker
-#   settings:
-#     username: 
-#       from_secret: harbor-username
-#     password: 
-#       from_secret: harbor-password
-#     repo: harbor.winters.org.nz/library/solar-zero-scrape-dev
-#     registry: harbor.winters.org.nz
-#     tags: 
-#       - latest
-#       - 0.4.${DRONE_BUILD_NUMBER}-dev
-#   depends_on:
-#     - build-go
-#   when:
-#     event:
-#       include:
-#         - push
-#       exclude:
-#         - tag
+- name: build-dev-docker-image
+  image: plugins/docker
+  settings:
+    username: 
+      from_secret: harbor-username
+    password: 
+      from_secret: harbor-password
+    repo: harbor.winters.org.nz/library/noodle-dev
+    registry: harbor.winters.org.nz
+    tags: 
+      - latest
+      - 0.0.${DRONE_BUILD_NUMBER}-dev
+  depends_on:
+    - build-go
+  when:
+    event:
+      include:
+        - push
+      exclude:
+        - tag
 
 # - name: build-release-docker-image
 #   image: plugins/docker

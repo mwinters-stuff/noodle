@@ -1,0 +1,15 @@
+---
+apiVersion: v2
+appVersion: 0.0.0
+description: An image and helm chart for noodle
+name: noodle
+version: 0.0.0
+kubeVersion: ">=1.16.0-0"
+keywords:
+  - noodle
+home: https://gitea.winters.org.nz/mathew/noodle
+sources:
+  - https://gitea.winters.org.nz/mathew/noodle
+maintainers:
+  - name: mwinters
+    email: mathew@winters.nz
