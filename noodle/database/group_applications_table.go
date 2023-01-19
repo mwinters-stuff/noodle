@@ -29,9 +29,9 @@ type GroupApplicationsTable interface {
 	Drop() error
 
 	Insert(app *models.GroupApplications) error
-	Delete(app models.GroupApplications) error
+	Delete(id int64) error
 
-	GetGroupApps(groupid int64) ([]models.GroupApplications, error)
+	GetGroupApps(groupid int64) ([]*models.GroupApplications, error)
 }
 
 type GroupApplicationsTableImpl struct {
@@ -46,12 +46,12 @@ func (i *GroupApplicationsTableImpl) Drop() error {
 }
 
 // GetAll implements GroupApplicationsTable
-func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int64) ([]models.GroupApplications, error) {
+func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int64) ([]*models.GroupApplications, error) {
 	rows, err := i.database.Pool().Query(context.Background(), groupApplicationsTableQueryAll, groupid)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.GroupApplications{}
+	results := []*models.GroupApplications{}
 	var id, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -67,7 +67,7 @@ func (i *GroupApplicationsTableImpl) GetGroupApps(groupid int64) ([]models.Group
 		&icon,
 	}, func() error {
 
-		results = append(results, models.GroupApplications{
+		results = append(results, &models.GroupApplications{
 			ID:            id,
 			GroupID:       groupid,
 			ApplicationID: applicationid,
@@ -96,8 +96,8 @@ func (i *GroupApplicationsTableImpl) Create() error {
 }
 
 // Delete implements GroupApplicationsTable
-func (i *GroupApplicationsTableImpl) Delete(app models.GroupApplications) error {
-	_, err := i.database.Pool().Exec(context.Background(), groupApplicationsTableDeleteRow, app.ID)
+func (i *GroupApplicationsTableImpl) Delete(id int64) error {
+	_, err := i.database.Pool().Exec(context.Background(), groupApplicationsTableDeleteRow, id)
 	return err
 
 }

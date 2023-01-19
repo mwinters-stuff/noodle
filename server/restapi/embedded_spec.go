@@ -264,6 +264,14 @@ func init() {
         "tags": [
           "noodle-api"
         ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "group_id",
+            "in": "query",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1378,6 +1386,14 @@ func init() {
         ],
         "tags": [
           "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "group_id",
+            "in": "query",
+            "required": true
+          }
         ],
         "responses": {
           "200": {

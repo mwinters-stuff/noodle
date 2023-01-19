@@ -444,6 +444,11 @@ paths:
       description: Gets the list of group applications 
       produces:
       - application/json
+      parameters:
+        - name: group_id
+          in: query
+          required: true
+          type: integer      
       responses:
         '200':
           description: OK

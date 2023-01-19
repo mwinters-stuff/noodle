@@ -155,14 +155,9 @@ func (suite *GroupApplicationsTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := models.GroupApplications{
-		ID:            1,
-		GroupID:       1,
-		ApplicationID: 3,
-	}
 	table := database.NewGroupApplicationsTable(db)
 
-	err = table.Delete(at1)
+	err = table.Delete(1)
 	require.NoError(suite.T(), err)
 }
 
@@ -200,7 +195,7 @@ func (suite *GroupApplicationsTableTestSuite) TestGetGroupApps() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.GroupApplications{
+	require.ElementsMatch(suite.T(), []*models.GroupApplications{
 		{
 			ID:            1,
 			GroupID:       2,

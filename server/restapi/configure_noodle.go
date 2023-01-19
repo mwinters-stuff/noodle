@@ -221,6 +221,18 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 		return handlers.HandlerUserApplicationDelete(db, params, principal)
 	})
 
+
+	// GROUP APPLICATIONS
+	api.NoodleAPIGetNoodleGroupApplicationsHandler = noodle_api.GetNoodleGroupApplicationsHandlerFunc(func(params noodle_api.GetNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerGroupApplicationGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleGroupApplicationsHandler = noodle_api.PostNoodleGroupApplicationsHandlerFunc(func(params noodle_api.PostNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerGroupApplicationPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleGroupApplicationsHandler = noodle_api.DeleteNoodleGroupApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerGroupApplicationDelete(db, params, principal)
+	})
+
 	//KUBE
 
 	api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
