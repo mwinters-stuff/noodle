@@ -33,7 +33,7 @@ func (suite *HeimdallAppsTestSuite) SetupTest() {
 }
 
 func (suite *HeimdallAppsTestSuite) TearDownTest() {
-
+	database.NewAppTemplateTable = database.NewAppTemplateTableImpl
 }
 
 func (suite *HeimdallAppsTestSuite) TestUpdateFromServer() {

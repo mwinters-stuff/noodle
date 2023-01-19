@@ -163,6 +163,17 @@ func (suite *LdapHandlerTestSuite) TestAuthUserFail() {
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
 }
 
+func (suite *LdapHandlerTestSuite) TestAuthUserReauthError() {
+	suite.mockLdap.EXPECT().Bind("CN=bob,DC=example,DC=nz", "pass").Return(nil)
+	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=nz", "readonly").Return(errors.New("Bad Auth"))
+
+	success, err := suite.ldapHandler.AuthUser("CN=bob,DC=example,DC=nz", "pass")
+	require.Error(suite.T(), err, "Bad Auth")
+	require.False(suite.T(), success)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
+}
+
 func (suite *LdapHandlerTestSuite) TestGetUserByDN() {
 	suite.mockLdap.EXPECT().NewSearchRequest(
 		"CN=bob,DC=example,DC=nz",
@@ -223,7 +234,109 @@ func (suite *LdapHandlerTestSuite) TestGetUserByDN() {
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
 }
 
-func (suite *LdapHandlerTestSuite) userByDnSteps(dn, username, displayname, surname, givenname string, uidnumber int) {
+func (suite *LdapHandlerTestSuite) TestGetUserByDNLDAPError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"CN=bob,DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=organizationalPerson)",
+		[]string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "CN=bob,DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "CN=bob,DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	user, err := suite.ldapHandler.GetUserByDN("CN=bob,DC=example,DC=nz")
+	require.Error(suite.T(), err, "failed")
+	require.Equal(suite.T(), models.User{}, user)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetUserByDNErrorMoreThanOne() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"CN=bob,DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=organizationalPerson)",
+		[]string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "CN=bob,DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "CN=bob,DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{
+			ldap.NewEntry("CN=bob,DC=example,DC=nz", map[string][]string{
+				"displayName": {"bobextample"},
+				"givenName":   {"Bob"},
+				"sn":          {"Extample"},
+				"uidNumber":   {"1001"},
+				"uid":         {"bobe"},
+			}),
+			ldap.NewEntry("CN=bob,DC=example,DC=nz", map[string][]string{
+				"displayName": {"bobextample"},
+				"givenName":   {"Bob"},
+				"sn":          {"Extample"},
+				"uidNumber":   {"1001"},
+				"uid":         {"bobe"},
+			})}}, nil)
+
+	user, err := suite.ldapHandler.GetUserByDN("CN=bob,DC=example,DC=nz")
+	require.Error(suite.T(), err, "user CN=bob,DC=example,DC=nz does not exist or too many entries returned")
+	require.Equal(suite.T(), models.User{}, user)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) userByDnSteps(dn string, username string, displayname string, surname string, givenname string, uidnumber int, err error) {
 	suite.mockLdap.EXPECT().NewSearchRequest(
 		dn,
 		ldap.ScopeWholeSubtree,
@@ -264,7 +377,7 @@ func (suite *LdapHandlerTestSuite) userByDnSteps(dn, username, displayname, surn
 				"sn":          {surname},
 				"uidNumber":   {strconv.Itoa(uidnumber)},
 				"uid":         {username},
-			})}}, nil)
+			})}}, err)
 }
 
 func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
@@ -308,8 +421,8 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 				},
 			})}}, nil)
 
-	suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001)
-	suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
+	suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001, nil)
+	suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002, nil)
 
 	group := models.Group{
 		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
@@ -337,6 +450,167 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsers() {
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 3)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 3)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetGroupUsersLDAPSearchError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"cn=admins,ou=groups,dc=example,dc=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=groupOfUniqueNames)",
+		[]string{"dn", "uniqueMember"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	// suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001)
+	// suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
+
+	group := models.Group{
+		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
+		Name: "Admins",
+	}
+
+	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
+	require.Error(suite.T(), err, "failed")
+	require.Nil(suite.T(), usergroups)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetGroupUsersErrorNoResult() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"cn=admins,ou=groups,dc=example,dc=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=groupOfUniqueNames)",
+		[]string{"dn", "uniqueMember"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, nil)
+
+	// suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001,errors.New("user failed"))
+	// suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
+
+	group := models.Group{
+		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
+		Name: "Admins",
+	}
+
+	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
+	require.Error(suite.T(), err, "group cn=admins,ou=groups,dc=example,dc=nz does not exist or too many entries returned")
+	require.Nil(suite.T(), usergroups)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetGroupUsersErrorUserSearchFailed() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"cn=admins,ou=groups,dc=example,dc=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=groupOfUniqueNames)",
+		[]string{"dn", "uniqueMember"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "cn=admins,ou=groups,dc=example,dc=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "uniqueMember"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{
+			ldap.NewEntry("cn=admins,ou=groups,dc=example,dc=nz", map[string][]string{
+				"uniqueMember": {"uid=testuser1,ou=people,dc=example,dc=nz",
+					"uid=testuser2,ou=people,dc=example,dc=nz",
+				},
+			})}}, nil)
+
+	suite.userByDnSteps("uid=testuser1,ou=people,dc=example,dc=nz", "TestUser1", "TestUser1", "test", "user1", 1001, errors.New("user failed"))
+	// suite.userByDnSteps("uid=testuser2,ou=people,dc=example,dc=nz", "TestUser2", "TestUser2", "test", "user2", 1002)
+
+	group := models.Group{
+		DN:   "cn=admins,ou=groups,dc=example,dc=nz",
+		Name: "Admins",
+	}
+
+	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
+	require.Error(suite.T(), err, "user failed")
+	require.Nil(suite.T(), usergroups)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 2)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 2)
 }
 
 func (suite *LdapHandlerTestSuite) TestGetGroups() {
@@ -401,6 +675,50 @@ func (suite *LdapHandlerTestSuite) TestGetGroups() {
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
 }
 
+func (suite *LdapHandlerTestSuite) TestGetGroupsError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=groupOfUniqueNames)",
+		[]string{"dn", "cn"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "cn"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=groupOfUniqueNames)",
+		Attributes:   []string{"dn", "cn"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	groups, err := suite.ldapHandler.GetGroups()
+	require.Error(suite.T(), err, "failed")
+	require.Nil(suite.T(), groups)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
 func (suite *LdapHandlerTestSuite) TestGetUser() {
 	suite.mockLdap.EXPECT().NewSearchRequest(
 		"DC=example,DC=nz",
@@ -456,6 +774,94 @@ func (suite *LdapHandlerTestSuite) TestGetUser() {
 		GivenName:   "Bob",
 		UIDNumber:   1001,
 	}, user)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetUserError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(&(objectClass=organizationalPerson)(uid=bob))",
+		[]string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(objectClass=organizationalPerson)(uid=bob))",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(objectClass=organizationalPerson)(uid=bob))",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	user, err := suite.ldapHandler.GetUser("bob")
+	require.Error(suite.T(), err, "failed")
+	require.Equal(suite.T(), models.User{}, user)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetUserErrorNone() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(&(objectClass=organizationalPerson)(uid=bob))",
+		[]string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(objectClass=organizationalPerson)(uid=bob))",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(objectClass=organizationalPerson)(uid=bob))",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, nil)
+
+	user, err := suite.ldapHandler.GetUser("bob")
+	require.Error(suite.T(), err, "User DC=example,DC=nz does not exist or too many entries returned")
+	require.Equal(suite.T(), models.User{}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
@@ -523,6 +929,50 @@ func (suite *LdapHandlerTestSuite) TestGetUserGroups() {
 			UserName:  "TestUser1",
 		},
 	}, usergroups)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetUserGroupsError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(&(uniquemember=uid=testuser1,ou=people,dc=example,dc=nz)(objectclass=groupOfUniqueNames))",
+		[]string{"dn", "cn"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(uniquemember=uid=testuser1,ou=people,dc=example,dc=nz)(objectclass=groupOfUniqueNames))",
+		Attributes:   []string{"dn", "cn"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(&(uniquemember=uid=testuser1,ou=people,dc=example,dc=nz)(objectclass=groupOfUniqueNames))",
+		Attributes:   []string{"dn", "cn"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	usergroups, err := suite.ldapHandler.GetUserGroups(models.User{DN: "uid=testuser1,ou=people,dc=example,dc=nz", DisplayName: "TestUser1"})
+	require.Error(suite.T(), err, "failed")
+	require.Nil(suite.T(), usergroups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
@@ -601,6 +1051,50 @@ func (suite *LdapHandlerTestSuite) TestGetUsers() {
 			UIDNumber:   1002,
 		},
 	}, users)
+
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
+	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)
+}
+
+func (suite *LdapHandlerTestSuite) TestGetUsersError() {
+	suite.mockLdap.EXPECT().NewSearchRequest(
+		"DC=example,DC=nz",
+		ldap.ScopeWholeSubtree,
+		ldap.NeverDerefAliases,
+		0,
+		0,
+		false,
+		"(objectclass=organizationalPerson)",
+		[]string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		[]ldap.Control(nil),
+	).Return(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	})
+
+	suite.mockLdap.EXPECT().Search(&ldap.SearchRequest{
+		BaseDN:       "DC=example,DC=nz",
+		Scope:        ldap.ScopeWholeSubtree,
+		DerefAliases: ldap.NeverDerefAliases,
+		SizeLimit:    0,
+		TimeLimit:    0,
+		TypesOnly:    false,
+		Filter:       "(objectclass=organizationalPerson)",
+		Attributes:   []string{"dn", "displayName", "givenName", "sn", "uidNumber", "uid"},
+		Controls:     nil,
+	}).Return(&ldap.SearchResult{
+		Entries: []*ldap.Entry{}}, errors.New("failed"))
+
+	users, err := suite.ldapHandler.GetUsers()
+	require.Error(suite.T(), err, "failed")
+	require.Nil(suite.T(), users)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Search", 1)

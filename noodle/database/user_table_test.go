@@ -95,7 +95,7 @@ func (suite *UserTableTestSuite) TestInsert() {
 		`B {"Type":"ParameterDescription","ParameterOIDs":[1043,1043,1043,1043,1043,23]}`,
 		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":24907,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
-		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_?","ParameterFormatCodes":[0,0,0,0,0,1],"Parameters":[{"text":"bobe"},{"text":"CN=bob,DC=example,DC=nz"},{"text":"bobextample"},{"text":"Bob"},{"text":"Extample"},{"binary":"000003e9"}],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_?","ParameterFormatCodes":[0,0,0,0,0,1],"Parameters":[{"text":"bobe"},{"text":"CN=bob,DC=example,DC=nz"},{"text":"Bob Extample"},{"text":"Bob"},{"text":"Extample"},{"binary":"000003e9"}],"ResultFormatCodes":[1]}`,
 		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
 		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
 		`F {"Type":"Sync"}`,
@@ -114,12 +114,11 @@ func (suite *UserTableTestSuite) TestInsert() {
 	require.NoError(suite.T(), err)
 
 	user := models.User{
-		DN:          "CN=bob,DC=example,DC=nz",
-		Username:    "bobe",
-		DisplayName: "bobextample",
-		Surname:     "Extample",
-		GivenName:   "Bob",
-		UIDNumber:   1001,
+		DN:        "CN=bob,DC=example,DC=nz",
+		Username:  "bobe",
+		Surname:   "Extample",
+		GivenName: "Bob",
+		UIDNumber: 1001,
 	}
 
 	table := database.NewUserTable(db)
@@ -141,7 +140,7 @@ func (suite *UserTableTestSuite) TestUpdate() {
 		`B {"Type":"ParameterDescription","ParameterOIDs":[23,1043,1043,1043,1043,1043,23]}`,
 		`B {"Type":"NoData"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
-		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_?","ParameterFormatCodes":[1,0,0,0,0,0,1],"Parameters":[{"binary":"00000001"},{"text":"bobe"},{"text":"CN=bob,DC=example,DC=nz"},{"text":"bobextample"},{"text":"Bob"},{"text":"Extample"},{"binary":"000003e9"}],"ResultFormatCodes":[]}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_?","ParameterFormatCodes":[1,0,0,0,0,0,1],"Parameters":[{"binary":"00000001"},{"text":"bobe"},{"text":"CN=bob,DC=example,DC=nz"},{"text":"Bob Extample"},{"text":"Bob"},{"text":"Extample"},{"binary":"000003e9"}],"ResultFormatCodes":[]}`,
 		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
 		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
 		`F {"Type":"Sync"}`,
@@ -159,13 +158,12 @@ func (suite *UserTableTestSuite) TestUpdate() {
 	require.NoError(suite.T(), err)
 
 	user := models.User{
-		ID:          1,
-		DN:          "CN=bob,DC=example,DC=nz",
-		Username:    "bobe",
-		DisplayName: "bobextample",
-		Surname:     "Extample",
-		GivenName:   "Bob",
-		UIDNumber:   1001,
+		ID:        1,
+		DN:        "CN=bob,DC=example,DC=nz",
+		Username:  "bobe",
+		Surname:   "Extample",
+		GivenName: "Bob",
+		UIDNumber: 1001,
 	}
 
 	table := database.NewUserTable(db)
@@ -435,7 +433,7 @@ func (suite *UserTableTestSuite) TestGetID() {
 	}, result)
 }
 
-func (suite *UserTableTestSuite) TestGetIDError() {
+func (suite *UserTableTestSuite) TestGetIDNoResultError() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
 		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE id = $1","ParameterOIDs":null}`,
@@ -443,16 +441,15 @@ func (suite *UserTableTestSuite) TestGetIDError() {
 		`F {"Type":"Sync"}`,
 		`B {"Type":"ParseComplete"}`,
 		`B {"Type":"ParameterDescription","ParameterOIDs":[23]}`,
-		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":25117,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0},{"Name":"username","TableOID":25117,"TableAttributeNumber":2,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"dn","TableOID":25117,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":204,"Format":0},{"Name":"displayname","TableOID":25117,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"givenname","TableOID":25117,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"surname","TableOID":25117,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"uidnumber","TableOID":25117,"TableAttributeNumber":7,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":27670,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0},{"Name":"username","TableOID":27670,"TableAttributeNumber":2,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"dn","TableOID":27670,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":204,"Format":0},{"Name":"displayname","TableOID":27670,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"givenname","TableOID":27670,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"surname","TableOID":27670,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"uidnumber","TableOID":27670,"TableAttributeNumber":7,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
-		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[1],"Parameters":[{"binary":"00000002"}],"ResultFormatCodes":[1,0,0,0,0,0,1]}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[1],"Parameters":[{"binary":"ffffffff"}],"ResultFormatCodes":[1,0,0,0,0,0,1]}`,
 		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
 		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
 		`F {"Type":"Sync"}`,
 		`B {"Type":"BindComplete"}`,
-		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":25117,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1},{"Name":"username","TableOID":25117,"TableAttributeNumber":2,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"dn","TableOID":25117,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":204,"Format":0},{"Name":"displayname","TableOID":25117,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"givenname","TableOID":25117,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"surname","TableOID":25117,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"uidnumber","TableOID":25117,"TableAttributeNumber":7,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
-		`B {"Type":"DataRow","Values":[{"binary":"00000002"},{"text":"jack"},{"text":"CN=jack,DC=example,DC=nz"},{"text":"Jack M"},{"text":"Jack"},{"text":"M"},{"binary":"000003ea"}]}`,
-		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"id","TableOID":27670,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1},{"Name":"username","TableOID":27670,"TableAttributeNumber":2,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"dn","TableOID":27670,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":204,"Format":0},{"Name":"displayname","TableOID":27670,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"givenname","TableOID":27670,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"surname","TableOID":27670,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"uidnumber","TableOID":27670,"TableAttributeNumber":7,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 0"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 	db := database.NewDatabase(suite.appConfig)
@@ -464,10 +461,31 @@ func (suite *UserTableTestSuite) TestGetIDError() {
 
 	table := database.NewUserTable(db)
 
-	db.Close()
-
 	_, err = table.GetID(-1)
-	require.Error(suite.T(), err)
+	require.Error(suite.T(), err, "no user with id -1")
+
+}
+
+func (suite *UserTableTestSuite) TestGetIDError() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM users WHERE id = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ErrorResponse","Severity":"ERROR","SeverityUnlocalized":"ERROR","Code":"42P01","Message":"relation \"users\" does not exist","Detail":"","Hint":"","Position":21,"InternalPosition":0,"InternalQuery":"","Where":"","SchemaName":"","TableName":"","ColumnName":"","DataTypeName":"","ConstraintName":"","File":"parse_relation.c","Line":1392,"Routine":"parserOpenTable","UnknownFields":null}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	table := database.NewUserTable(db)
+
+	_, err = table.GetID(12)
+	require.Error(suite.T(), err, "ERROR: relation \"users\" does not exist (SQLSTATE 42P01)")
 
 }
 

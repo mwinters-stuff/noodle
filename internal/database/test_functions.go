@@ -230,7 +230,11 @@ func (i *TestFunctions) LoadDatabaseSteps(t require.TestingT, script *pgmock.Scr
 				i.unMarshalBackendMessage(stepjson, &pgproto3.RowDescription{}, t, script)
 			case "DataRow":
 				i.unMarshalBackendMessage(stepjson, &pgproto3.DataRow{}, t, script)
+			case "ErrorResponse":
+				i.unMarshalBackendMessage(stepjson, &pgproto3.ErrorResponse{}, t, script)
+
 			}
+
 		}
 
 		require.NotEqual(t, startedwith, len(script.Steps), "%s was not unmarshaled!", msgType.Type)

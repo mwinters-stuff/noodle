@@ -59,6 +59,7 @@ func (suite *DatabaseTestInitialSuite) SetupTest() {
 }
 
 func (suite *DatabaseTestInitialSuite) TearDownTest() {
+	database.NewTables = database.NewTablesImpl
 	suite.listener.Close()
 }
 
@@ -116,6 +117,67 @@ func (suite *DatabaseTestInitialSuite) TestConnect() {
 	assert.Eventually(suite.T(), func() bool {
 		return suite.loghook.LastLevel == zerolog.InfoLevel && suite.loghook.LastMsg == "database connected"
 	}, time.Second, time.Millisecond*100)
+
+}
+
+func (suite *DatabaseTestInitialSuite) TestCreated() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_2","ParameterFormatCodes":null,"Parameters":[],"ResultFormatCodes":[1]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"version","TableOID":25129,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000001"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	created, err := db.CheckCreated()
+
+	require.NoError(suite.T(), err)
+	assert.True(suite.T(), created)
+
+}
+
+func (suite *DatabaseTestInitialSuite) TestCreatedNotCreated() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_2","Query":"SELECT version FROM version","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_2"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ErrorResponse","Severity":"ERROR","SeverityUnlocalized":"ERROR","Code":"42P01","Message":"relation \"version\" does not exist","Detail":"","Hint":"","Position":21,"InternalPosition":0,"InternalQuery":"","Where":"","SchemaName":"","TableName":"","ColumnName":"","DataTypeName":"","ConstraintName":"","File":"parse_relation.c","Line":1392,"Routine":"parserOpenTable","UnknownFields":null}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	created, err := db.CheckCreated()
+
+	require.Error(suite.T(), err)
+	assert.False(suite.T(), created)
 
 }
 
@@ -336,6 +398,26 @@ func (suite *DatabaseTestInitialSuite) TestCreate() {
 
 }
 
+func (suite *DatabaseTestInitialSuite) TestCreateError() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		fmt.Sprintf(`F {"Type":"Query","String":"\nCREATE TABLE IF NOT EXISTS version (version int);\nDELETE FROM version;\nINSERT INTO version (version) values (%d)\n"}`, database.DATABASE_VERSION),
+		`B {"Type":"ErrorResponse","Severity":"ERROR","SeverityUnlocalized":"ERROR","Code":"42P01","Message":"relation \"version\" does not exist","Detail":"","Hint":"","Position":21,"InternalPosition":0,"InternalQuery":"","Where":"","SchemaName":"","TableName":"","ColumnName":"","DataTypeName":"","ConstraintName":"","File":"parse_relation.c","Line":1392,"Routine":"parserOpenTable","UnknownFields":null}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	err = db.Create()
+	require.Error(suite.T(), err)
+
+}
+
 func (suite *DatabaseTestInitialSuite) TestDrop() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
@@ -356,6 +438,36 @@ func (suite *DatabaseTestInitialSuite) TestDrop() {
 
 	err = db.Drop()
 	require.NoError(suite.T(), err)
+}
+
+func (suite *DatabaseTestInitialSuite) TestDropError() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Query","String":"DROP TABLE version"}`,
+		`B {"Type":"ErrorResponse","Severity":"ERROR","SeverityUnlocalized":"ERROR","Code":"42P01","Message":"relation \"version\" does not exist","Detail":"","Hint":"","Position":21,"InternalPosition":0,"InternalQuery":"","Where":"","SchemaName":"","TableName":"","ColumnName":"","DataTypeName":"","ConstraintName":"","File":"parse_relation.c","Line":1392,"Routine":"parserOpenTable","UnknownFields":null}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	err = db.Drop()
+	require.Error(suite.T(), err)
+}
+
+func (suite *DatabaseTestInitialSuite) TestTables() {
+	db := database.NewDatabase(suite.appConfig)
+	assert.NotNil(suite.T(), db)
+
+	tables := database.NewTables()
+	dbTables := db.Tables()
+
+	require.IsType(suite.T(), tables, dbTables)
 }
 
 func TestDatabaseSuite(t *testing.T) {

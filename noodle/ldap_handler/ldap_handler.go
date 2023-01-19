@@ -114,6 +114,7 @@ func (i *LdapHandlerImpl) AuthUser(userdn string, password string) (bool, error)
 	nexterr := i.ldapShim.Bind(i.appConfig.Ldap.User, i.appConfig.Ldap.Password)
 	if nexterr != nil {
 		Logger.Error().Err(nexterr)
+		return false, nexterr
 	}
 	return success, err
 }
@@ -140,7 +141,7 @@ func (i *LdapHandlerImpl) GetGroupUsers(group models.Group) ([]models.UserGroup,
 
 	if len(sr.Entries) != 1 {
 		Logger.Error().Msgf("Group %s does not exist or too many entries returned", group.DN)
-		return nil, fmt.Errorf("user %s does not exist or too many entries returned", group.DN)
+		return nil, fmt.Errorf("group %s does not exist or too many entries returned", group.DN)
 	}
 
 	users := sr.Entries[0].GetAttributeValues(i.appConfig.Ldap.GroupMemberAttribute)

@@ -58,9 +58,9 @@ func setupDatabase(config yamltypes.AppConfig, drop bool) (database.Database, er
 
 	db.Tables().InitTables(db)
 
-	if drop {
-		db.Drop()
-	}
+	// if drop {
+	// 	db.Drop()
+	// }
 
 	created, _ := db.CheckCreated()
 	if !created {
@@ -81,6 +81,8 @@ func setupDatabase(config yamltypes.AppConfig, drop bool) (database.Database, er
 			}
 		}
 	}
+
+	db.Tables().UserTable().GetID(-1)
 
 	return db, nil
 }

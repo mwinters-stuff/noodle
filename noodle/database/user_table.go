@@ -117,10 +117,10 @@ func (i *UserTableImpl) GetDN(dn string) (models.User, error) {
 // GetID implements UserTable
 func (i *UserTableImpl) GetID(id int64) (models.User, error) {
 	rows, err := i.getQuery(userTableQueryRowsID, id)
-	if err == nil && len(rows) > 0 {
-		return *rows[0], nil
-	}
-	if len(rows) == 0 {
+	if err == nil {
+		if len(rows) > 0 {
+			return *rows[0], nil
+		}
 		return models.User{}, fmt.Errorf("no user with id %d", id)
 	}
 	return models.User{}, err
