@@ -32,9 +32,9 @@ type ApplicationTabTable interface {
 
 	Insert(tab *models.ApplicationTab) error
 	Update(tab models.ApplicationTab) error
-	Delete(tab models.ApplicationTab) error
+	Delete(id int64) error
 
-	GetTabApps(tabid int64) ([]models.ApplicationTab, error)
+	GetTabApps(tabid int64) ([]*models.ApplicationTab, error)
 }
 
 type ApplicationTabTableImpl struct {
@@ -49,12 +49,12 @@ func (i *ApplicationTabTableImpl) Drop() error {
 }
 
 // GetAll implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) GetTabApps(tabid int64) ([]models.ApplicationTab, error) {
+func (i *ApplicationTabTableImpl) GetTabApps(tabid int64) ([]*models.ApplicationTab, error) {
 	rows, err := i.database.Pool().Query(context.Background(), applicationTabTableQueryAll, tabid)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.ApplicationTab{}
+	results := []*models.ApplicationTab{}
 	var id, displayorder, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -71,7 +71,7 @@ func (i *ApplicationTabTableImpl) GetTabApps(tabid int64) ([]models.ApplicationT
 		&icon,
 	}, func() error {
 
-		results = append(results, models.ApplicationTab{
+		results = append(results, &models.ApplicationTab{
 			ID:            id,
 			TabID:         tabid,
 			ApplicationID: applicationid,
@@ -101,8 +101,8 @@ func (i *ApplicationTabTableImpl) Create() error {
 }
 
 // Delete implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) Delete(tab models.ApplicationTab) error {
-	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableDeleteRow, tab.ID)
+func (i *ApplicationTabTableImpl) Delete(id int64) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableDeleteRow, id)
 	return err
 
 }

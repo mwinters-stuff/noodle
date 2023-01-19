@@ -194,6 +194,35 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 		return handlers.HandlerTabDelete(db, params, principal)
 	})
 
+	// APP TEMPLATES
+	api.NoodleAPIGetNoodleAppTemplatesHandler = noodle_api.GetNoodleAppTemplatesHandlerFunc(func(params noodle_api.GetNoodleAppTemplatesParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerAppTemplates(db, params, principal)
+	})
+
+	// TABS
+	api.NoodleAPIGetNoodleApplicationTabsHandler = noodle_api.GetNoodleApplicationTabsHandlerFunc(func(params noodle_api.GetNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerApplicationTabGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleApplicationTabsHandler = noodle_api.PostNoodleApplicationTabsHandlerFunc(func(params noodle_api.PostNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerApplicationTabPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleApplicationTabsHandler = noodle_api.DeleteNoodleApplicationTabsHandlerFunc(func(params noodle_api.DeleteNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerApplicationTabDelete(db, params, principal)
+	})
+
+	// USER APPLICATIONS
+	api.NoodleAPIGetNoodleUserApplicationsHandler = noodle_api.GetNoodleUserApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerUserApplicationGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleUserApplicationsHandler = noodle_api.PostNoodleUserApplicationsHandlerFunc(func(params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerUserApplicationPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleUserApplicationsHandler = noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return handlers.HandlerUserApplicationDelete(db, params, principal)
+	})
+
+	//KUBE
+
 	api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 		return kubernetes.NewGetHealthzOK().WithPayload(map[string]string{"status": "OK"})
 	})

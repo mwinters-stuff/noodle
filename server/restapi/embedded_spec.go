@@ -60,6 +60,53 @@ func init() {
         }
       }
     },
+    "/noodle/app-templates": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of application templates",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/application_template"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/application-tabs": {
       "get": {
         "security": [
@@ -73,6 +120,14 @@ func init() {
         ],
         "tags": [
           "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tab_id",
+            "in": "query",
+            "required": true
+          }
         ],
         "responses": {
           "200": {
@@ -115,6 +170,16 @@ func init() {
           "noodle-api"
         ],
         "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
           {
             "name": "application_tab",
             "in": "body",
@@ -176,7 +241,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
@@ -301,7 +366,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
@@ -571,6 +636,14 @@ func init() {
         "tags": [
           "noodle-api"
         ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -673,7 +746,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
@@ -1102,6 +1175,53 @@ func init() {
         }
       }
     },
+    "/noodle/app-templates": {
+      "get": {
+        "security": [
+          {
+            "key": []
+          }
+        ],
+        "description": "Gets the list of application templates",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/application_template"
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/application-tabs": {
       "get": {
         "security": [
@@ -1115,6 +1235,14 @@ func init() {
         ],
         "tags": [
           "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "tab_id",
+            "in": "query",
+            "required": true
+          }
         ],
         "responses": {
           "200": {
@@ -1157,6 +1285,16 @@ func init() {
           "noodle-api"
         ],
         "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
           {
             "name": "application_tab",
             "in": "body",
@@ -1218,7 +1356,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
@@ -1343,7 +1481,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"
@@ -1613,6 +1751,14 @@ func init() {
         "tags": [
           "noodle-api"
         ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1715,7 +1861,7 @@ func init() {
               "$ref": "#/definitions/error"
             }
           },
-          "405": {
+          "409": {
             "description": "Invalid Input",
             "schema": {
               "$ref": "#/definitions/error"

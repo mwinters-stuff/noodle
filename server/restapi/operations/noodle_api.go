@@ -61,6 +61,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		KubernetesGetHealthzHandler: kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
 		}),
+		NoodleAPIGetNoodleAppTemplatesHandler: noodle_api.GetNoodleAppTemplatesHandlerFunc(func(params noodle_api.GetNoodleAppTemplatesParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleAppTemplates has not yet been implemented")
+		}),
 		NoodleAPIGetNoodleApplicationTabsHandler: noodle_api.GetNoodleApplicationTabsHandlerFunc(func(params noodle_api.GetNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleApplicationTabs has not yet been implemented")
 		}),
@@ -163,6 +166,8 @@ type NoodleAPI struct {
 	NoodleAPIDeleteNoodleUserApplicationsHandler noodle_api.DeleteNoodleUserApplicationsHandler
 	// KubernetesGetHealthzHandler sets the operation handler for the get healthz operation
 	KubernetesGetHealthzHandler kubernetes.GetHealthzHandler
+	// NoodleAPIGetNoodleAppTemplatesHandler sets the operation handler for the get noodle app templates operation
+	NoodleAPIGetNoodleAppTemplatesHandler noodle_api.GetNoodleAppTemplatesHandler
 	// NoodleAPIGetNoodleApplicationTabsHandler sets the operation handler for the get noodle application tabs operation
 	NoodleAPIGetNoodleApplicationTabsHandler noodle_api.GetNoodleApplicationTabsHandler
 	// NoodleAPIGetNoodleGroupApplicationsHandler sets the operation handler for the get noodle group applications operation
@@ -286,6 +291,9 @@ func (o *NoodleAPI) Validate() error {
 	}
 	if o.KubernetesGetHealthzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetHealthzHandler")
+	}
+	if o.NoodleAPIGetNoodleAppTemplatesHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleAppTemplatesHandler")
 	}
 	if o.NoodleAPIGetNoodleApplicationTabsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleApplicationTabsHandler")
@@ -448,6 +456,10 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/healthz"] = kubernetes.NewGetHealthz(o.context, o.KubernetesGetHealthzHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/app-templates"] = noodle_api.NewGetNoodleAppTemplates(o.context, o.NoodleAPIGetNoodleAppTemplatesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

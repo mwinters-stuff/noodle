@@ -9,13 +9,11 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
-
-	"github.com/go-openapi/swag"
 )
 
-// GetNoodleUserApplicationsURL generates an URL for the get noodle user applications operation
-type GetNoodleUserApplicationsURL struct {
-	UserID int64
+// GetNoodleAppTemplatesURL generates an URL for the get noodle app templates operation
+type GetNoodleAppTemplatesURL struct {
+	Search string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -25,7 +23,7 @@ type GetNoodleUserApplicationsURL struct {
 // WithBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetNoodleUserApplicationsURL) WithBasePath(bp string) *GetNoodleUserApplicationsURL {
+func (o *GetNoodleAppTemplatesURL) WithBasePath(bp string) *GetNoodleAppTemplatesURL {
 	o.SetBasePath(bp)
 	return o
 }
@@ -33,15 +31,15 @@ func (o *GetNoodleUserApplicationsURL) WithBasePath(bp string) *GetNoodleUserApp
 // SetBasePath sets the base path for this url builder, only required when it's different from the
 // base path specified in the swagger spec.
 // When the value of the base path is an empty string
-func (o *GetNoodleUserApplicationsURL) SetBasePath(bp string) {
+func (o *GetNoodleAppTemplatesURL) SetBasePath(bp string) {
 	o._basePath = bp
 }
 
 // Build a url path and query string
-func (o *GetNoodleUserApplicationsURL) Build() (*url.URL, error) {
+func (o *GetNoodleAppTemplatesURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/noodle/user-applications"
+	var _path = "/noodle/app-templates"
 
 	_basePath := o._basePath
 	if _basePath == "" {
@@ -51,9 +49,9 @@ func (o *GetNoodleUserApplicationsURL) Build() (*url.URL, error) {
 
 	qs := make(url.Values)
 
-	userIDQ := swag.FormatInt64(o.UserID)
-	if userIDQ != "" {
-		qs.Set("user_id", userIDQ)
+	searchQ := o.Search
+	if searchQ != "" {
+		qs.Set("search", searchQ)
 	}
 
 	_result.RawQuery = qs.Encode()
@@ -62,7 +60,7 @@ func (o *GetNoodleUserApplicationsURL) Build() (*url.URL, error) {
 }
 
 // Must is a helper function to panic when the url builder returns an error
-func (o *GetNoodleUserApplicationsURL) Must(u *url.URL, err error) *url.URL {
+func (o *GetNoodleAppTemplatesURL) Must(u *url.URL, err error) *url.URL {
 	if err != nil {
 		panic(err)
 	}
@@ -73,17 +71,17 @@ func (o *GetNoodleUserApplicationsURL) Must(u *url.URL, err error) *url.URL {
 }
 
 // String returns the string representation of the path with query string
-func (o *GetNoodleUserApplicationsURL) String() string {
+func (o *GetNoodleAppTemplatesURL) String() string {
 	return o.Must(o.Build()).String()
 }
 
 // BuildFull builds a full url with scheme, host, path and query string
-func (o *GetNoodleUserApplicationsURL) BuildFull(scheme, host string) (*url.URL, error) {
+func (o *GetNoodleAppTemplatesURL) BuildFull(scheme, host string) (*url.URL, error) {
 	if scheme == "" {
-		return nil, errors.New("scheme is required for a full url on GetNoodleUserApplicationsURL")
+		return nil, errors.New("scheme is required for a full url on GetNoodleAppTemplatesURL")
 	}
 	if host == "" {
-		return nil, errors.New("host is required for a full url on GetNoodleUserApplicationsURL")
+		return nil, errors.New("host is required for a full url on GetNoodleAppTemplatesURL")
 	}
 
 	base, err := o.Build()
@@ -97,6 +95,6 @@ func (o *GetNoodleUserApplicationsURL) BuildFull(scheme, host string) (*url.URL,
 }
 
 // StringFull returns the string representation of a complete url
-func (o *GetNoodleUserApplicationsURL) StringFull(scheme, host string) string {
+func (o *GetNoodleAppTemplatesURL) StringFull(scheme, host string) string {
 	return o.Must(o.BuildFull(scheme, host)).String()
 }

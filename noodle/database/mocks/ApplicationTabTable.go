@@ -56,13 +56,13 @@ func (_c *ApplicationTabTable_Create_Call) Return(_a0 error) *ApplicationTabTabl
 	return _c
 }
 
-// Delete provides a mock function with given fields: tab
-func (_m *ApplicationTabTable) Delete(tab models.ApplicationTab) error {
-	ret := _m.Called(tab)
+// Delete provides a mock function with given fields: id
+func (_m *ApplicationTabTable) Delete(id int64) error {
+	ret := _m.Called(id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.ApplicationTab) error); ok {
-		r0 = rf(tab)
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -76,14 +76,14 @@ type ApplicationTabTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - tab models.ApplicationTab
-func (_e *ApplicationTabTable_Expecter) Delete(tab interface{}) *ApplicationTabTable_Delete_Call {
-	return &ApplicationTabTable_Delete_Call{Call: _e.mock.On("Delete", tab)}
+//   - id int64
+func (_e *ApplicationTabTable_Expecter) Delete(id interface{}) *ApplicationTabTable_Delete_Call {
+	return &ApplicationTabTable_Delete_Call{Call: _e.mock.On("Delete", id)}
 }
 
-func (_c *ApplicationTabTable_Delete_Call) Run(run func(tab models.ApplicationTab)) *ApplicationTabTable_Delete_Call {
+func (_c *ApplicationTabTable_Delete_Call) Run(run func(id int64)) *ApplicationTabTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(models.ApplicationTab))
+		run(args[0].(int64))
 	})
 	return _c
 }
@@ -130,15 +130,15 @@ func (_c *ApplicationTabTable_Drop_Call) Return(_a0 error) *ApplicationTabTable_
 }
 
 // GetTabApps provides a mock function with given fields: tabid
-func (_m *ApplicationTabTable) GetTabApps(tabid int64) ([]models.ApplicationTab, error) {
+func (_m *ApplicationTabTable) GetTabApps(tabid int64) ([]*models.ApplicationTab, error) {
 	ret := _m.Called(tabid)
 
-	var r0 []models.ApplicationTab
-	if rf, ok := ret.Get(0).(func(int64) []models.ApplicationTab); ok {
+	var r0 []*models.ApplicationTab
+	if rf, ok := ret.Get(0).(func(int64) []*models.ApplicationTab); ok {
 		r0 = rf(tabid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.ApplicationTab)
+			r0 = ret.Get(0).([]*models.ApplicationTab)
 		}
 	}
 
@@ -170,7 +170,7 @@ func (_c *ApplicationTabTable_GetTabApps_Call) Run(run func(tabid int64)) *Appli
 	return _c
 }
 
-func (_c *ApplicationTabTable_GetTabApps_Call) Return(_a0 []models.ApplicationTab, _a1 error) *ApplicationTabTable_GetTabApps_Call {
+func (_c *ApplicationTabTable_GetTabApps_Call) Return(_a0 []*models.ApplicationTab, _a1 error) *ApplicationTabTable_GetTabApps_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

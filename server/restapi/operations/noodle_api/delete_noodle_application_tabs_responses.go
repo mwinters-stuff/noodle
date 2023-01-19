@@ -83,15 +83,15 @@ func (o *DeleteNoodleApplicationTabsUnauthorized) WriteResponse(rw http.Response
 	}
 }
 
-// DeleteNoodleApplicationTabsMethodNotAllowedCode is the HTTP code returned for type DeleteNoodleApplicationTabsMethodNotAllowed
-const DeleteNoodleApplicationTabsMethodNotAllowedCode int = 405
+// DeleteNoodleApplicationTabsConflictCode is the HTTP code returned for type DeleteNoodleApplicationTabsConflict
+const DeleteNoodleApplicationTabsConflictCode int = 409
 
 /*
-DeleteNoodleApplicationTabsMethodNotAllowed Invalid Input
+DeleteNoodleApplicationTabsConflict Invalid Input
 
-swagger:response deleteNoodleApplicationTabsMethodNotAllowed
+swagger:response deleteNoodleApplicationTabsConflict
 */
-type DeleteNoodleApplicationTabsMethodNotAllowed struct {
+type DeleteNoodleApplicationTabsConflict struct {
 
 	/*
 	  In: Body
@@ -99,27 +99,27 @@ type DeleteNoodleApplicationTabsMethodNotAllowed struct {
 	Payload *models.Error `json:"body,omitempty"`
 }
 
-// NewDeleteNoodleApplicationTabsMethodNotAllowed creates DeleteNoodleApplicationTabsMethodNotAllowed with default headers values
-func NewDeleteNoodleApplicationTabsMethodNotAllowed() *DeleteNoodleApplicationTabsMethodNotAllowed {
+// NewDeleteNoodleApplicationTabsConflict creates DeleteNoodleApplicationTabsConflict with default headers values
+func NewDeleteNoodleApplicationTabsConflict() *DeleteNoodleApplicationTabsConflict {
 
-	return &DeleteNoodleApplicationTabsMethodNotAllowed{}
+	return &DeleteNoodleApplicationTabsConflict{}
 }
 
-// WithPayload adds the payload to the delete noodle application tabs method not allowed response
-func (o *DeleteNoodleApplicationTabsMethodNotAllowed) WithPayload(payload *models.Error) *DeleteNoodleApplicationTabsMethodNotAllowed {
+// WithPayload adds the payload to the delete noodle application tabs conflict response
+func (o *DeleteNoodleApplicationTabsConflict) WithPayload(payload *models.Error) *DeleteNoodleApplicationTabsConflict {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the delete noodle application tabs method not allowed response
-func (o *DeleteNoodleApplicationTabsMethodNotAllowed) SetPayload(payload *models.Error) {
+// SetPayload sets the payload to the delete noodle application tabs conflict response
+func (o *DeleteNoodleApplicationTabsConflict) SetPayload(payload *models.Error) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *DeleteNoodleApplicationTabsMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *DeleteNoodleApplicationTabsConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(405)
+	rw.WriteHeader(409)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

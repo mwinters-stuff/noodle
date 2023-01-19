@@ -29,9 +29,9 @@ type UserApplicationsTable interface {
 	Drop() error
 
 	Insert(app *models.UserApplications) error
-	Delete(app models.UserApplications) error
+	Delete(id int64) error
 
-	GetUserApps(userid int64) ([]models.UserApplications, error)
+	GetUserApps(userid int64) ([]*models.UserApplications, error)
 }
 
 type UserApplicationsTableImpl struct {
@@ -46,12 +46,12 @@ func (i *UserApplicationsTableImpl) Drop() error {
 }
 
 // GetAll implements UserApplicationsTable
-func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]models.UserApplications, error) {
+func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApplications, error) {
 	rows, err := i.database.Pool().Query(context.Background(), userApplicationsTableQueryAll, userid)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.UserApplications{}
+	results := []*models.UserApplications{}
 	var id, applicationid int64
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -67,7 +67,7 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]models.UserAppl
 		&icon,
 	}, func() error {
 
-		results = append(results, models.UserApplications{
+		results = append(results, &models.UserApplications{
 			ID:            id,
 			UserID:        userid,
 			ApplicationID: applicationid,
@@ -96,8 +96,8 @@ func (i *UserApplicationsTableImpl) Create() error {
 }
 
 // Delete implements UserApplicationsTable
-func (i *UserApplicationsTableImpl) Delete(app models.UserApplications) error {
-	_, err := i.database.Pool().Exec(context.Background(), userApplicationsTableDeleteRow, app.ID)
+func (i *UserApplicationsTableImpl) Delete(id int64) error {
+	_, err := i.database.Pool().Exec(context.Background(), userApplicationsTableDeleteRow, id)
 	return err
 
 }

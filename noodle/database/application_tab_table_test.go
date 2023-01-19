@@ -196,15 +196,9 @@ func (suite *ApplicationTabTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	at1 := models.ApplicationTab{
-		ID:            1,
-		TabID:         1,
-		ApplicationID: 3,
-		DisplayOrder:  1,
-	}
 	table := database.NewApplicationTabTable(db)
 
-	err = table.Delete(at1)
+	err = table.Delete(int64(1))
 	require.NoError(suite.T(), err)
 }
 
@@ -242,7 +236,7 @@ func (suite *ApplicationTabTableTestSuite) TestGetTabApps() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.ApplicationTab{
+	require.ElementsMatch(suite.T(), []*models.ApplicationTab{
 		{
 			ID:            1,
 			TabID:         1,

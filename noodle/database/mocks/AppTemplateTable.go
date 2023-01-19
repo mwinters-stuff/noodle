@@ -211,15 +211,15 @@ func (_c *AppTemplateTable_Insert_Call) Return(_a0 error) *AppTemplateTable_Inse
 }
 
 // Search provides a mock function with given fields: search
-func (_m *AppTemplateTable) Search(search string) ([]models.ApplicationTemplate, error) {
+func (_m *AppTemplateTable) Search(search string) ([]*models.ApplicationTemplate, error) {
 	ret := _m.Called(search)
 
-	var r0 []models.ApplicationTemplate
-	if rf, ok := ret.Get(0).(func(string) []models.ApplicationTemplate); ok {
+	var r0 []*models.ApplicationTemplate
+	if rf, ok := ret.Get(0).(func(string) []*models.ApplicationTemplate); ok {
 		r0 = rf(search)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.ApplicationTemplate)
+			r0 = ret.Get(0).([]*models.ApplicationTemplate)
 		}
 	}
 
@@ -251,7 +251,7 @@ func (_c *AppTemplateTable_Search_Call) Run(run func(search string)) *AppTemplat
 	return _c
 }
 
-func (_c *AppTemplateTable_Search_Call) Return(_a0 []models.ApplicationTemplate, _a1 error) *AppTemplateTable_Search_Call {
+func (_c *AppTemplateTable_Search_Call) Return(_a0 []*models.ApplicationTemplate, _a1 error) *AppTemplateTable_Search_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

@@ -17,17 +17,10 @@ var (
 
 type Heimdall interface {
 	UpdateFromServer() error
-	FindApps(search string) ([]models.ApplicationTemplate, error)
 }
 
 type HeimdallImpl struct {
 	database database.Database
-}
-
-// FindApp implements Heimdall
-func (i *HeimdallImpl) FindApps(search string) ([]models.ApplicationTemplate, error) {
-	table := database.NewAppTemplateTable(i.database)
-	return table.Search(search)
 }
 
 // UpdateFromServer implements Heimdall

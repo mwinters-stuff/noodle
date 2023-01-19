@@ -9,7 +9,11 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/errors"
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // NewGetNoodleUserApplicationsParams creates a new GetNoodleUserApplicationsParams object
@@ -28,6 +32,12 @@ type GetNoodleUserApplicationsParams struct {
 
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
+
+	/*
+	  Required: true
+	  In: query
+	*/
+	UserID int64
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -39,8 +49,40 @@ func (o *GetNoodleUserApplicationsParams) BindRequest(r *http.Request, route *mi
 
 	o.HTTPRequest = r
 
+	qs := runtime.Values(r.URL.Query())
+
+	qUserID, qhkUserID, _ := qs.GetOK("user_id")
+	if err := o.bindUserID(qUserID, qhkUserID, route.Formats); err != nil {
+		res = append(res, err)
+	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindUserID binds and validates parameter UserID from query.
+func (o *GetNoodleUserApplicationsParams) bindUserID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("user_id", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("user_id", "query", raw); err != nil {
+		return err
+	}
+
+	value, err := swag.ConvertInt64(raw)
+	if err != nil {
+		return errors.InvalidType("user_id", "query", "int64", raw)
+	}
+	o.UserID = value
+
 	return nil
 }

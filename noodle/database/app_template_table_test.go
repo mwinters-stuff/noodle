@@ -230,7 +230,7 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
-		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM application_template WHERE name LIKE $1","ParameterOIDs":null}`,
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM application_template WHERE LOWER(name) LIKE LOWER($1)","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
 		`B {"Type":"ParseComplete"}`,
@@ -273,7 +273,7 @@ func (suite *AppTemplateTableTestSuite) TestSearch() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.ApplicationTemplate{app}, result)
+	require.ElementsMatch(suite.T(), []*models.ApplicationTemplate{&app}, result)
 
 }
 
@@ -281,7 +281,7 @@ func (suite *AppTemplateTableTestSuite) TestSearchQueryFails() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
-		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM application_template WHERE name LIKE $1","ParameterOIDs":null}`,
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT * FROM application_template WHERE LOWER(name) LIKE LOWER($1)","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
 		`F {"Type":"Sync"}`,
 		`B {"Type":"ParseComplete"}`,

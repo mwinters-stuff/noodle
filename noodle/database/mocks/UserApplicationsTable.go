@@ -56,13 +56,13 @@ func (_c *UserApplicationsTable_Create_Call) Return(_a0 error) *UserApplications
 	return _c
 }
 
-// Delete provides a mock function with given fields: app
-func (_m *UserApplicationsTable) Delete(app models.UserApplications) error {
-	ret := _m.Called(app)
+// Delete provides a mock function with given fields: id
+func (_m *UserApplicationsTable) Delete(id int64) error {
+	ret := _m.Called(id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.UserApplications) error); ok {
-		r0 = rf(app)
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -76,14 +76,14 @@ type UserApplicationsTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - app models.UserApplications
-func (_e *UserApplicationsTable_Expecter) Delete(app interface{}) *UserApplicationsTable_Delete_Call {
-	return &UserApplicationsTable_Delete_Call{Call: _e.mock.On("Delete", app)}
+//   - id int64
+func (_e *UserApplicationsTable_Expecter) Delete(id interface{}) *UserApplicationsTable_Delete_Call {
+	return &UserApplicationsTable_Delete_Call{Call: _e.mock.On("Delete", id)}
 }
 
-func (_c *UserApplicationsTable_Delete_Call) Run(run func(app models.UserApplications)) *UserApplicationsTable_Delete_Call {
+func (_c *UserApplicationsTable_Delete_Call) Run(run func(id int64)) *UserApplicationsTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(models.UserApplications))
+		run(args[0].(int64))
 	})
 	return _c
 }
@@ -130,15 +130,15 @@ func (_c *UserApplicationsTable_Drop_Call) Return(_a0 error) *UserApplicationsTa
 }
 
 // GetUserApps provides a mock function with given fields: userid
-func (_m *UserApplicationsTable) GetUserApps(userid int64) ([]models.UserApplications, error) {
+func (_m *UserApplicationsTable) GetUserApps(userid int64) ([]*models.UserApplications, error) {
 	ret := _m.Called(userid)
 
-	var r0 []models.UserApplications
-	if rf, ok := ret.Get(0).(func(int64) []models.UserApplications); ok {
+	var r0 []*models.UserApplications
+	if rf, ok := ret.Get(0).(func(int64) []*models.UserApplications); ok {
 		r0 = rf(userid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.UserApplications)
+			r0 = ret.Get(0).([]*models.UserApplications)
 		}
 	}
 
@@ -170,7 +170,7 @@ func (_c *UserApplicationsTable_GetUserApps_Call) Run(run func(userid int64)) *U
 	return _c
 }
 
-func (_c *UserApplicationsTable_GetUserApps_Call) Return(_a0 []models.UserApplications, _a1 error) *UserApplicationsTable_GetUserApps_Call {
+func (_c *UserApplicationsTable_GetUserApps_Call) Return(_a0 []*models.UserApplications, _a1 error) *UserApplicationsTable_GetUserApps_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

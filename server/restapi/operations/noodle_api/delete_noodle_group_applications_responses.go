@@ -83,15 +83,15 @@ func (o *DeleteNoodleGroupApplicationsUnauthorized) WriteResponse(rw http.Respon
 	}
 }
 
-// DeleteNoodleGroupApplicationsMethodNotAllowedCode is the HTTP code returned for type DeleteNoodleGroupApplicationsMethodNotAllowed
-const DeleteNoodleGroupApplicationsMethodNotAllowedCode int = 405
+// DeleteNoodleGroupApplicationsConflictCode is the HTTP code returned for type DeleteNoodleGroupApplicationsConflict
+const DeleteNoodleGroupApplicationsConflictCode int = 409
 
 /*
-DeleteNoodleGroupApplicationsMethodNotAllowed Invalid Input
+DeleteNoodleGroupApplicationsConflict Invalid Input
 
-swagger:response deleteNoodleGroupApplicationsMethodNotAllowed
+swagger:response deleteNoodleGroupApplicationsConflict
 */
-type DeleteNoodleGroupApplicationsMethodNotAllowed struct {
+type DeleteNoodleGroupApplicationsConflict struct {
 
 	/*
 	  In: Body
@@ -99,27 +99,27 @@ type DeleteNoodleGroupApplicationsMethodNotAllowed struct {
 	Payload *models.Error `json:"body,omitempty"`
 }
 
-// NewDeleteNoodleGroupApplicationsMethodNotAllowed creates DeleteNoodleGroupApplicationsMethodNotAllowed with default headers values
-func NewDeleteNoodleGroupApplicationsMethodNotAllowed() *DeleteNoodleGroupApplicationsMethodNotAllowed {
+// NewDeleteNoodleGroupApplicationsConflict creates DeleteNoodleGroupApplicationsConflict with default headers values
+func NewDeleteNoodleGroupApplicationsConflict() *DeleteNoodleGroupApplicationsConflict {
 
-	return &DeleteNoodleGroupApplicationsMethodNotAllowed{}
+	return &DeleteNoodleGroupApplicationsConflict{}
 }
 
-// WithPayload adds the payload to the delete noodle group applications method not allowed response
-func (o *DeleteNoodleGroupApplicationsMethodNotAllowed) WithPayload(payload *models.Error) *DeleteNoodleGroupApplicationsMethodNotAllowed {
+// WithPayload adds the payload to the delete noodle group applications conflict response
+func (o *DeleteNoodleGroupApplicationsConflict) WithPayload(payload *models.Error) *DeleteNoodleGroupApplicationsConflict {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the delete noodle group applications method not allowed response
-func (o *DeleteNoodleGroupApplicationsMethodNotAllowed) SetPayload(payload *models.Error) {
+// SetPayload sets the payload to the delete noodle group applications conflict response
+func (o *DeleteNoodleGroupApplicationsConflict) SetPayload(payload *models.Error) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *DeleteNoodleGroupApplicationsMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *DeleteNoodleGroupApplicationsConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(405)
+	rw.WriteHeader(409)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {

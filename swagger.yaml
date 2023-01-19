@@ -271,6 +271,11 @@ paths:
       description: Gets the list of applications under the tab
       produces:
       - application/json
+      parameters:
+        - name: tab_id
+          in: query
+          required: true
+          type: integer
       responses:
         '200':
           description: OK
@@ -295,6 +300,13 @@ paths:
       - application/json
       description: Adds a new application in a  tab
       parameters:
+        - name: action
+          in: query
+          type: string
+          enum:
+            - insert
+            - update
+          required: true
         - name: application_tab
           in: body
           required: true
@@ -335,7 +347,7 @@ paths:
           description: unauthorized
           schema:
             $ref: "#/definitions/error"
-        '405':
+        '409':
           description: Invalid Input
           schema:
             $ref: "#/definitions/error"
@@ -349,6 +361,11 @@ paths:
       description: Gets the list of user applications 
       produces:
       - application/json
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          type: integer
       responses:
         '200':
           description: OK
@@ -413,7 +430,7 @@ paths:
           description: unauthorized
           schema:
             $ref: "#/definitions/error"
-        '405':
+        '409':
           description: Invalid Input
           schema:
             $ref: "#/definitions/error"
@@ -491,7 +508,7 @@ paths:
           description: unauthorized
           schema:
             $ref: "#/definitions/error"
-        '405':
+        '409':
           description: Invalid Input
           schema:
             $ref: "#/definitions/error"
@@ -499,6 +516,39 @@ paths:
         - noodle-api
       security: 
         - key: []
+
+  /noodle/app-templates:
+    get:
+      description: Gets the list of application templates
+      produces:
+      - application/json
+      parameters:
+        - name: search
+          in: query
+          required: true
+          type: string
+
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/application_template'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+
+
 schemes:
 - http
 swagger: "2.0"

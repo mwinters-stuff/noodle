@@ -26,7 +26,7 @@ const appTemplateTableIndexCreate = `CREATE INDEX IF NOT EXISTS application_temp
 const appTemplateTableInsertRow = `INSERT INTO application_template (appid,name,website,license,description,enhanced,tilebackground,icon,sha) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 const appTemplateTableUpdateRow = `UPDATE application_template SET name = $2,website = $3,license = $4,description = $5,enhanced = $6,tilebackground = $7,icon = $8,sha = $9 WHERE appid = $1`
 const appTemplateTableDeleteRow = `DELETE FROM application_template WHERE appid = $1`
-const appTemplateTableQueryRows = `SELECT * FROM application_template WHERE name LIKE $1`
+const appTemplateTableQueryRows = `SELECT * FROM application_template WHERE LOWER(name) LIKE LOWER($1)`
 const appTemplateTableQueryExists = `SELECT COUNT(*) FROM application_template WHERE appid = $1`
 
 var (
@@ -43,7 +43,7 @@ type AppTemplateTable interface {
 	Update(app models.ApplicationTemplate) error
 	Delete(app models.ApplicationTemplate) error
 
-	Search(search string) ([]models.ApplicationTemplate, error)
+	Search(search string) ([]*models.ApplicationTemplate, error)
 	Exists(appid string) (bool, error)
 }
 
@@ -95,12 +95,12 @@ func (i *AppTemplateTableImpl) Insert(app models.ApplicationTemplate) error {
 }
 
 // Search implements AppTemplateTable
-func (i *AppTemplateTableImpl) Search(search string) ([]models.ApplicationTemplate, error) {
+func (i *AppTemplateTableImpl) Search(search string) ([]*models.ApplicationTemplate, error) {
 	rows, err := i.database.Pool().Query(context.Background(), appTemplateTableQueryRows, fmt.Sprintf("%%%s%%", search))
 	if err != nil {
 		return nil, err
 	}
-	results := []models.ApplicationTemplate{}
+	results := []*models.ApplicationTemplate{}
 	var appid, sha pgtype.Text
 	var name, website, license, description, tilebackground, icon string
 	var enhanced bool
@@ -114,7 +114,7 @@ func (i *AppTemplateTableImpl) Search(search string) ([]models.ApplicationTempla
 		&icon,
 		&sha}, func() error {
 
-		results = append(results, models.ApplicationTemplate{
+		results = append(results, &models.ApplicationTemplate{
 			Appid:          appid.String,
 			Name:           name,
 			Website:        website,

@@ -9,11 +9,17 @@ import (
 	"errors"
 	"net/url"
 	golangswaggerpaths "path"
+
+	"github.com/go-openapi/swag"
 )
 
 // GetNoodleApplicationTabsURL generates an URL for the get noodle application tabs operation
 type GetNoodleApplicationTabsURL struct {
+	TabID int64
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +48,15 @@ func (o *GetNoodleApplicationTabsURL) Build() (*url.URL, error) {
 		_basePath = "/api"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	tabIDQ := swag.FormatInt64(o.TabID)
+	if tabIDQ != "" {
+		qs.Set("tab_id", tabIDQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

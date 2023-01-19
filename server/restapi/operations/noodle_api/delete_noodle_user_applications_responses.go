@@ -83,15 +83,15 @@ func (o *DeleteNoodleUserApplicationsUnauthorized) WriteResponse(rw http.Respons
 	}
 }
 
-// DeleteNoodleUserApplicationsMethodNotAllowedCode is the HTTP code returned for type DeleteNoodleUserApplicationsMethodNotAllowed
-const DeleteNoodleUserApplicationsMethodNotAllowedCode int = 405
+// DeleteNoodleUserApplicationsConflictCode is the HTTP code returned for type DeleteNoodleUserApplicationsConflict
+const DeleteNoodleUserApplicationsConflictCode int = 409
 
 /*
-DeleteNoodleUserApplicationsMethodNotAllowed Invalid Input
+DeleteNoodleUserApplicationsConflict Invalid Input
 
-swagger:response deleteNoodleUserApplicationsMethodNotAllowed
+swagger:response deleteNoodleUserApplicationsConflict
 */
-type DeleteNoodleUserApplicationsMethodNotAllowed struct {
+type DeleteNoodleUserApplicationsConflict struct {
 
 	/*
 	  In: Body
@@ -99,27 +99,27 @@ type DeleteNoodleUserApplicationsMethodNotAllowed struct {
 	Payload *models.Error `json:"body,omitempty"`
 }
 
-// NewDeleteNoodleUserApplicationsMethodNotAllowed creates DeleteNoodleUserApplicationsMethodNotAllowed with default headers values
-func NewDeleteNoodleUserApplicationsMethodNotAllowed() *DeleteNoodleUserApplicationsMethodNotAllowed {
+// NewDeleteNoodleUserApplicationsConflict creates DeleteNoodleUserApplicationsConflict with default headers values
+func NewDeleteNoodleUserApplicationsConflict() *DeleteNoodleUserApplicationsConflict {
 
-	return &DeleteNoodleUserApplicationsMethodNotAllowed{}
+	return &DeleteNoodleUserApplicationsConflict{}
 }
 
-// WithPayload adds the payload to the delete noodle user applications method not allowed response
-func (o *DeleteNoodleUserApplicationsMethodNotAllowed) WithPayload(payload *models.Error) *DeleteNoodleUserApplicationsMethodNotAllowed {
+// WithPayload adds the payload to the delete noodle user applications conflict response
+func (o *DeleteNoodleUserApplicationsConflict) WithPayload(payload *models.Error) *DeleteNoodleUserApplicationsConflict {
 	o.Payload = payload
 	return o
 }
 
-// SetPayload sets the payload to the delete noodle user applications method not allowed response
-func (o *DeleteNoodleUserApplicationsMethodNotAllowed) SetPayload(payload *models.Error) {
+// SetPayload sets the payload to the delete noodle user applications conflict response
+func (o *DeleteNoodleUserApplicationsConflict) SetPayload(payload *models.Error) {
 	o.Payload = payload
 }
 
 // WriteResponse to the client
-func (o *DeleteNoodleUserApplicationsMethodNotAllowed) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+func (o *DeleteNoodleUserApplicationsConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
 
-	rw.WriteHeader(405)
+	rw.WriteHeader(409)
 	if o.Payload != nil {
 		payload := o.Payload
 		if err := producer.Produce(rw, payload); err != nil {
