@@ -31,7 +31,11 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": {
 		"pgmockproxy": "go install github.com/jackc/pgmock/pgmockproxy",
-		"mockery": "go get github.com/vektra/mockery/v2@latest"
+		"mockery": "go get github.com/vektra/mockery/v2@latest",
+		"go-junit-report":"go install  github.com/jstemmer/go-junit-report",
+		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest"
+	
+
 	}
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
