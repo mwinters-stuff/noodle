@@ -29,7 +29,11 @@ jobs:
       with:
         path-to-lcov: ./coverage.lcov
         github-token: ${{ secrets.GITHUB_TOKEN }}
+    
     - name: Publish Test Results
+      permissions:
+        checks: write
+        pull-requests: write
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
