@@ -7,6 +7,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
     steps:
 
     - uses: actions/checkout@v1
@@ -31,9 +34,6 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
     
     - name: Publish Test Results
-      permissions:
-        checks: write
-        pull-requests: write
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
