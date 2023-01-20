@@ -9,6 +9,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -16,6 +17,7 @@ import (
 
 type UserTableTestSuite struct {
 	suite.Suite
+
 	script        *pgmock.Script
 	listener      net.Listener
 	appConfig     yamltypes.AppConfig
@@ -23,6 +25,7 @@ type UserTableTestSuite struct {
 }
 
 func (suite *UserTableTestSuite) SetupSuite() {
+	database.Logger = log.Output(nil)
 }
 
 func (suite *UserTableTestSuite) SetupTest() {

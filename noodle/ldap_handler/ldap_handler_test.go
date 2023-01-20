@@ -41,7 +41,7 @@ type LdapHandlerTestSuite struct {
 
 func (suite *LdapHandlerTestSuite) SetupSuite() {
 	suite.loghook = ldapHandlerLogHook{}
-	ldap_handler.Logger = log.Hook(&suite.loghook)
+	ldap_handler.Logger = log.Hook(&suite.loghook).Output(nil)
 
 	yamltext := `
 postgres:

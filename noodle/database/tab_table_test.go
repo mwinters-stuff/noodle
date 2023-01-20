@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/jackc/pgmock"
+	"github.com/rs/zerolog/log"
 
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
@@ -17,6 +18,7 @@ import (
 
 type TabTableTestSuite struct {
 	suite.Suite
+
 	script        *pgmock.Script
 	listener      net.Listener
 	appConfig     yamltypes.AppConfig
@@ -24,6 +26,7 @@ type TabTableTestSuite struct {
 }
 
 func (suite *TabTableTestSuite) SetupSuite() {
+	database.Logger = log.Output(nil)
 }
 
 func (suite *TabTableTestSuite) SetupTest() {

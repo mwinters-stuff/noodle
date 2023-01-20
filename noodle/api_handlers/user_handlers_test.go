@@ -1,17 +1,19 @@
-package handlers_test
+package api_handlers_test
 
 import (
 	"errors"
-	"testing"
-
 	"github.com/go-openapi/runtime"
-	"github.com/mwinters-stuff/noodle/handlers"
-	handler_mocks "github.com/mwinters-stuff/noodle/handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
+	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"testing"
 )
 
 type UserHandlersTestSuite struct {
@@ -22,7 +24,8 @@ type UserHandlersTestSuite struct {
 }
 
 func (suite *UserHandlersTestSuite) SetupSuite() {
-
+	database.Logger = log.Output(nil)
+	ldap_handler.Logger = log.Output(nil)
 }
 
 func (suite *UserHandlersTestSuite) SetupTest() {
@@ -66,7 +69,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetAll() {
 
 	pr := models.Principal("")
 
-	response := handlers.HandlerUsers(suite.mockDatabase, noodle_api.NewGetNoodleUsersParams(), &pr)
+	response := api_handlers.HandlerUsers(suite.mockDatabase, noodle_api.NewGetNoodleUsersParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -96,7 +99,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetOne() {
 	var userid = int64(2)
 	params.Userid = &userid
 
-	response := handlers.HandlerUsers(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -118,7 +121,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersDBError() {
 	var userid = int64(2)
 	params.Userid = &userid
 
-	response := handlers.HandlerUsers(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())

@@ -1,4 +1,4 @@
-package handlers_test
+package api_handlers_test
 
 import (
 	"errors"
@@ -6,12 +6,16 @@ import (
 	"testing"
 
 	"github.com/go-openapi/runtime"
-	"github.com/mwinters-stuff/noodle/handlers"
-	handler_mocks "github.com/mwinters-stuff/noodle/handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
+	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	heimdall_mocks "github.com/mwinters-stuff/noodle/noodle/heimdall/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -23,7 +27,10 @@ type HiemdallHandlersTest struct {
 }
 
 func (suite *HiemdallHandlersTest) SetupSuite() {
-
+	database.Logger = log.Output(nil)
+	ldap_handler.Logger = log.Output(nil)
+	heimdall.Logger = log.Output(nil)
+	api_handlers.Logger = log.Output(nil)
 }
 
 func (suite *HiemdallHandlersTest) SetupTest() {
@@ -45,7 +52,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshNoError() {
 
 	pr := models.Principal("")
 
-	response := handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
+	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -61,7 +68,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshError() {
 
 	pr := models.Principal("")
 
-	response := handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
+	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())

@@ -43,7 +43,7 @@ type DatabaseTestInitialSuite struct {
 func (suite *DatabaseTestInitialSuite) SetupSuite() {
 
 	suite.loghook = databaseLogHook{}
-	database.Logger = log.Hook(&suite.loghook)
+	database.Logger = log.Hook(&suite.loghook).Output(nil)
 
 }
 

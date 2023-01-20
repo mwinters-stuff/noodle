@@ -1,15 +1,18 @@
-package handlers_test
+package api_handlers_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/go-openapi/runtime"
-	"github.com/mwinters-stuff/noodle/handlers"
-	handler_mocks "github.com/mwinters-stuff/noodle/handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
+	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,7 +25,8 @@ type GroupHandlersTestSuite struct {
 }
 
 func (suite *GroupHandlersTestSuite) SetupSuite() {
-
+	database.Logger = log.Output(nil)
+	ldap_handler.Logger = log.Output(nil)
 }
 
 func (suite *GroupHandlersTestSuite) SetupTest() {
@@ -58,7 +62,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetAll() {
 
 	pr := models.Principal("")
 
-	response := handlers.HandlerGroups(suite.mockDatabase, noodle_api.NewGetNoodleGroupsParams(), &pr)
+	response := api_handlers.HandlerGroups(suite.mockDatabase, noodle_api.NewGetNoodleGroupsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -82,7 +86,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetOne() {
 	var Groupid = int64(2)
 	params.Groupid = &Groupid
 
-	response := handlers.HandlerGroups(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -102,7 +106,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsDBError() {
 	var Groupid = int64(2)
 	params.Groupid = &Groupid
 
-	response := handlers.HandlerGroups(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())

@@ -7,6 +7,7 @@ import (
 	"github.com/jackc/pgmock"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/rs/zerolog/log"
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
@@ -24,6 +25,7 @@ type AppTemplateTableTestSuite struct {
 }
 
 func (suite *AppTemplateTableTestSuite) SetupSuite() {
+	database.Logger = log.Output(nil)
 }
 
 func (suite *AppTemplateTableTestSuite) SetupTest() {

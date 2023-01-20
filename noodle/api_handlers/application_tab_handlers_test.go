@@ -1,15 +1,18 @@
-package handlers_test
+package api_handlers_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/go-openapi/runtime"
-	"github.com/mwinters-stuff/noodle/handlers"
-	handler_mocks "github.com/mwinters-stuff/noodle/handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
+	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
+	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -22,7 +25,8 @@ type ApplicationTabHandlersTestSuite struct {
 }
 
 func (suite *ApplicationTabHandlersTestSuite) SetupSuite() {
-
+	database.Logger = log.Output(nil)
+	ldap_handler.Logger = log.Output(nil)
 }
 
 func (suite *ApplicationTabHandlersTestSuite) SetupTest() {
@@ -84,7 +88,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsGet() {
 
 	params := noodle_api.NewGetNoodleApplicationTabsParams()
 	params.TabID = 1
-	response := handlers.HandlerApplicationTabGet(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabGet(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -102,7 +106,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsGetError
 
 	params := noodle_api.NewGetNoodleApplicationTabsParams()
 	params.TabID = 1
-	response := handlers.HandlerApplicationTabGet(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabGet(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -129,7 +133,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsInsert()
 	}
 	params.Action = "insert"
 
-	response := handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -157,7 +161,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsInsertEr
 	}
 	params.Action = "insert"
 
-	response := handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -186,7 +190,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdate()
 	}
 	params.Action = "update"
 
-	response := handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -216,7 +220,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateEr
 	}
 	params.Action = "update"
 
-	response := handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -233,7 +237,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsDelete()
 	params := noodle_api.NewDeleteNoodleApplicationTabsParams()
 	params.ApplicationTabID = 1
 
-	response := handlers.HandlerApplicationTabDelete(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
@@ -251,7 +255,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsDeleteEr
 	params := noodle_api.NewDeleteNoodleApplicationTabsParams()
 	params.ApplicationTabID = 1
 
-	response := handlers.HandlerApplicationTabDelete(suite.mockDatabase, params, &pr)
+	response := api_handlers.HandlerApplicationTabDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())

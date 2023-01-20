@@ -9,6 +9,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -21,6 +22,7 @@ type HeimdallAppsTestSuite struct {
 }
 
 func (suite *HeimdallAppsTestSuite) SetupSuite() {
+	heimdall.Logger = log.Output(nil)
 }
 
 func (suite *HeimdallAppsTestSuite) SetupTest() {

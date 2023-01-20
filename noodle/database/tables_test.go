@@ -6,6 +6,7 @@ import (
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
@@ -26,7 +27,7 @@ type TablesTestSuite struct {
 }
 
 func (suite *TablesTestSuite) SetupSuite() {
-
+	database.Logger = log.Output(nil)
 }
 
 func (suite *TablesTestSuite) SetupTest() {
