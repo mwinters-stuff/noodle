@@ -4,7 +4,7 @@ var (
 	NewTables = NewTablesImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name Tables
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name Tables
 type Tables interface {
 	InitTables(db Database)
 	Create() error

@@ -2,6 +2,8 @@ package api_handlers_test
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/go-openapi/runtime"
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
 	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
@@ -13,7 +15,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
-	"testing"
 )
 
 type UserHandlersTestSuite struct {
@@ -72,7 +73,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetAll() {
 	response := api_handlers.HandlerUsers(suite.mockDatabase, noodle_api.NewGetNoodleUsersParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	// args := mock.Arguments{}
@@ -102,7 +103,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetOne() {
 	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	// args := mock.Arguments{}
@@ -124,7 +125,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersDBError() {
 	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"DB Failed"}`)).Once().Return(1, nil)
 

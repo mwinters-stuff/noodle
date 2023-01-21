@@ -13,7 +13,7 @@ var (
 	NewHeimdall = NewHeimdallImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name Heimdall
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name Heimdall
 
 type Heimdall interface {
 	UpdateFromServer() error

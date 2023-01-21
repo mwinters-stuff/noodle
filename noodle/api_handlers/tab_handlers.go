@@ -4,7 +4,12 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+)
+
+var (
+	RegisterTabApiHandlers = RegisterTabApiHandlersImpl
 )
 
 func HandlerTabGet(db database.Database, params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
@@ -38,5 +43,18 @@ func HandlerTabDelete(db database.Database, params noodle_api.DeleteNoodleTabsPa
 		return noodle_api.NewDeleteNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
 	}
 	return noodle_api.NewDeleteNoodleTabsOK()
+
+}
+
+func RegisterTabApiHandlersImpl(api *operations.NoodleAPI, db database.Database) {
+	api.NoodleAPIGetNoodleTabsHandler = noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return HandlerTabGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleTabsHandler = noodle_api.PostNoodleTabsHandlerFunc(func(params noodle_api.PostNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return HandlerTabPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleTabsHandler = noodle_api.DeleteNoodleTabsHandlerFunc(func(params noodle_api.DeleteNoodleTabsParams, principal *models.Principal) middleware.Responder {
+		return HandlerTabDelete(db, params, principal)
+	})
 
 }

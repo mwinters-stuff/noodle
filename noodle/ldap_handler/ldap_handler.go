@@ -15,7 +15,7 @@ var (
 	NewLdapHandler = NewLdapHandlerImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name LdapHandler
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name LdapHandler
 
 type LdapHandler interface {
 	Connect() error

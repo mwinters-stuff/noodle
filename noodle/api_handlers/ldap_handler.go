@@ -5,7 +5,12 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+)
+
+var (
+	RegisterLdapApiHandlers = RegisterLdapApiHandlersImpl
 )
 
 func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
@@ -226,4 +231,10 @@ func IndexGroup(s []*models.Group, v models.Group) int {
 		}
 	}
 	return -1
+}
+
+func RegisterLdapApiHandlersImpl(api *operations.NoodleAPI, db database.Database, ldap ldap_handler.LdapHandler) {
+	api.NoodleAPIGetNoodleLdapReloadHandler = noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
+		return HandleLDAPRefresh(db, ldap, params, principal)
+	})
 }

@@ -78,7 +78,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGetGroupUsers() {
 	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"GroupDN":"cn=admins,ou=groups,dc=example,dc=nz","GroupId":1,"GroupName":"Admins","Id":1,"UserDN":"CN=bob,DC=example,DC=nz","UserId":1,"UserName":"bobe"},{"GroupDN":"cn=admins,ou=groups,dc=example,dc=nz","GroupId":1,"GroupName":"Admins","Id":2,"UserDN":"CN=jack,DC=example,DC=nz","UserId":2,"UserName":"jack"}]`)).Once().Return(1, nil)
@@ -120,7 +120,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGetUserGroups() {
 	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"GroupDN":"cn=admins,ou=groups,dc=example,dc=nz","GroupId":1,"GroupName":"Admins","Id":1,"UserDN":"CN=bob,DC=example,DC=nz","UserId":1,"UserName":"bobe"},{"GroupDN":"cn=users,ou=groups,dc=example,dc=nz","GroupId":2,"GroupName":"Users","Id":2,"UserDN":"CN=bob,DC=example,DC=nz","UserId":1,"UserName":"bobe"}]`)).Once().Return(1, nil)
@@ -143,7 +143,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGroupsDBError() {
 	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"message":"DB Failed"}`)).Once().Return(1, nil)
@@ -162,7 +162,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerTwoParametersError() {
 	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"message":"no groupid or userid parameter"}`)).Once().Return(1, nil)

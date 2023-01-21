@@ -65,7 +65,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsGet() {
 	response := api_handlers.HandlerTabGet(suite.mockDatabase, noodle_api.NewGetNoodleTabsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"DisplayOrder":1,"Id":1,"Label":"Servers"},{"DisplayOrder":2,"Id":2,"Label":"Apps"}]`)).Once().Return(1, nil)
@@ -81,7 +81,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsGetError() {
 	response := api_handlers.HandlerTabGet(suite.mockDatabase, noodle_api.NewGetNoodleTabsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 
@@ -106,7 +106,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsInsert() {
 	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"DisplayOrder":1,"Label":"Servers"}`)).Once().Return(1, nil)
@@ -132,7 +132,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsInsertError() {
 	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 
@@ -159,7 +159,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsUpdate() {
 	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"DisplayOrder":1,"Id":1,"Label":"Servers"}`)).Once().Return(1, nil)
@@ -187,7 +187,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsUpdateError() {
 	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
@@ -204,7 +204,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsDelete() {
 	response := api_handlers.HandlerTabDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().Header().Once().Return(nil)
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
@@ -222,7 +222,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsDeleteError() {
 	response := api_handlers.HandlerTabDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())

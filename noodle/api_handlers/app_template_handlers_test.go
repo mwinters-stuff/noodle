@@ -68,7 +68,7 @@ func (suite *AppTemplateHandlersTestSuite) TestHandlerAppTemplatesGet() {
 	response := api_handlers.HandlerAppTemplates(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"Appid":"140902edbcc424c09736af28ab2de604c3bde936","Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","SHA":"ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7","Website":"https://github.com/AdguardTeam/AdGuardHome","tile_background":"light"}]`)).Once().Return(1, nil)
@@ -86,7 +86,7 @@ func (suite *AppTemplateHandlersTestSuite) TestHandlerAppTemplatesGetError() {
 	response := api_handlers.HandlerAppTemplates(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)

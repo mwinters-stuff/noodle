@@ -65,7 +65,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetAll() {
 	response := api_handlers.HandlerGroups(suite.mockDatabase, noodle_api.NewGetNoodleGroupsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"DN":"cn=admins,ou=groups,dc=example,dc=nz","Id":1,"Name":"Admins"},{"DN":"cn=users,ou=groups,dc=example,dc=nz","Id":2,"Name":"Users"}]`)).Once().Return(1, nil)
@@ -89,7 +89,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetOne() {
 	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"DN":"cn=admins,ou=groups,dc=example,dc=nz","Id":1,"Name":"Admins"}]`)).Once().Return(1, nil)
@@ -109,7 +109,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsDBError() {
 	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"message":"DB Failed"}`)).Once().Return(1, nil)

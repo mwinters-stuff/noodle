@@ -6,7 +6,7 @@ import (
 	ldap "github.com/go-ldap/ldap/v3"
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name LdapShim
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name LdapShim
 
 type LdapShim interface {
 	DialURL(addr string, opts ...ldap.DialOpt) error

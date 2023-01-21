@@ -4,8 +4,8 @@ package restapi
 
 import (
 	"crypto/tls"
-	"io/ioutil"
 	"net/http"
+	"os"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
@@ -24,7 +24,6 @@ import (
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
-	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 )
 
 var (
@@ -104,7 +103,7 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
-	yfile, err := ioutil.ReadFile(opts.NoodleOptions.Config)
+	yfile, err := os.ReadFile(opts.NoodleOptions.Config)
 	if err != nil {
 		Logger.Fatal().Msg(err.Error())
 	}
@@ -157,81 +156,7 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 	// Example:
 	// api.APIAuthorizer = security.Authorized()
 
-	// USERS
-
-	api.NoodleAPIGetNoodleUsersHandler = noodle_api.GetNoodleUsersHandlerFunc(func(params noodle_api.GetNoodleUsersParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerUsers(db, params, principal)
-	})
-
-	// GROUPS
-	api.NoodleAPIGetNoodleGroupsHandler = noodle_api.GetNoodleGroupsHandlerFunc(func(params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerGroups(db, params, principal)
-	})
-
-	// USER GROUPS
-	api.NoodleAPIGetNoodleUserGroupsHandler = noodle_api.GetNoodleUserGroupsHandlerFunc(func(params noodle_api.GetNoodleUserGroupsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerUserGroups(db, params, principal)
-	})
-
-	// LDAP
-	api.NoodleAPIGetNoodleLdapReloadHandler = noodle_api.GetNoodleLdapReloadHandlerFunc(func(params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandleLDAPRefresh(db, ldap, params, principal)
-	})
-
-	// HEIMDALL
-	api.NoodleAPIGetNoodleHeimdallReloadHandler = noodle_api.GetNoodleHeimdallReloadHandlerFunc(func(params noodle_api.GetNoodleHeimdallReloadParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandleHeimdallRefresh(db, heimdall, params, principal)
-	})
-
-	// TABS
-	api.NoodleAPIGetNoodleTabsHandler = noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerTabGet(db, params, principal)
-	})
-	api.NoodleAPIPostNoodleTabsHandler = noodle_api.PostNoodleTabsHandlerFunc(func(params noodle_api.PostNoodleTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerTabPost(db, params, principal)
-	})
-	api.NoodleAPIDeleteNoodleTabsHandler = noodle_api.DeleteNoodleTabsHandlerFunc(func(params noodle_api.DeleteNoodleTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerTabDelete(db, params, principal)
-	})
-
-	// APP TEMPLATES
-	api.NoodleAPIGetNoodleAppTemplatesHandler = noodle_api.GetNoodleAppTemplatesHandlerFunc(func(params noodle_api.GetNoodleAppTemplatesParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerAppTemplates(db, params, principal)
-	})
-
-	// TABS
-	api.NoodleAPIGetNoodleApplicationTabsHandler = noodle_api.GetNoodleApplicationTabsHandlerFunc(func(params noodle_api.GetNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerApplicationTabGet(db, params, principal)
-	})
-	api.NoodleAPIPostNoodleApplicationTabsHandler = noodle_api.PostNoodleApplicationTabsHandlerFunc(func(params noodle_api.PostNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerApplicationTabPost(db, params, principal)
-	})
-	api.NoodleAPIDeleteNoodleApplicationTabsHandler = noodle_api.DeleteNoodleApplicationTabsHandlerFunc(func(params noodle_api.DeleteNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerApplicationTabDelete(db, params, principal)
-	})
-
-	// USER APPLICATIONS
-	api.NoodleAPIGetNoodleUserApplicationsHandler = noodle_api.GetNoodleUserApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerUserApplicationGet(db, params, principal)
-	})
-	api.NoodleAPIPostNoodleUserApplicationsHandler = noodle_api.PostNoodleUserApplicationsHandlerFunc(func(params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerUserApplicationPost(db, params, principal)
-	})
-	api.NoodleAPIDeleteNoodleUserApplicationsHandler = noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerUserApplicationDelete(db, params, principal)
-	})
-
-	// GROUP APPLICATIONS
-	api.NoodleAPIGetNoodleGroupApplicationsHandler = noodle_api.GetNoodleGroupApplicationsHandlerFunc(func(params noodle_api.GetNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerGroupApplicationGet(db, params, principal)
-	})
-	api.NoodleAPIPostNoodleGroupApplicationsHandler = noodle_api.PostNoodleGroupApplicationsHandlerFunc(func(params noodle_api.PostNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerGroupApplicationPost(db, params, principal)
-	})
-	api.NoodleAPIDeleteNoodleGroupApplicationsHandler = noodle_api.DeleteNoodleGroupApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleGroupApplicationsParams, principal *models.Principal) middleware.Responder {
-		return api_handlers.HandlerGroupApplicationDelete(db, params, principal)
-	})
-
+	api_handlers.RegisterApiHandlers(api, db, ldap, heimdall)
 	//KUBE
 
 	api.KubernetesGetHealthzHandler = kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {

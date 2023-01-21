@@ -9,7 +9,7 @@ import (
 )
 
 // You only need **one** of these per package!
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name Database
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name Database
 
 const DATABASE_VERSION int = 1
 

@@ -22,7 +22,7 @@ var (
 	NewGroupApplicationsTable = NewGroupApplicationsTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name GroupApplicationsTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name GroupApplicationsTable
 type GroupApplicationsTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

@@ -23,7 +23,7 @@ var (
 	NewTabTable = NewTabTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name TabTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name TabTable
 type TabTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

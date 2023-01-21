@@ -77,7 +77,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerNoUsersOrGroupsLdapOrDatabas
 	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().Header().Once().Return(http.Header{})
 	mockWriter.EXPECT().WriteHeader(200).Once()
@@ -106,7 +106,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerUserSyncError() {
 	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
@@ -130,7 +130,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerGroupSyncError() {
 	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
@@ -159,7 +159,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerUserGroupsSyncError() {
 	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)

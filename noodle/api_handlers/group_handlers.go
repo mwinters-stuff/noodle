@@ -4,7 +4,12 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+)
+
+var (
+	RegisterGroupApiHandlers = RegisterGroupApiHandlersImpl
 )
 
 func HandlerGroups(db database.Database, params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
@@ -21,4 +26,10 @@ func HandlerGroups(db database.Database, params noodle_api.GetNoodleGroupsParams
 		return noodle_api.NewGetNoodleGroupsConflict().WithPayload(&models.Error{Message: err.Error()})
 	}
 	return noodle_api.NewGetNoodleGroupsOK().WithPayload(groups)
+}
+
+func RegisterGroupApiHandlersImpl(api *operations.NoodleAPI, db database.Database) {
+	api.NoodleAPIGetNoodleGroupsHandler = noodle_api.GetNoodleGroupsHandlerFunc(func(params noodle_api.GetNoodleGroupsParams, principal *models.Principal) middleware.Responder {
+		return HandlerGroups(db, params, principal)
+	})
 }

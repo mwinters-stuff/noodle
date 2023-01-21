@@ -27,7 +27,7 @@ var (
 	NewGroupTable = NewGroupTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name GroupTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name GroupTable
 type GroupTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

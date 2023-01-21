@@ -5,7 +5,12 @@ import (
 
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+)
+
+var (
+	RegisterUserApplicationsApiHandlers = RegisterUserApplicationsApiHandlersImpl
 )
 
 func HandlerUserApplicationGet(db database.Database, params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
@@ -32,5 +37,16 @@ func HandlerUserApplicationDelete(db database.Database, params noodle_api.Delete
 		return noodle_api.NewDeleteNoodleUserApplicationsConflict().WithPayload(&models.Error{Message: err.Error()})
 	}
 	return noodle_api.NewDeleteNoodleUserApplicationsOK()
+}
 
+func RegisterUserApplicationsApiHandlersImpl(api *operations.NoodleAPI, db database.Database) {
+	api.NoodleAPIGetNoodleUserApplicationsHandler = noodle_api.GetNoodleUserApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return HandlerUserApplicationGet(db, params, principal)
+	})
+	api.NoodleAPIPostNoodleUserApplicationsHandler = noodle_api.PostNoodleUserApplicationsHandlerFunc(func(params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return HandlerUserApplicationPost(db, params, principal)
+	})
+	api.NoodleAPIDeleteNoodleUserApplicationsHandler = noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
+		return HandlerUserApplicationDelete(db, params, principal)
+	})
 }

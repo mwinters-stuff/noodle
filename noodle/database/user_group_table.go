@@ -25,7 +25,7 @@ var (
 	NewUserGroupsTable = NewUserGroupsTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name UserGroupsTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name UserGroupsTable
 type UserGroupsTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

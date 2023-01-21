@@ -33,7 +33,7 @@ var (
 	NewAppTemplateTable = NewAppTemplateTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name AppTemplateTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name AppTemplateTable
 type AppTemplateTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

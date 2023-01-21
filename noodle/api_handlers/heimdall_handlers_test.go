@@ -55,7 +55,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshNoError() {
 	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().Header().Once().Return(http.Header{})
 	mockWriter.EXPECT().WriteHeader(200).Once()
@@ -71,7 +71,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshError() {
 	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)

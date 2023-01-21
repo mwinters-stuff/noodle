@@ -32,7 +32,7 @@ var (
 	NewUserTable = NewUserTableImpl
 )
 
-//go:generate go run github.com/vektra/mockery/v2 --with-expecter --name UserTable
+//go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name UserTable
 type UserTable interface {
 	Create() error
 	Upgrade(old_version, new_verison int) error

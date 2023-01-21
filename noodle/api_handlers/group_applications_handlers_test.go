@@ -89,7 +89,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsGet
 	response := api_handlers.HandlerGroupApplicationGet(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"},"ApplicationId":1,"GroupId":1,"Id":1},{"Application":{"Description":"Adminer.","Icon":"adminer.svg","Id":2,"License":"Apache License 2.0","Name":"Adminer","TileBackground":"light","Website":"https://www.adminer.org"},"ApplicationId":2,"GroupId":1,"Id":2}]`)).Once().Return(1, nil)
@@ -107,7 +107,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsGet
 	response := api_handlers.HandlerGroupApplicationGet(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 
@@ -131,7 +131,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsIns
 	response := api_handlers.HandlerGroupApplicationPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
 	mockWriter.EXPECT().Write([]byte(`{"ApplicationId":1,"GroupId":1}`)).Once().Return(1, nil)
@@ -156,7 +156,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsIns
 	response := api_handlers.HandlerGroupApplicationPost(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 
@@ -174,7 +174,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsDel
 	response := api_handlers.HandlerGroupApplicationDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().Header().Once().Return(nil)
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
@@ -192,7 +192,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsDel
 	response := api_handlers.HandlerGroupApplicationDelete(suite.mockDatabase, params, &pr)
 	require.NotNil(suite.T(), response)
 
-	mockWriter := handler_mocks.NewResponseWriterTest(suite.T())
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())

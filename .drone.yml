@@ -6,8 +6,11 @@ steps:
 - name: build-go
   image: golang
   commands:
-  - ./run-tests.sh
-  - go build -o noodle ./server/cmd/noodle-server/main.go
+    - go get github.com/vektra/mockery/v2@latest
+    - go install github.com/jstemmer/go-junit-report
+    - go install github.com/jandelgado/gcov2lcov@latest
+    - ./run-tests.sh
+    - go build -o noodle ./server/cmd/noodle-server/main.go
 
 - name: build-dev-docker-image
   image: plugins/docker
