@@ -7,7 +7,9 @@ steps:
   image: golang
   commands:
     - go get github.com/vektra/mockery/v2@latest
+    - go get github.com/jstemmer/go-junit-report
     - go install github.com/jstemmer/go-junit-report
+    - go get github.com/jandelgado/gcov2lcov@latest
     - go install github.com/jandelgado/gcov2lcov@latest
     - ./run-tests.sh
     - go build -o noodle ./server/cmd/noodle-server/main.go
