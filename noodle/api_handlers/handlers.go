@@ -38,4 +38,6 @@ func RegisterApiHandlers(api *operations.NoodleAPI, db database.Database, ldap l
 	// GROUP APPLICATIONS
 	RegisterGroupApplicationsApiHandlers(api, db)
 
+	// APPLICATIONS
+	RegisterApplicationsApiHandlers(api, db)
 }

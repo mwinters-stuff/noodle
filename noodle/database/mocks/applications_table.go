@@ -56,13 +56,13 @@ func (_c *ApplicationsTable_Create_Call) Return(_a0 error) *ApplicationsTable_Cr
 	return _c
 }
 
-// Delete provides a mock function with given fields: app
-func (_m *ApplicationsTable) Delete(app models.Application) error {
-	ret := _m.Called(app)
+// Delete provides a mock function with given fields: id
+func (_m *ApplicationsTable) Delete(id int64) error {
+	ret := _m.Called(id)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(models.Application) error); ok {
-		r0 = rf(app)
+	if rf, ok := ret.Get(0).(func(int64) error); ok {
+		r0 = rf(id)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -76,14 +76,14 @@ type ApplicationsTable_Delete_Call struct {
 }
 
 // Delete is a helper method to define mock.On call
-//   - app models.Application
-func (_e *ApplicationsTable_Expecter) Delete(app interface{}) *ApplicationsTable_Delete_Call {
-	return &ApplicationsTable_Delete_Call{Call: _e.mock.On("Delete", app)}
+//   - id int64
+func (_e *ApplicationsTable_Expecter) Delete(id interface{}) *ApplicationsTable_Delete_Call {
+	return &ApplicationsTable_Delete_Call{Call: _e.mock.On("Delete", id)}
 }
 
-func (_c *ApplicationsTable_Delete_Call) Run(run func(app models.Application)) *ApplicationsTable_Delete_Call {
+func (_c *ApplicationsTable_Delete_Call) Run(run func(id int64)) *ApplicationsTable_Delete_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(models.Application))
+		run(args[0].(int64))
 	})
 	return _c
 }
@@ -130,18 +130,18 @@ func (_c *ApplicationsTable_Drop_Call) Return(_a0 error) *ApplicationsTable_Drop
 }
 
 // GetID provides a mock function with given fields: id
-func (_m *ApplicationsTable) GetID(id int) (models.Application, error) {
+func (_m *ApplicationsTable) GetID(id int64) (models.Application, error) {
 	ret := _m.Called(id)
 
 	var r0 models.Application
-	if rf, ok := ret.Get(0).(func(int) models.Application); ok {
+	if rf, ok := ret.Get(0).(func(int64) models.Application); ok {
 		r0 = rf(id)
 	} else {
 		r0 = ret.Get(0).(models.Application)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int) error); ok {
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
 		r1 = rf(id)
 	} else {
 		r1 = ret.Error(1)
@@ -156,14 +156,14 @@ type ApplicationsTable_GetID_Call struct {
 }
 
 // GetID is a helper method to define mock.On call
-//   - id int
+//   - id int64
 func (_e *ApplicationsTable_Expecter) GetID(id interface{}) *ApplicationsTable_GetID_Call {
 	return &ApplicationsTable_GetID_Call{Call: _e.mock.On("GetID", id)}
 }
 
-func (_c *ApplicationsTable_GetID_Call) Run(run func(id int)) *ApplicationsTable_GetID_Call {
+func (_c *ApplicationsTable_GetID_Call) Run(run func(id int64)) *ApplicationsTable_GetID_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(int))
+		run(args[0].(int64))
 	})
 	return _c
 }
@@ -174,15 +174,15 @@ func (_c *ApplicationsTable_GetID_Call) Return(_a0 models.Application, _a1 error
 }
 
 // GetTemplateID provides a mock function with given fields: appid
-func (_m *ApplicationsTable) GetTemplateID(appid string) ([]models.Application, error) {
+func (_m *ApplicationsTable) GetTemplateID(appid string) ([]*models.Application, error) {
 	ret := _m.Called(appid)
 
-	var r0 []models.Application
-	if rf, ok := ret.Get(0).(func(string) []models.Application); ok {
+	var r0 []*models.Application
+	if rf, ok := ret.Get(0).(func(string) []*models.Application); ok {
 		r0 = rf(appid)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]models.Application)
+			r0 = ret.Get(0).([]*models.Application)
 		}
 	}
 
@@ -214,7 +214,7 @@ func (_c *ApplicationsTable_GetTemplateID_Call) Run(run func(appid string)) *App
 	return _c
 }
 
-func (_c *ApplicationsTable_GetTemplateID_Call) Return(_a0 []models.Application, _a1 error) *ApplicationsTable_GetTemplateID_Call {
+func (_c *ApplicationsTable_GetTemplateID_Call) Return(_a0 []*models.Application, _a1 error) *ApplicationsTable_GetTemplateID_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }

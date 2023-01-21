@@ -22,3 +22,6 @@
 go.work
 
 cover.html
+coverage.lcov
+report.xml
+coverage.out

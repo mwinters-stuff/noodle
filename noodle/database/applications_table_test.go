@@ -254,20 +254,9 @@ func (suite *ApplicationsTableTestSuite) TestDelete() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 
-	application := models.Application{
-		ID:             1,
-		TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",
-		Name:           "AdGuard Home",
-		Website:        "https://github.com/AdguardTeam/AdGuardHome",
-		License:        "GNU General Public License v3.0 only",
-		Description:    "AdGuard Home is a network-wide software for blocking ads.",
-		Enhanced:       true,
-		TileBackground: "light",
-		Icon:           "adguardhome.png",
-	}
 	table := database.NewApplicationsTable(db)
 
-	err = table.Delete(application)
+	err = table.Delete(int64(1))
 	require.NoError(suite.T(), err)
 }
 
@@ -385,7 +374,7 @@ func (suite *ApplicationsTableTestSuite) TestGetAppTemplateID() {
 	require.NoError(suite.T(), err)
 	require.NotNil(suite.T(), result)
 
-	require.ElementsMatch(suite.T(), []models.Application{
+	require.ElementsMatch(suite.T(), []*models.Application{
 		{
 			ID:             1,
 			TemplateAppid:  "140902edbcc424c09736af28ab2de604c3bde936",

@@ -39,22 +39,22 @@ type ApplicationsTable interface {
 
 	Insert(app *models.Application) error
 	Update(app models.Application) error
-	Delete(app models.Application) error
+	Delete(id int64) error
 
-	GetID(id int) (models.Application, error)
-	GetTemplateID(appid string) ([]models.Application, error)
+	GetID(id int64) (models.Application, error)
+	GetTemplateID(appid string) ([]*models.Application, error)
 }
 
 type ApplicationsTableImpl struct {
 	database Database
 }
 
-func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]models.Application, error) {
+func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]*models.Application, error) {
 	rows, err := i.database.Pool().Query(context.Background(), query, value)
 	if err != nil {
 		return nil, err
 	}
-	results := []models.Application{}
+	results := []*models.Application{}
 
 	var id int64
 	var templateappid pgtype.Text
@@ -71,7 +71,7 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]models.Appl
 		&icon,
 	}, func() error {
 
-		results = append(results, models.Application{
+		results = append(results, &models.Application{
 			ID:             id,
 			TemplateAppid:  templateappid.String,
 			Name:           name,
@@ -88,16 +88,16 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]models.Appl
 }
 
 // GetID implements ApplicationsTable
-func (i *ApplicationsTableImpl) GetID(id int) (models.Application, error) {
+func (i *ApplicationsTableImpl) GetID(id int64) (models.Application, error) {
 	result, err := i.getQuery(applicationsTableQueryID, id)
 	if err != nil {
 		return models.Application{}, err
 	}
-	return result[0], nil
+	return *result[0], nil
 }
 
 // GetTemplateID implements ApplicationsTable
-func (i *ApplicationsTableImpl) GetTemplateID(appid string) ([]models.Application, error) {
+func (i *ApplicationsTableImpl) GetTemplateID(appid string) ([]*models.Application, error) {
 	return i.getQuery(applicationsTableQueryTemplateID, appid)
 }
 
@@ -114,8 +114,8 @@ func (i *ApplicationsTableImpl) Create() error {
 }
 
 // Delete implements ApplicationsTable
-func (i *ApplicationsTableImpl) Delete(app models.Application) error {
-	_, err := i.database.Pool().Exec(context.Background(), applicationsTableDeleteRow, app.ID)
+func (i *ApplicationsTableImpl) Delete(id int64) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationsTableDeleteRow, id)
 	return err
 }
 

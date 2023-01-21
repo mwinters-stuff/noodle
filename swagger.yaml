@@ -553,6 +553,93 @@ paths:
       security: 
         - key: []
 
+  /noodle/applications:
+    get:
+      description: Gets application by id or template_id
+      produces:
+      - application/json
+      parameters:
+        - name: application_id
+          in: query
+          required: false
+          type: integer
+        - name: application_template
+          in: query
+          required: false
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/application'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    post:
+      consumes:
+      - application/json
+      description: Adds a new application
+      parameters:
+        - name: application
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/application'
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/application'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+    delete:
+      consumes:
+      - application/json
+      description: Deletes the application
+      parameters:
+        - name: application_id
+          in: query
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: Application Deleted.
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Invalid Input
+          schema:
+            $ref: "#/definitions/error"
+      tags:
+        - noodle-api
+      security: 
+        - key: []
+
 
 schemes:
 - http
