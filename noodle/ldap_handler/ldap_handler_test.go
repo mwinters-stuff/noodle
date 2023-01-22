@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-ldap/ldap/v3"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/package-shims/ldap/mocks"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/rs/zerolog"
@@ -34,7 +34,7 @@ func (h *ldapHandlerLogHook) Run(e *zerolog.Event, l zerolog.Level, m string) {
 type LdapHandlerTestSuite struct {
 	suite.Suite
 	loghook     ldapHandlerLogHook
-	appConfig   yamltypes.AppConfig
+	appConfig   options.AllNoodleOptions
 	mockLdap    *mocks.LdapShim
 	ldapHandler ldap_handler.LdapHandler
 }
@@ -67,13 +67,13 @@ ldap:
 `
 	var err error
 
-	suite.appConfig, err = yamltypes.UnmarshalConfig([]byte(yamltext))
+	suite.appConfig, err = options.UnmarshalOptions([]byte(yamltext))
 	require.NoError(suite.T(), err)
 
 }
 func (suite *LdapHandlerTestSuite) SetupTest() {
 	suite.mockLdap = mocks.NewLdapShim(suite.T())
-	suite.ldapHandler = ldap_handler.NewLdapHandler(suite.mockLdap, suite.appConfig)
+	suite.ldapHandler = ldap_handler.NewLdapHandler(suite.mockLdap, suite.appConfig.LDAPOptions)
 }
 
 func (suite *LdapHandlerTestSuite) TearDownTest() {

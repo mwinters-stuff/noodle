@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type GroupApplicationsHandlersTestSuite struct {
 	mockDatabase               *mocks.Database
 	mockTables                 *mocks.Tables
 	mockGroupApplicationsTable *mocks.GroupApplicationsTable
+	api                        *operations.NoodleAPI
 }
 
 func (suite *GroupApplicationsHandlersTestSuite) SetupSuite() {
@@ -36,6 +38,13 @@ func (suite *GroupApplicationsHandlersTestSuite) SetupTest() {
 
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Once()
 	suite.mockTables.EXPECT().GroupApplicationsTable().Return(suite.mockGroupApplicationsTable).Once()
+
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterGroupApplicationsApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleGroupApplicationsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIPostNoodleGroupApplicationsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIDeleteNoodleGroupApplicationsHandler)
 
 }
 
@@ -86,7 +95,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsGet
 
 	params := noodle_api.NewGetNoodleGroupApplicationsParams()
 	params.GroupID = 1
-	response := api_handlers.HandlerGroupApplicationGet(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -104,7 +113,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsGet
 
 	params := noodle_api.NewGetNoodleGroupApplicationsParams()
 	params.GroupID = 1
-	response := api_handlers.HandlerGroupApplicationGet(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -128,7 +137,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsIns
 		ApplicationID: 1,
 	}
 
-	response := api_handlers.HandlerGroupApplicationPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -153,7 +162,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsIns
 		ApplicationID: 1,
 	}
 
-	response := api_handlers.HandlerGroupApplicationPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -171,7 +180,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsDel
 	params := noodle_api.NewDeleteNoodleGroupApplicationsParams()
 	params.GroupApplicationID = 1
 
-	response := api_handlers.HandlerGroupApplicationDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -189,7 +198,7 @@ func (suite *GroupApplicationsHandlersTestSuite) TestHandlerGroupApplicationsDel
 	params := noodle_api.NewDeleteNoodleGroupApplicationsParams()
 	params.GroupApplicationID = 1
 
-	response := api_handlers.HandlerGroupApplicationDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleGroupApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

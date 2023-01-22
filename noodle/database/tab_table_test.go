@@ -9,7 +9,7 @@ import (
 
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -21,7 +21,7 @@ type TabTableTestSuite struct {
 
 	script        *pgmock.Script
 	listener      net.Listener
-	appConfig     yamltypes.AppConfig
+	appConfig     options.AllNoodleOptions
 	testFunctions database_test.TestFunctions
 }
 
@@ -47,7 +47,7 @@ func (suite *TabTableTestSuite) TestCreateTable() {
 
 	suite.testFunctions.CreateTabsTableSteps(suite.T(), suite.script)
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -75,7 +75,7 @@ func (suite *TabTableTestSuite) TestDrop() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -111,7 +111,7 @@ func (suite *TabTableTestSuite) TestInsert() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -152,7 +152,7 @@ func (suite *TabTableTestSuite) TestUpdate() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -190,7 +190,7 @@ func (suite *TabTableTestSuite) TestDelete() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -224,7 +224,7 @@ func (suite *TabTableTestSuite) TestGetAll() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 2"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -273,7 +273,7 @@ func (suite *TabTableTestSuite) TestGetAllError() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 2"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 

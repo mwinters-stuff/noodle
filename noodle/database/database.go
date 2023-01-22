@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 )
 
 // You only need **one** of these per package!
@@ -17,7 +17,6 @@ var (
 	NewDatabase = NewDatabaseImpl
 )
 
-//counterfeiter:generate . Database
 type Database interface {
 	Connect() error
 	CheckCreated() (bool, error)
@@ -34,9 +33,9 @@ type Database interface {
 }
 
 type DatabaseImpl struct {
-	appConfig yamltypes.AppConfig
-	pool      *pgxpool.Pool
-	tables    Tables
+	pgConfig options.PostgresOptions
+	pool     *pgxpool.Pool
+	tables   Tables
 }
 
 // Tables implements Database
@@ -100,11 +99,11 @@ func (i *DatabaseImpl) Upgrade() error {
 func (i *DatabaseImpl) Connect() error {
 
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		i.appConfig.Postgres.User,
-		i.appConfig.Postgres.Password,
-		i.appConfig.Postgres.Hostname,
-		i.appConfig.Postgres.Port,
-		i.appConfig.Postgres.Db)
+		i.pgConfig.User,
+		i.pgConfig.Password,
+		i.pgConfig.Hostname,
+		i.pgConfig.Port,
+		i.pgConfig.Database)
 
 	pool, err := pgxpool.New(context.Background(), connStr)
 	if err == nil {
@@ -152,9 +151,9 @@ func (i *DatabaseImpl) Drop() error {
 
 }
 
-func NewDatabaseImpl(appConfig yamltypes.AppConfig) Database {
+func NewDatabaseImpl(pgConfig options.PostgresOptions) Database {
 	return &DatabaseImpl{
-		appConfig: appConfig,
-		tables:    NewTables(),
+		pgConfig: pgConfig,
+		tables:   NewTables(),
 	}
 }

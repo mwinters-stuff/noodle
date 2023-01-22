@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type GroupHandlersTestSuite struct {
 	mockDatabase   *mocks.Database
 	mockTables     *mocks.Tables
 	mockGroupTable *mocks.GroupTable
+	api            *operations.NoodleAPI
 }
 
 func (suite *GroupHandlersTestSuite) SetupSuite() {
@@ -37,6 +39,10 @@ func (suite *GroupHandlersTestSuite) SetupTest() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(1)
 	suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(1)
 
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterGroupApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleGroupsHandler)
 }
 
 func (suite *GroupHandlersTestSuite) TearDownTest() {
@@ -62,7 +68,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetAll() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandlerGroups(suite.mockDatabase, noodle_api.NewGetNoodleGroupsParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleGroupsHandler.Handle(noodle_api.NewGetNoodleGroupsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -86,7 +92,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsGetOne() {
 	var Groupid = int64(2)
 	params.Groupid = &Groupid
 
-	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -106,7 +112,7 @@ func (suite *GroupHandlersTestSuite) TestHandlerGroupsDBError() {
 	var Groupid = int64(2)
 	params.Groupid = &Groupid
 
-	response := api_handlers.HandlerGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

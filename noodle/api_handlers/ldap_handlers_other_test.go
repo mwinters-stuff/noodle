@@ -15,6 +15,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	ldap_mocks "github.com/mwinters-stuff/noodle/noodle/ldap_handler/mocks"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -28,6 +29,7 @@ type LdapHandlersOtherTestSuite struct {
 	mockGroupTable      *mocks.GroupTable
 	mockUserTable       *mocks.UserTable
 	mockUserGroupsTable *mocks.UserGroupsTable
+	api                 *operations.NoodleAPI
 }
 
 func (suite *LdapHandlersOtherTestSuite) SetupSuite() {
@@ -45,7 +47,10 @@ func (suite *LdapHandlersOtherTestSuite) SetupTest() {
 	suite.mockUserTable = mocks.NewUserTable(suite.T())
 	suite.mockUserGroupsTable = mocks.NewUserGroupsTable(suite.T())
 
-	// suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(1)
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterLdapApiHandlers(suite.api, suite.mockDatabase, suite.mockLdap)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleLdapReloadHandler)
 
 }
 
@@ -73,8 +78,8 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerNoUsersOrGroupsLdapOrDatabas
 	suite.mockUserTable.EXPECT().GetAll().Return([]*models.User{}, nil).Times(1)
 
 	pr := models.Principal("")
+	response := suite.api.NoodleAPIGetNoodleLdapReloadHandler.Handle(noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 
-	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -86,24 +91,11 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerNoUsersOrGroupsLdapOrDatabas
 }
 
 func (suite *LdapHandlersOtherTestSuite) TestHandlerUserSyncError() {
-	// suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(3)
-
 	suite.mockLdap.EXPECT().GetUsers().Return([]models.User{}, errors.New("failed")).Once()
-
-	// suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
-	// suite.mockUserTable.EXPECT().GetAll().Return([]*models.User{}, nil).Times(1)
-
-	// suite.mockLdap.EXPECT().GetGroups().Return([]models.Group{}, nil)
-
-	// suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(1)
-	// suite.mockGroupTable.EXPECT().GetAll().Return([]*models.Group{}, nil).Times(1)
-
-	// suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
-	// suite.mockUserTable.EXPECT().GetAll().Return([]*models.User{}, nil).Times(1)
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleLdapReloadHandler.Handle(noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -126,8 +118,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerGroupSyncError() {
 	suite.mockLdap.EXPECT().GetGroups().Return([]models.Group{}, errors.New("failed")).Once()
 
 	pr := models.Principal("")
-
-	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleLdapReloadHandler.Handle(noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -155,8 +146,7 @@ func (suite *LdapHandlersOtherTestSuite) TestHandlerUserGroupsSyncError() {
 	suite.mockUserTable.EXPECT().GetAll().Return([]*models.User{}, errors.New("failed")).Once()
 
 	pr := models.Principal("")
-
-	response := api_handlers.HandleLDAPRefresh(suite.mockDatabase, suite.mockLdap, noodle_api.NewGetNoodleLdapReloadParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleLdapReloadHandler.Handle(noodle_api.NewGetNoodleLdapReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

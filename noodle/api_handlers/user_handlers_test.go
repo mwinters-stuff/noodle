@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type UserHandlersTestSuite struct {
 	mockDatabase  *mocks.Database
 	mockTables    *mocks.Tables
 	mockUserTable *mocks.UserTable
+	api           *operations.NoodleAPI
 }
 
 func (suite *UserHandlersTestSuite) SetupSuite() {
@@ -36,6 +38,11 @@ func (suite *UserHandlersTestSuite) SetupTest() {
 
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(1)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
+
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterUserApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUsersHandler)
 
 }
 
@@ -70,7 +77,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetAll() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandlerUsers(suite.mockDatabase, noodle_api.NewGetNoodleUsersParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleUsersHandler.Handle(noodle_api.NewGetNoodleUsersParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -100,7 +107,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersGetOne() {
 	var userid = int64(2)
 	params.Userid = &userid
 
-	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUsersHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -122,7 +129,7 @@ func (suite *UserHandlersTestSuite) TestHandlerUsersDBError() {
 	var userid = int64(2)
 	params.Userid = &userid
 
-	response := api_handlers.HandlerUsers(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUsersHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

@@ -9,7 +9,7 @@ import (
 
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -20,7 +20,7 @@ type GroupApplicationsTableTestSuite struct {
 	suite.Suite
 	script        *pgmock.Script
 	listener      net.Listener
-	appConfig     yamltypes.AppConfig
+	appConfig     options.AllNoodleOptions
 	testFunctions database_test.TestFunctions
 }
 
@@ -46,7 +46,7 @@ func (suite *GroupApplicationsTableTestSuite) TestCreateTable() {
 
 	suite.testFunctions.CreateGroupApplicationsTableSteps(suite.T(), suite.script)
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -74,7 +74,7 @@ func (suite *GroupApplicationsTableTestSuite) TestDrop() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -110,7 +110,7 @@ func (suite *GroupApplicationsTableTestSuite) TestInsert() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -150,7 +150,7 @@ func (suite *GroupApplicationsTableTestSuite) TestDelete() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -184,7 +184,7 @@ func (suite *GroupApplicationsTableTestSuite) TestGetGroupApps() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 2"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -255,7 +255,7 @@ func (suite *GroupApplicationsTableTestSuite) TestGetGroupAppsError() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 2"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 

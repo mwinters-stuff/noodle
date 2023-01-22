@@ -14,6 +14,7 @@ import (
 	heimdall_mocks "github.com/mwinters-stuff/noodle/noodle/heimdall/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -24,6 +25,7 @@ type HiemdallHandlersTest struct {
 	suite.Suite
 	mockHiemdall *heimdall_mocks.Heimdall
 	mockDatabase *mocks.Database
+	api          *operations.NoodleAPI
 }
 
 func (suite *HiemdallHandlersTest) SetupSuite() {
@@ -37,6 +39,11 @@ func (suite *HiemdallHandlersTest) SetupTest() {
 	suite.mockHiemdall = heimdall_mocks.NewHeimdall(suite.T())
 
 	suite.mockDatabase = mocks.NewDatabase(suite.T())
+
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterHeimdallApiHandlers(suite.api, suite.mockDatabase, suite.mockHiemdall)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleHeimdallReloadHandler)
 
 }
 
@@ -52,7 +59,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshNoError() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleHeimdallReloadHandler.Handle(noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -68,7 +75,7 @@ func (suite *HiemdallHandlersTest) TestHandlerRefreshError() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandleHeimdallRefresh(suite.mockDatabase, suite.mockHiemdall, noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleHeimdallReloadHandler.Handle(noodle_api.NewGetNoodleHeimdallReloadParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

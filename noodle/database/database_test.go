@@ -10,7 +10,7 @@ import (
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -35,7 +35,7 @@ type DatabaseTestInitialSuite struct {
 	loghook       databaseLogHook
 	script        *pgmock.Script
 	listener      net.Listener
-	appConfig     yamltypes.AppConfig
+	appConfig     options.AllNoodleOptions
 	testFunctions database_test.TestFunctions
 	tablesMock    *mocks.Tables
 }
@@ -89,9 +89,9 @@ ldap:
   password: readonly
 `
 
-	config, _ := yamltypes.UnmarshalConfig([]byte(yamltext))
+	config, _ := options.UnmarshalOptions([]byte(yamltext))
 
-	db := database.NewDatabase(config)
+	db := database.NewDatabase(config.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
@@ -106,7 +106,7 @@ ldap:
 
 func (suite *DatabaseTestInitialSuite) TestConnect() {
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
@@ -142,7 +142,7 @@ func (suite *DatabaseTestInitialSuite) TestCreated() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -167,7 +167,7 @@ func (suite *DatabaseTestInitialSuite) TestCreatedNotCreated() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -203,7 +203,7 @@ func (suite *DatabaseTestInitialSuite) TestGetVersion() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -242,7 +242,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeSameVersion() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -281,7 +281,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeNewerVersion() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -320,7 +320,7 @@ func (suite *DatabaseTestInitialSuite) TestCheckUpgradeDowngradeVersion() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -359,7 +359,7 @@ func (suite *DatabaseTestInitialSuite) TestUpgrade() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -386,7 +386,7 @@ func (suite *DatabaseTestInitialSuite) TestCreate() {
 		`B {"Type":"CommandComplete","CommandTag":"INSERT 0 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -406,7 +406,7 @@ func (suite *DatabaseTestInitialSuite) TestCreateError() {
 		`B {"Type":"ErrorResponse","Severity":"ERROR","SeverityUnlocalized":"ERROR","Code":"42P01","Message":"relation \"version\" does not exist","Detail":"","Hint":"","Position":21,"InternalPosition":0,"InternalQuery":"","Where":"","SchemaName":"","TableName":"","ColumnName":"","DataTypeName":"","ConstraintName":"","File":"parse_relation.c","Line":1392,"Routine":"parserOpenTable","UnknownFields":null}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -429,7 +429,7 @@ func (suite *DatabaseTestInitialSuite) TestDrop() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -449,7 +449,7 @@ func (suite *DatabaseTestInitialSuite) TestDropError() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -461,7 +461,7 @@ func (suite *DatabaseTestInitialSuite) TestDropError() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestTables() {
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 
 	tables := database.NewTables()

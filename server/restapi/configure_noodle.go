@@ -5,22 +5,14 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
-	"os"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
-	"github.com/rs/zerolog"
 	zerologlog "github.com/rs/zerolog/log"
 
-	"github.com/mwinters-stuff/noodle/noodle"
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
-	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/heimdall"
-	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
-	ldap_shim "github.com/mwinters-stuff/noodle/package-shims/ldap"
+	"github.com/mwinters-stuff/noodle/noodle/configure_server"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
@@ -33,97 +25,14 @@ var (
 //go:generate swagger generate server --target ../../server --name Noodle --spec ../../swagger.yaml --principal models.Principal
 
 func configureFlags(api *operations.NoodleAPI) {
-	opts := &noodle.AllNoodleOptions{}
-
-	api.CommandLineOptionsGroups = append(api.CommandLineOptionsGroups, swag.CommandLineOptionsGroup{
-		ShortDescription: "config",
-		LongDescription:  "Noodle Config",
-		Options:          &opts.NoodleOptions,
-	})
-	api.CommandLineOptionsGroups = append(api.CommandLineOptionsGroups, swag.CommandLineOptionsGroup{
-		ShortDescription: "drop",
-		LongDescription:  "Drop Database",
-		Options:          &opts.NoodleOptions,
-	})
-}
-
-func setupDatabase(config yamltypes.AppConfig, drop bool) (database.Database, error) {
-	db := database.NewDatabase(config)
-
-	err := db.Connect()
-	if err != nil {
-		return nil, err
-	}
-
-	db.Tables().InitTables(db)
-
-	// if drop {
-	// 	db.Drop()
-	// }
-
-	created, _ := db.CheckCreated()
-	if !created {
-		err = db.Create()
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		needUpgrade, err := db.CheckUpgrade()
-		if err != nil {
-			return nil, err
-		}
-
-		if needUpgrade {
-			err = db.Upgrade()
-			if err != nil {
-				return nil, err
-			}
-		}
-	}
-
-	db.Tables().UserTable().GetID(-1)
-
-	return db, nil
-}
-
-func setupLDAP(config yamltypes.AppConfig) (ldap_handler.LdapHandler, error) {
-	ldap := ldap_handler.NewLdapHandler(ldap_shim.NewLdapShim(), config)
-	return ldap, ldap.Connect()
+	serverConfig := configure_server.NewConfigureServer()
+	serverConfig.ConfigureFlags(api)
 }
 
 func configureAPI(api *operations.NoodleAPI) http.Handler {
 	// configure the api here
-	opts := &noodle.AllNoodleOptions{}
-	opts.NoodleOptions = *api.CommandLineOptionsGroups[0].Options.(*noodle.NoodleOptions)
-
-	api.ServeError = errors.ServeError
-
-	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if opts.NoodleOptions.Debug {
-		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
-
-	yfile, err := os.ReadFile(opts.NoodleOptions.Config)
-	if err != nil {
-		Logger.Fatal().Msg(err.Error())
-	}
-
-	config, err := yamltypes.UnmarshalConfig(yfile)
-	if err != nil {
-		Logger.Fatal().Msg(err.Error())
-	}
-
-	var db database.Database
-	if db, err = setupDatabase(config, opts.NoodleOptions.Drop); err != nil {
-		Logger.Fatal().Msg(err.Error())
-	}
-
-	var ldap ldap_handler.LdapHandler
-	if ldap, err = setupLDAP(config); err != nil {
-		Logger.Fatal().Msg(err.Error())
-	}
-
-	heimdall := heimdall.NewHeimdall(db)
+	serverConfig := configure_server.NewConfigureServer()
+	db, ldap, heimdall := serverConfig.ConfigureAPI(api)
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})

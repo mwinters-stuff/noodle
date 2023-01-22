@@ -9,6 +9,7 @@ import (
 	handler_mocks "github.com/mwinters-stuff/noodle/noodle/api_handlers/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -23,6 +24,7 @@ type UserGroupHandlersTestSuite struct {
 	mockDatabase       *mocks.Database
 	mockTables         *mocks.Tables
 	mockUserGroupTable *mocks.UserGroupsTable
+	api                *operations.NoodleAPI
 }
 
 func (suite *UserGroupHandlersTestSuite) SetupSuite() {
@@ -35,6 +37,10 @@ func (suite *UserGroupHandlersTestSuite) SetupTest() {
 	suite.mockTables = mocks.NewTables(suite.T())
 	suite.mockUserGroupTable = mocks.NewUserGroupsTable(suite.T())
 
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterUserGroupApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserGroupsHandler)
 }
 
 func (suite *UserGroupHandlersTestSuite) TearDownTest() {
@@ -75,7 +81,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGetGroupUsers() {
 	var Groupid = int64(1)
 	params.Groupid = &Groupid
 
-	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -117,7 +123,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGetUserGroups() {
 	var Userid = int64(1)
 	params.Userid = &Userid
 
-	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -140,7 +146,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerGroupsDBError() {
 	var Groupid = int64(2)
 	params.Groupid = &Groupid
 
-	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -159,7 +165,7 @@ func (suite *UserGroupHandlersTestSuite) TestHandlerTwoParametersError() {
 	params.Groupid = nil
 	params.Userid = nil
 
-	response := api_handlers.HandlerUserGroups(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserGroupsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

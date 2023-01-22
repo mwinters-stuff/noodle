@@ -7,7 +7,7 @@ import (
 	"github.com/jackc/pgmock"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
@@ -20,7 +20,7 @@ type UserGroupTableTestSuite struct {
 
 	script        *pgmock.Script
 	listener      net.Listener
-	appConfig     yamltypes.AppConfig
+	appConfig     options.AllNoodleOptions
 	testFunctions database_test.TestFunctions
 }
 
@@ -46,7 +46,7 @@ func (suite *UserGroupTableTestSuite) TestCreateTable() {
 
 	suite.testFunctions.CreateUserGroupsTableSteps(suite.T(), suite.script)
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -74,7 +74,7 @@ func (suite *UserGroupTableTestSuite) TestDrop() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -110,7 +110,7 @@ func (suite *UserGroupTableTestSuite) TestInsert() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -151,7 +151,7 @@ func (suite *UserGroupTableTestSuite) TestDelete() {
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
 
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -191,7 +191,7 @@ func (suite *UserGroupTableTestSuite) TestExists() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -226,7 +226,7 @@ func (suite *UserGroupTableTestSuite) TestNotExists() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -262,7 +262,7 @@ func (suite *UserGroupTableTestSuite) TestGetAll() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 3"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -329,7 +329,7 @@ func (suite *UserGroupTableTestSuite) TestGetAllError() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 3"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -363,7 +363,7 @@ func (suite *UserGroupTableTestSuite) TestGetGroup() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -410,7 +410,7 @@ func (suite *UserGroupTableTestSuite) TestGetGroupError() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -444,7 +444,7 @@ func (suite *UserGroupTableTestSuite) TestGetUser() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 
@@ -491,7 +491,7 @@ func (suite *UserGroupTableTestSuite) TestGetUserError() {
 		`B {"Type":"CommandComplete","CommandTag":"SELECT 1"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
 	})
-	db := database.NewDatabase(suite.appConfig)
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()
 

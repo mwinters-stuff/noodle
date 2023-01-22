@@ -10,7 +10,7 @@ import (
 
 	"github.com/jackc/pgmock"
 	"github.com/jackc/pgproto3/v2"
-	"github.com/mwinters-stuff/noodle/noodle/yamltypes"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 
 	"github.com/stretchr/testify/require"
 )
@@ -82,7 +82,7 @@ func SendMessageX(msg pgproto3.BackendMessage) pgmock.Step {
 type TestFunctions struct {
 }
 
-func (i *TestFunctions) TestStepsRunner(t *testing.T, script *pgmock.Script) (net.Listener, yamltypes.AppConfig) {
+func (i *TestFunctions) TestStepsRunner(t *testing.T, script *pgmock.Script) (net.Listener, options.AllNoodleOptions) {
 
 	listener, err := net.Listen("tcp", "127.0.0.1:")
 	require.NoError(t, err)
@@ -138,7 +138,7 @@ ldap:
   password: readonly
 `, host, port)
 
-	config, _ := yamltypes.UnmarshalConfig([]byte(yamltext))
+	config, _ := options.UnmarshalOptions([]byte(yamltext))
 
 	return listener, config
 }

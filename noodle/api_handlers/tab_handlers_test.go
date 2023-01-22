@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type TabHandlersTestSuite struct {
 	mockDatabase *mocks.Database
 	mockTables   *mocks.Tables
 	mockTabTable *mocks.TabTable
+	api          *operations.NoodleAPI
 }
 
 func (suite *TabHandlersTestSuite) SetupSuite() {
@@ -37,6 +39,12 @@ func (suite *TabHandlersTestSuite) SetupTest() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Once()
 	suite.mockTables.EXPECT().TabTable().Return(suite.mockTabTable).Once()
 
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterTabApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleTabsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIPostNoodleTabsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIDeleteNoodleTabsHandler)
 }
 
 func (suite *TabHandlersTestSuite) TearDownTest() {
@@ -62,7 +70,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsGet() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandlerTabGet(suite.mockDatabase, noodle_api.NewGetNoodleTabsParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleTabsHandler.Handle(noodle_api.NewGetNoodleTabsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -78,7 +86,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsGetError() {
 
 	pr := models.Principal("")
 
-	response := api_handlers.HandlerTabGet(suite.mockDatabase, noodle_api.NewGetNoodleTabsParams(), &pr)
+	response := suite.api.NoodleAPIGetNoodleTabsHandler.Handle(noodle_api.NewGetNoodleTabsParams(), &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -103,7 +111,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsInsert() {
 	}
 	params.Action = "insert"
 
-	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -129,7 +137,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsInsertError() {
 	}
 	params.Action = "insert"
 
-	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -156,7 +164,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsUpdate() {
 	}
 	params.Action = "update"
 
-	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -184,7 +192,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsUpdateError() {
 	}
 	params.Action = "update"
 
-	response := api_handlers.HandlerTabPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -201,7 +209,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsDelete() {
 	params := noodle_api.NewDeleteNoodleTabsParams()
 	params.Tabid = 1
 
-	response := api_handlers.HandlerTabDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -219,7 +227,7 @@ func (suite *TabHandlersTestSuite) TestHandlerTabsDeleteError() {
 	params := noodle_api.NewDeleteNoodleTabsParams()
 	params.Tabid = 1
 
-	response := api_handlers.HandlerTabDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

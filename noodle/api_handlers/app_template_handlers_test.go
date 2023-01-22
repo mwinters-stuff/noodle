@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type AppTemplateHandlersTestSuite struct {
 	mockDatabase         *mocks.Database
 	mockTables           *mocks.Tables
 	mockAppTemplateTable *mocks.AppTemplateTable
+	api                  *operations.NoodleAPI
 }
 
 func (suite *AppTemplateHandlersTestSuite) SetupSuite() {
@@ -36,6 +38,11 @@ func (suite *AppTemplateHandlersTestSuite) SetupTest() {
 
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(1)
 	suite.mockTables.EXPECT().AppTemplateTable().Return(suite.mockAppTemplateTable).Times(1)
+
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterAppTemplatesApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleAppTemplatesHandler)
 
 }
 
@@ -65,7 +72,7 @@ func (suite *AppTemplateHandlersTestSuite) TestHandlerAppTemplatesGet() {
 
 	params := noodle_api.NewGetNoodleAppTemplatesParams()
 	params.Search = "guard"
-	response := api_handlers.HandlerAppTemplates(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleAppTemplatesHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -83,7 +90,7 @@ func (suite *AppTemplateHandlersTestSuite) TestHandlerAppTemplatesGetError() {
 
 	params := noodle_api.NewGetNoodleAppTemplatesParams()
 	params.Search = "guard"
-	response := api_handlers.HandlerAppTemplates(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleAppTemplatesHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())

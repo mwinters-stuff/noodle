@@ -40,9 +40,6 @@ func (suite *LdapHandlersUserSyncTestSuite) SetupTest() {
 	suite.mockGroupTable = mocks.NewGroupTable(suite.T())
 	suite.mockUserTable = mocks.NewUserTable(suite.T())
 	suite.mockUserGroupsTable = mocks.NewUserGroupsTable(suite.T())
-
-	// suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(1)
-
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TearDownTest() {

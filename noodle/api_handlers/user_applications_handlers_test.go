@@ -11,6 +11,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/server/models"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -22,6 +23,7 @@ type UserApplicationsHandlersTestSuite struct {
 	mockDatabase              *mocks.Database
 	mockTables                *mocks.Tables
 	mockUserApplicationsTable *mocks.UserApplicationsTable
+	api                       *operations.NoodleAPI
 }
 
 func (suite *UserApplicationsHandlersTestSuite) SetupSuite() {
@@ -37,6 +39,12 @@ func (suite *UserApplicationsHandlersTestSuite) SetupTest() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Once()
 	suite.mockTables.EXPECT().UserApplicationsTable().Return(suite.mockUserApplicationsTable).Once()
 
+	suite.api = &operations.NoodleAPI{}
+	api_handlers.RegisterUserApplicationsApiHandlers(suite.api, suite.mockDatabase)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserApplicationsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIPostNoodleUserApplicationsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIDeleteNoodleUserApplicationsHandler)
 }
 
 func (suite *UserApplicationsHandlersTestSuite) TearDownTest() {
@@ -86,7 +94,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsGet()
 
 	params := noodle_api.NewGetNoodleUserApplicationsParams()
 	params.UserID = 1
-	response := api_handlers.HandlerUserApplicationGet(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -104,7 +112,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsGetEr
 
 	params := noodle_api.NewGetNoodleUserApplicationsParams()
 	params.UserID = 1
-	response := api_handlers.HandlerUserApplicationGet(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIGetNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -128,7 +136,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsInser
 		ApplicationID: 1,
 	}
 
-	response := api_handlers.HandlerUserApplicationPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -153,7 +161,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsInser
 		ApplicationID: 1,
 	}
 
-	response := api_handlers.HandlerUserApplicationPost(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIPostNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -171,7 +179,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsDelet
 	params := noodle_api.NewDeleteNoodleUserApplicationsParams()
 	params.UserApplicationID = 1
 
-	response := api_handlers.HandlerUserApplicationDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
@@ -189,7 +197,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsDelet
 	params := noodle_api.NewDeleteNoodleUserApplicationsParams()
 	params.UserApplicationID = 1
 
-	response := api_handlers.HandlerUserApplicationDelete(suite.mockDatabase, params, &pr)
+	response := suite.api.NoodleAPIDeleteNoodleUserApplicationsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
 
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
