@@ -113,7 +113,7 @@ func (suite *TablesTestSuite) TestCreateErrorAppTemplateTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorApplicationsTable() {
@@ -127,7 +127,7 @@ func (suite *TablesTestSuite) TestCreateErrorApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorApplicationTabTable() {
@@ -143,7 +143,7 @@ func (suite *TablesTestSuite) TestCreateErrorApplicationTabTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorGroupApplicationsTable() {
@@ -160,7 +160,7 @@ func (suite *TablesTestSuite) TestCreateErrorGroupApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorGroupTable() {
@@ -173,7 +173,7 @@ func (suite *TablesTestSuite) TestCreateErrorGroupTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorTabTable() {
@@ -188,7 +188,7 @@ func (suite *TablesTestSuite) TestCreateErrorTabTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserApplicationsTable() {
@@ -206,7 +206,7 @@ func (suite *TablesTestSuite) TestCreateErrorUserApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserGroupsTable() {
@@ -225,7 +225,7 @@ func (suite *TablesTestSuite) TestCreateErrorUserGroupsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserTable() {
@@ -237,7 +237,7 @@ func (suite *TablesTestSuite) TestCreateErrorUserTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Create()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropTable() {
@@ -276,7 +276,7 @@ func (suite *TablesTestSuite) TestDropErrorAppTemplateTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorApplicationsTable() {
@@ -294,7 +294,7 @@ func (suite *TablesTestSuite) TestDropErrorApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorUserTable() {
@@ -309,7 +309,7 @@ func (suite *TablesTestSuite) TestDropErrorUserTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 func (suite *TablesTestSuite) TestDropErrorApplicationTabTable() {
 	suite.mockApplicationTabTable.EXPECT().Drop().Once().Return(errors.New("failed"))
@@ -319,7 +319,7 @@ func (suite *TablesTestSuite) TestDropErrorApplicationTabTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorGroupApplicationsTable() {
@@ -331,7 +331,7 @@ func (suite *TablesTestSuite) TestDropErrorGroupApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorGroupTable() {
@@ -348,7 +348,7 @@ func (suite *TablesTestSuite) TestDropErrorGroupTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorTabTable() {
@@ -364,7 +364,7 @@ func (suite *TablesTestSuite) TestDropErrorTabTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorUserApplicationsTable() {
@@ -377,7 +377,7 @@ func (suite *TablesTestSuite) TestDropErrorUserApplicationsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorUserGroupsTable() {
@@ -391,7 +391,7 @@ func (suite *TablesTestSuite) TestDropErrorUserGroupsTable() {
 	tables.InitTables(suite.mockDatabase)
 
 	err := tables.Drop()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func TestTablesSuite(t *testing.T) {

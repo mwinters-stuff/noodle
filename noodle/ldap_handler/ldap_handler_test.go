@@ -84,7 +84,7 @@ func (suite *LdapHandlerTestSuite) TestConnectFailedDial() {
 	suite.mockLdap.EXPECT().DialURL("ldap://example.nz").Return(errors.New("it failed"))
 
 	err := suite.ldapHandler.Connect()
-	require.Error(suite.T(), err, "it failed")
+	require.EqualError(suite.T(), err, "it failed")
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "DialURL", 1)
 
@@ -97,7 +97,7 @@ func (suite *LdapHandlerTestSuite) TestConnectFailedStartTLS() {
 	suite.mockLdap.EXPECT().CloseConn().Return()
 
 	err := suite.ldapHandler.Connect()
-	require.Error(suite.T(), err, "it failed")
+	require.EqualError(suite.T(), err, "it failed")
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "DialURL", 1)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "StartTLS", 1)
@@ -111,7 +111,7 @@ func (suite *LdapHandlerTestSuite) TestConnectFailedBind() {
 	suite.mockLdap.EXPECT().CloseConn().Return()
 
 	err := suite.ldapHandler.Connect()
-	require.Error(suite.T(), err, "it failed")
+	require.EqualError(suite.T(), err, "it failed")
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "DialURL", 1)
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "StartTLS", 1)
@@ -157,7 +157,7 @@ func (suite *LdapHandlerTestSuite) TestAuthUserFail() {
 	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=nz", "readonly").Return(nil)
 
 	success, err := suite.ldapHandler.AuthUser("CN=bob,DC=example,DC=nz", "pass")
-	require.Error(suite.T(), err, "Bad Auth")
+	require.EqualError(suite.T(), err, "Bad Auth")
 	require.False(suite.T(), success)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
@@ -168,7 +168,7 @@ func (suite *LdapHandlerTestSuite) TestAuthUserReauthError() {
 	suite.mockLdap.EXPECT().Bind("CN=readonly,DC=example,DC=nz", "readonly").Return(errors.New("Bad Auth"))
 
 	success, err := suite.ldapHandler.AuthUser("CN=bob,DC=example,DC=nz", "pass")
-	require.Error(suite.T(), err, "Bad Auth")
+	require.EqualError(suite.T(), err, "Bad Auth")
 	require.False(suite.T(), success)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "Bind", 2)
@@ -271,7 +271,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserByDNLDAPError() {
 		Entries: []*ldap.Entry{}}, errors.New("failed"))
 
 	user, err := suite.ldapHandler.GetUserByDN("CN=bob,DC=example,DC=nz")
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Equal(suite.T(), models.User{}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -329,7 +329,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserByDNErrorMoreThanOne() {
 			})}}, nil)
 
 	user, err := suite.ldapHandler.GetUserByDN("CN=bob,DC=example,DC=nz")
-	require.Error(suite.T(), err, "user CN=bob,DC=example,DC=nz does not exist or too many entries returned")
+	require.EqualError(suite.T(), err, "user CN=bob,DC=example,DC=nz does not exist or too many entries returned")
 	require.Equal(suite.T(), models.User{}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -497,7 +497,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsersLDAPSearchError() {
 	}
 
 	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Nil(suite.T(), usergroups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -549,7 +549,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsersErrorNoResult() {
 	}
 
 	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
-	require.Error(suite.T(), err, "group cn=admins,ou=groups,dc=example,dc=nz does not exist or too many entries returned")
+	require.EqualError(suite.T(), err, "group cn=admins,ou=groups,dc=example,dc=nz does not exist or too many entries returned")
 	require.Nil(suite.T(), usergroups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -606,7 +606,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupUsersErrorUserSearchFailed() {
 	}
 
 	usergroups, err := suite.ldapHandler.GetGroupUsers(group)
-	require.Error(suite.T(), err, "user failed")
+	require.EqualError(suite.T(), err, "user failed")
 	require.Nil(suite.T(), usergroups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 2)
@@ -712,7 +712,7 @@ func (suite *LdapHandlerTestSuite) TestGetGroupsError() {
 		Entries: []*ldap.Entry{}}, errors.New("failed"))
 
 	groups, err := suite.ldapHandler.GetGroups()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Nil(suite.T(), groups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -816,7 +816,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserError() {
 		Entries: []*ldap.Entry{}}, errors.New("failed"))
 
 	user, err := suite.ldapHandler.GetUser("bob")
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Equal(suite.T(), models.User{}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -860,7 +860,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserErrorNone() {
 		Entries: []*ldap.Entry{}}, nil)
 
 	user, err := suite.ldapHandler.GetUser("bob")
-	require.Error(suite.T(), err, "User DC=example,DC=nz does not exist or too many entries returned")
+	require.EqualError(suite.T(), err, "user bob does not exist or too many entries returned")
 	require.Equal(suite.T(), models.User{}, user)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -971,7 +971,7 @@ func (suite *LdapHandlerTestSuite) TestGetUserGroupsError() {
 		Entries: []*ldap.Entry{}}, errors.New("failed"))
 
 	usergroups, err := suite.ldapHandler.GetUserGroups(models.User{DN: "uid=testuser1,ou=people,dc=example,dc=nz", DisplayName: "TestUser1"})
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Nil(suite.T(), usergroups)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)
@@ -1093,7 +1093,7 @@ func (suite *LdapHandlerTestSuite) TestGetUsersError() {
 		Entries: []*ldap.Entry{}}, errors.New("failed"))
 
 	users, err := suite.ldapHandler.GetUsers()
-	require.Error(suite.T(), err, "failed")
+	require.EqualError(suite.T(), err, "failed")
 	require.Nil(suite.T(), users)
 
 	suite.mockLdap.AssertNumberOfCalls(suite.T(), "NewSearchRequest", 1)

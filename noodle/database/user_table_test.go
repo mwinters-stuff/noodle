@@ -465,7 +465,7 @@ func (suite *UserTableTestSuite) TestGetIDNoResultError() {
 	table := database.NewUserTable(db)
 
 	_, err = table.GetID(-1)
-	require.Error(suite.T(), err, "no user with id -1")
+	require.EqualError(suite.T(), err, "no user with id -1")
 
 }
 
@@ -488,7 +488,7 @@ func (suite *UserTableTestSuite) TestGetIDError() {
 	table := database.NewUserTable(db)
 
 	_, err = table.GetID(12)
-	require.Error(suite.T(), err, "ERROR: relation \"users\" does not exist (SQLSTATE 42P01)")
+	require.EqualError(suite.T(), err, "ERROR: relation \"users\" does not exist (SQLSTATE 42P01)")
 
 }
 

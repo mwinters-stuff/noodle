@@ -4,8 +4,8 @@ import "gopkg.in/yaml.v3"
 
 type NoodleOptions struct {
 	Config string `short:"c" long:"config" description:"Noodle Configuration File"`
-	Debug  bool   `short:"d" long:"debug" description:"Debug Information" default:"false"`
-	Drop   bool   `long:"drop" description:"Drop Database" default:"false"`
+	Debug  bool   `short:"d" long:"debug" description:"Debug Information"`
+	Drop   bool   `long:"drop" description:"Drop Database"`
 }
 
 type PostgresOptions struct {

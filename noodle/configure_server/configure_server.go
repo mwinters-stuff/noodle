@@ -19,7 +19,7 @@ var (
 )
 
 type ConfigureServer interface {
-	ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall)
+	ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall, error)
 	ConfigureFlags(api *operations.NoodleAPI)
 	SetupDatabase(config options.PostgresOptions, drop bool) (database.Database, error)
 	SetupLDAP(config options.LDAPOptions) (ldap_handler.LdapHandler, error)
@@ -29,46 +29,50 @@ type ConfigureServerImpl struct {
 }
 
 // ConfgureAPI implements ConfigureServer
-func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall) {
-	opts := options.AllNoodleOptions{}
-	opts.NoodleOptions = api.CommandLineOptionsGroups[0].Options.(options.NoodleOptions)
-	opts.PostgresOptions = api.CommandLineOptionsGroups[1].Options.(options.PostgresOptions)
-	opts.LDAPOptions = api.CommandLineOptionsGroups[0].Options.(options.LDAPOptions)
+func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall, error) {
+
+	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
+	postgresOptions := api.CommandLineOptionsGroups[1].Options.(*options.PostgresOptions)
+	lDAPOptions := api.CommandLineOptionsGroups[2].Options.(*options.LDAPOptions)
 
 	api.ServeError = errors.ServeError
 
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
-	if opts.NoodleOptions.Debug {
+	if noodleOptions.Debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	}
 
-	if opts.NoodleOptions.Config != "" {
-		yfile, err := os.ReadFile(opts.NoodleOptions.Config)
+	if noodleOptions.Config != "" {
+		yfile, err := os.ReadFile(noodleOptions.Config)
 		if err != nil {
-			Logger.Fatal().Msg(err.Error())
+			Logger.Error().Msg(err.Error())
+			return nil, nil, nil, err
 		}
 
 		options, err := options.UnmarshalOptions(yfile)
 		if err != nil {
-			Logger.Fatal().Msg(err.Error())
+			Logger.Error().Msg(err.Error())
+			return nil, nil, nil, err
 		}
-		options.NoodleOptions = opts.NoodleOptions
-		opts = options
+		*postgresOptions = options.PostgresOptions
+		*lDAPOptions = options.LDAPOptions
 	}
 
 	var db database.Database
 	var err error
-	if db, err = i.SetupDatabase(opts.PostgresOptions, opts.NoodleOptions.Drop); err != nil {
-		Logger.Fatal().Msg(err.Error())
+	if db, err = i.SetupDatabase(*postgresOptions, noodleOptions.Drop); err != nil {
+		Logger.Error().Msg(err.Error())
+		return nil, nil, nil, err
 	}
 
 	var ldap ldap_handler.LdapHandler
-	if ldap, err = i.SetupLDAP(opts.LDAPOptions); err != nil {
-		Logger.Fatal().Msg(err.Error())
+	if ldap, err = i.SetupLDAP(*lDAPOptions); err != nil {
+		Logger.Error().Msg(err.Error())
+		return nil, nil, nil, err
 	}
 
 	heimdall := heimdall.NewHeimdall(db)
-	return db, ldap, heimdall
+	return db, ldap, heimdall, nil
 }
 
 func (i *ConfigureServerImpl) ConfigureFlags(api *operations.NoodleAPI) {
@@ -124,8 +128,6 @@ func (i *ConfigureServerImpl) SetupDatabase(config options.PostgresOptions, drop
 			}
 		}
 	}
-
-	db.Tables().UserTable().GetID(-1)
 
 	return db, nil
 }
