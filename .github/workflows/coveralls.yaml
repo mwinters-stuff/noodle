@@ -73,5 +73,5 @@ jobs:
       uses: andymckay/append-gist-action@1fbfbbce708a39bd45846f0955ed5521f2099c6d
       with:
         token: ${{ secrets.GIST_TOKEN }}
-        gistURL: https://gist.githubusercontent.com/{user}/{id}
+        gistURL: https://gist.githubusercontent.com/mwinters-stuff/noodle-test-status
         file: badge.svg
