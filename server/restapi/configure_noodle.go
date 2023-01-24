@@ -32,7 +32,10 @@ func configureFlags(api *operations.NoodleAPI) {
 func configureAPI(api *operations.NoodleAPI) http.Handler {
 	// configure the api here
 	serverConfig := configure_server.NewConfigureServer()
-	db, ldap, heimdall := serverConfig.ConfigureAPI(api)
+	db, ldap, heimdall, err := serverConfig.ConfigureAPI(api)
+	if err != nil {
+		Logger.Fatal().Err(err)
+	}
 
 	// Set your custom logger if needed. Default one is log.Printf
 	// Expected interface func(string, ...interface{})
