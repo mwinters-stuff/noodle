@@ -1,20 +1,21 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/go-postgres
 {
-	"name": "Go & PostgreSQL",
+	"name": "Go, Dart, Flutter & PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
-		"ghcr.io/devcontainers/features/git:1": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {}
+		"ghcr.io/devcontainers/features/go:1": {}
 	},
 	"customizations": {
 		"vscode": {
 			"extensions": [
 				"golang.go",
 				"eamodio.gitlens",
-				"mads-hartmann.bash-ide-vscode"
+				"mads-hartmann.bash-ide-vscode",
+				"dart-code.dart-code",
+				"Dart-Code.flutter"
 			]
 		}
 	},
@@ -38,11 +39,13 @@
 	"postCreateCommand": {
 		"pgmockproxy": "go install github.com/jackc/pgmock/pgmockproxy",
 		"mockery": "go get github.com/vektra/mockery/v2@latest",
-		"go-junit-report":"go install  github.com/jstemmer/go-junit-report",
-		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest"
-	
+		"go-junit-report-1":"go get  github.com/jstemmer/go-junit-report",
+		"go-junit-report-2":"go install  github.com/jstemmer/go-junit-report",
+		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest",
+		"flutter-doctor":"flutter doctor"
+	},
 
-	}
+	"remoteUser": "vscode"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
