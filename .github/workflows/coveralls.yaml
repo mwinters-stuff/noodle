@@ -27,6 +27,8 @@ jobs:
         go install github.com/jstemmer/go-junit-report
         go install github.com/jandelgado/gcov2lcov@latest
         ./run-tests.sh
+        # cd noodlewebclient
+        # ./run-tests.sh
 
 
     - name: Coveralls
@@ -35,6 +37,13 @@ jobs:
         path-to-lcov: ./coverage.lcov
         github-token: ${{ secrets.GITHUB_TOKEN }}
     
+    # - name: Coveralls - DART
+    #   uses: coverallsapp/github-action@master
+    #   with:
+    #     base-path: noodlewebclient
+    #     # path-to-lcov: ./coverage.lcov
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Publish Test Results
       id: test-results
       uses: EnricoMi/publish-unit-test-result-action@v2

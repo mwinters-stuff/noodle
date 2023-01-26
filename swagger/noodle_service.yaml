@@ -9,6 +9,7 @@ info:
   title: Noodle
   version: "2.0"
 basePath: /api
+host: localhost:8081
 securityDefinitions:
   key:
     type: apiKey

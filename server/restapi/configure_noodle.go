@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/rs/cors"
 	zerologlog "github.com/rs/zerolog/log"
 
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
@@ -22,7 +23,7 @@ var (
 	Logger = zerologlog.Logger
 )
 
-//go:generate swagger generate server --target ../../server --name Noodle --spec ../../swagger.yaml --principal models.Principal
+//go:generate swagger generate server --target ../../server --name Noodle --spec ../../swagger/noodle_service.yaml --principal models.Principal
 
 func configureFlags(api *operations.NoodleAPI) {
 	serverConfig := configure_server.NewConfigureServer()
@@ -114,5 +115,7 @@ func setupMiddlewares(handler http.Handler) http.Handler {
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
-	return handler
+	handleCORS := cors.AllowAll().Handler
+	return handleCORS(handler)
+
 }

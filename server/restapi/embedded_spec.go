@@ -35,6 +35,7 @@ func init() {
     },
     "version": "2.0"
   },
+  "host": "localhost:8081",
   "basePath": "/api",
   "paths": {
     "/healthz": {
@@ -1295,6 +1296,7 @@ func init() {
     },
     "version": "2.0"
   },
+  "host": "localhost:8081",
   "basePath": "/api",
   "paths": {
     "/healthz": {
