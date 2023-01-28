@@ -11,10 +11,14 @@ info:
 basePath: /api
 host: localhost:8081
 securityDefinitions:
-  key:
+  remote-user:
     type: apiKey
     in: header
     name: Remote-User
+  token:
+    type: apiKey
+    in: header
+    name: X-Token
 
 paths:
   /healthz:
@@ -47,8 +51,60 @@ paths:
       summary: Readiness check
       tags:
       - Kubernetes
- 
-  
+  /auth/authenticate:
+    post:
+      description: Authenticates a User
+      produces:
+      - application/json
+      parameters:
+        - name: auth
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              username: 
+                type: string
+              password:
+                type: string
+                format: password
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object
+            properties:
+              token:
+                type: string
+              displayName:
+                type: string
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-auth
+  /auth/logout:
+    get:
+      description: Log out a user
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-auth
+      security: 
+       - token: []
+
   /noodle/users:
     get:
       description: Gets the list of users or a single user
@@ -76,7 +132,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/groups:
     get:
@@ -105,7 +162,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/user-groups:
     get:
@@ -137,7 +195,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
         
   /noodle/ldap/reload:
@@ -159,7 +218,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/heimdall/reload:
     get:
@@ -180,7 +240,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/tabs:
     get:
@@ -205,7 +266,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     post:
       consumes:
       - application/json
@@ -241,7 +303,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     delete:
       consumes:
       - application/json
@@ -265,7 +328,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/application-tabs:
     get:
@@ -295,7 +359,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     post:
       consumes:
       - application/json
@@ -331,7 +396,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     delete:
       consumes:
       - application/json
@@ -355,7 +421,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/user-applications:
     get:
@@ -385,7 +452,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     post:
       consumes:
       - application/json
@@ -414,7 +482,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     delete:
       consumes:
       - application/json
@@ -438,7 +507,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/group-applications:
     get:
@@ -468,7 +538,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     post:
       consumes:
       - application/json
@@ -497,7 +568,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     delete:
       consumes:
       - application/json
@@ -521,7 +593,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/app-templates:
     get:
@@ -552,7 +625,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
   /noodle/applications:
     get:
@@ -586,7 +660,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     post:
       consumes:
       - application/json
@@ -615,7 +690,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
     delete:
       consumes:
       - application/json
@@ -639,7 +715,8 @@ paths:
       tags:
         - noodle-api
       security: 
-        - key: []
+       - remote-user: []
+       - token: []
 
 
 schemes:
@@ -813,4 +890,20 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/application_template"
-
+  user_session:
+    type: object
+    properties:
+      Id:
+        type: integer
+        format: int64
+      UserId:
+        type: integer
+        format: int64
+      Token:
+        type: string
+      Issued:
+        type: string
+        format: date-time
+      Expires:
+        type: string
+        format: date-time

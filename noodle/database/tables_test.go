@@ -24,6 +24,7 @@ type TablesTestSuite struct {
 	mockUserApplicationsTable  *mocks.UserApplicationsTable
 	mockUserGroupsTable        *mocks.UserGroupsTable
 	mockUserTable              *mocks.UserTable
+	mockUserSessionTable       *mocks.UserSessionTable
 }
 
 func (suite *TablesTestSuite) SetupSuite() {
@@ -42,6 +43,7 @@ func (suite *TablesTestSuite) SetupTest() {
 	suite.mockUserApplicationsTable = mocks.NewUserApplicationsTable(suite.T())
 	suite.mockUserGroupsTable = mocks.NewUserGroupsTable(suite.T())
 	suite.mockUserTable = mocks.NewUserTable(suite.T())
+	suite.mockUserSessionTable = mocks.NewUserSessionTable(suite.T())
 
 	database.NewAppTemplateTable = func(database database.Database) database.AppTemplateTable { return suite.mockAppTemplateTable }
 
@@ -58,6 +60,7 @@ func (suite *TablesTestSuite) SetupTest() {
 	}
 	database.NewUserGroupsTable = func(database database.Database) database.UserGroupsTable { return suite.mockUserGroupsTable }
 	database.NewUserTable = func(database database.Database) database.UserTable { return suite.mockUserTable }
+	database.NewUserSessionTable = func(database database.Database) database.UserSessionTable { return suite.mockUserSessionTable }
 
 }
 
@@ -71,6 +74,7 @@ func (suite *TablesTestSuite) TearDownTest() {
 	database.NewUserApplicationsTable = database.NewUserApplicationsTableImpl
 	database.NewUserGroupsTable = database.NewUserGroupsTableImpl
 	database.NewUserTable = database.NewUserTableImpl
+	database.NewUserSessionTable = database.NewUserSessionTableImpl
 
 }
 
@@ -85,6 +89,7 @@ func (suite *TablesTestSuite) TestCreateTable() {
 	suite.mockUserApplicationsTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserGroupsTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 
 	tables := database.NewTables()
 
@@ -102,10 +107,12 @@ func (suite *TablesTestSuite) TestCreateTable() {
 	require.Equal(suite.T(), suite.mockUserApplicationsTable, tables.UserApplicationsTable())
 	require.Equal(suite.T(), suite.mockUserGroupsTable, tables.UserGroupsTable())
 	require.Equal(suite.T(), suite.mockUserTable, tables.UserTable())
+	require.Equal(suite.T(), suite.mockUserSessionTable, tables.UserSessionTable())
 
 }
 
 func (suite *TablesTestSuite) TestCreateErrorAppTemplateTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(errors.New("failed"))
 
 	tables := database.NewTables()
@@ -117,6 +124,7 @@ func (suite *TablesTestSuite) TestCreateErrorAppTemplateTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorApplicationsTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -131,6 +139,7 @@ func (suite *TablesTestSuite) TestCreateErrorApplicationsTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorApplicationTabTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -147,6 +156,7 @@ func (suite *TablesTestSuite) TestCreateErrorApplicationTabTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorGroupApplicationsTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -164,6 +174,7 @@ func (suite *TablesTestSuite) TestCreateErrorGroupApplicationsTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorGroupTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(errors.New("failed"))
@@ -177,6 +188,7 @@ func (suite *TablesTestSuite) TestCreateErrorGroupTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorTabTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -192,6 +204,7 @@ func (suite *TablesTestSuite) TestCreateErrorTabTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserApplicationsTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -210,6 +223,7 @@ func (suite *TablesTestSuite) TestCreateErrorUserApplicationsTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserGroupsTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(nil)
 	suite.mockGroupTable.EXPECT().Create().Once().Return(nil)
@@ -229,8 +243,20 @@ func (suite *TablesTestSuite) TestCreateErrorUserGroupsTable() {
 }
 
 func (suite *TablesTestSuite) TestCreateErrorUserTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(nil)
 	suite.mockAppTemplateTable.EXPECT().Create().Once().Return(nil)
 	suite.mockUserTable.EXPECT().Create().Once().Return(errors.New("failed"))
+
+	tables := database.NewTables()
+
+	tables.InitTables(suite.mockDatabase)
+
+	err := tables.Create()
+	require.EqualError(suite.T(), err, "failed")
+}
+
+func (suite *TablesTestSuite) TestCreateErrorUserSessionTable() {
+	suite.mockUserSessionTable.EXPECT().Create().Once().Return(errors.New("failed"))
 
 	tables := database.NewTables()
 
@@ -251,6 +277,7 @@ func (suite *TablesTestSuite) TestDropTable() {
 	suite.mockGroupTable.EXPECT().Drop().Once().Return(nil).NotBefore(suite.mockApplicationsTable.ExpectedCalls...)
 	suite.mockApplicationsTable.EXPECT().Drop().Once().Return(nil).NotBefore(suite.mockAppTemplateTable.ExpectedCalls...)
 	suite.mockAppTemplateTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockUserSessionTable.EXPECT().Drop().Once().Return(nil)
 
 	tables := database.NewTables()
 
@@ -258,6 +285,26 @@ func (suite *TablesTestSuite) TestDropTable() {
 
 	err := tables.Drop()
 	require.NoError(suite.T(), err)
+}
+
+func (suite *TablesTestSuite) TestDropUserSessionTable() {
+	suite.mockApplicationTabTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockGroupApplicationsTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockUserApplicationsTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockUserGroupsTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockUserTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockTabTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockGroupTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockApplicationsTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockAppTemplateTable.EXPECT().Drop().Once().Return(nil)
+	suite.mockUserSessionTable.EXPECT().Drop().Once().Return(errors.New("failed"))
+
+	tables := database.NewTables()
+
+	tables.InitTables(suite.mockDatabase)
+
+	err := tables.Drop()
+	require.EqualError(suite.T(), err, "failed")
 }
 
 func (suite *TablesTestSuite) TestDropErrorAppTemplateTable() {
@@ -311,6 +358,7 @@ func (suite *TablesTestSuite) TestDropErrorUserTable() {
 	err := tables.Drop()
 	require.EqualError(suite.T(), err, "failed")
 }
+
 func (suite *TablesTestSuite) TestDropErrorApplicationTabTable() {
 	suite.mockApplicationTabTable.EXPECT().Drop().Once().Return(errors.New("failed"))
 

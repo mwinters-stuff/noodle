@@ -19,6 +19,7 @@ type Tables interface {
 	UserApplicationsTable() UserApplicationsTable
 	UserGroupsTable() UserGroupsTable
 	UserTable() UserTable
+	UserSessionTable() UserSessionTable
 }
 
 type TablesImpl struct {
@@ -31,6 +32,7 @@ type TablesImpl struct {
 	userApplicationsTable  UserApplicationsTable
 	userGroupsTable        UserGroupsTable
 	userTable              UserTable
+	userSessionTable       UserSessionTable
 }
 
 func (i *TablesImpl) InitTables(db Database) {
@@ -43,10 +45,16 @@ func (i *TablesImpl) InitTables(db Database) {
 	i.userApplicationsTable = NewUserApplicationsTable(db)
 	i.userGroupsTable = NewUserGroupsTable(db)
 	i.userTable = NewUserTable(db)
+	i.userSessionTable = NewUserSessionTable(db)
 }
 
 func (i *TablesImpl) Create() error {
 	var err error
+
+	if err = i.userSessionTable.Create(); err != nil {
+		return err
+	}
+
 	if err = i.appTemplateTable.Create(); err != nil {
 		return err
 	}
@@ -123,6 +131,10 @@ func (i *TablesImpl) Drop() error {
 		return err
 	}
 
+	if err = i.userSessionTable.Drop(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -168,6 +180,10 @@ func (i *TablesImpl) UserGroupsTable() UserGroupsTable {
 // UserTable implements Database
 func (i *TablesImpl) UserTable() UserTable {
 	return i.userTable
+}
+
+func (i *TablesImpl) UserSessionTable() UserSessionTable {
+	return i.userSessionTable
 }
 
 func NewTablesImpl() Tables {

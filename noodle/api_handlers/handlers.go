@@ -8,6 +8,9 @@ import (
 )
 
 func RegisterApiHandlers(api *operations.NoodleAPI, db database.Database, ldap ldap_handler.LdapHandler, heimdall heimdall.Heimdall) {
+
+	RegisterAuthenticationApiHandlers(api, db, ldap)
+
 	// USERS
 	RegisterUserApiHandlers(api, db)
 

@@ -3,6 +3,7 @@ package database_test
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net"
 	"strings"
 	"testing"
@@ -53,9 +54,8 @@ func (e *expectMessageStepX) Step(backend *pgproto3.Backend) error {
 
 	}
 
-	// fmt.Printf("Expected => %s\nReceived => %s\n", expected, received)
 	if expected != received {
-		return fmt.Errorf("not equal")
+		return fmt.Errorf("Expected => %s\nReceived => %s\n", expected, received)
 	}
 
 	return nil
@@ -205,6 +205,8 @@ func (i *TestFunctions) LoadDatabaseSteps(t require.TestingT, script *pgmock.Scr
 				i.unMarshalFrontendMessage(stepjson, &pgproto3.Execute{}, t, script)
 			case "Query":
 				i.unMarshalFrontendMessage(stepjson, &pgproto3.Query{}, t, script)
+			default:
+				log.Fatalf("Missing process for frontend %s", msgType.Type)
 			}
 		} else {
 			switch msgType.Type {
@@ -232,7 +234,8 @@ func (i *TestFunctions) LoadDatabaseSteps(t require.TestingT, script *pgmock.Scr
 				i.unMarshalBackendMessage(stepjson, &pgproto3.DataRow{}, t, script)
 			case "ErrorResponse":
 				i.unMarshalBackendMessage(stepjson, &pgproto3.ErrorResponse{}, t, script)
-
+			default:
+				log.Fatalf("Missing process for backend %s", msgType.Type)
 			}
 
 		}
@@ -346,6 +349,14 @@ func (i *TestFunctions) CreateGroupApplicationsTableSteps(t *testing.T, script *
 func (i *TestFunctions) CreateUserApplicationsTableSteps(t *testing.T, script *pgmock.Script) {
 	i.LoadDatabaseSteps(t, script, []string{
 		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS user_applications (\n  id SERIAL PRIMARY KEY,\n  userid int REFERENCES users(id) ON DELETE CASCADE,\n  applicationid int REFERENCES applications(id) ON DELETE CASCADE\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
+}
+
+func (i *TestFunctions) CreateUserSessionTableSteps(t *testing.T, script *pgmock.Script) {
+	i.LoadDatabaseSteps(t, script, []string{
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS user_sessions (\n  id SERIAL PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,\n  token VARCHAR(100) UNIQUE NOT NULL,\n  issued TIMESTAMP NOT NULL DEFAULT NOW(),\n  expires TIMESTAMP NOT NULL DEFAULT NOW() + interval '1 month'\n)"}`,
 		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
 		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
 	})

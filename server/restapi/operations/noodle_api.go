@@ -22,6 +22,7 @@ import (
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
+	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_auth"
 )
 
 // NewNoodleAPI creates a new Noodle instance
@@ -60,6 +61,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		}),
 		NoodleAPIDeleteNoodleUserApplicationsHandler: noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.DeleteNoodleUserApplications has not yet been implemented")
+		}),
+		NoodleAuthGetAuthLogoutHandler: noodle_auth.GetAuthLogoutHandlerFunc(func(params noodle_auth.GetAuthLogoutParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_auth.GetAuthLogout has not yet been implemented")
 		}),
 		KubernetesGetHealthzHandler: kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
@@ -100,6 +104,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		KubernetesGetReadyzHandler: kubernetes.GetReadyzHandlerFunc(func(params kubernetes.GetReadyzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetReadyz has not yet been implemented")
 		}),
+		NoodleAuthPostAuthAuthenticateHandler: noodle_auth.PostAuthAuthenticateHandlerFunc(func(params noodle_auth.PostAuthAuthenticateParams) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_auth.PostAuthAuthenticate has not yet been implemented")
+		}),
 		NoodleAPIPostNoodleApplicationTabsHandler: noodle_api.PostNoodleApplicationTabsHandlerFunc(func(params noodle_api.PostNoodleApplicationTabsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.PostNoodleApplicationTabs has not yet been implemented")
 		}),
@@ -117,8 +124,12 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		}),
 
 		// Applies when the "Remote-User" header is set
-		KeyAuth: func(token string) (*models.Principal, error) {
-			return nil, errors.NotImplemented("api key auth (key) Remote-User from header param [Remote-User] has not yet been implemented")
+		RemoteUserAuth: func(token string) (*models.Principal, error) {
+			return nil, errors.NotImplemented("api key auth (remote-user) Remote-User from header param [Remote-User] has not yet been implemented")
+		},
+		// Applies when the "X-Token" header is set
+		TokenAuth: func(token string) (*models.Principal, error) {
+			return nil, errors.NotImplemented("api key auth (token) X-Token from header param [X-Token] has not yet been implemented")
 		},
 		// default authorizer is authorized meaning no requests are blocked
 		APIAuthorizer: security.Authorized(),
@@ -158,9 +169,13 @@ type NoodleAPI struct {
 	//   - application/json
 	JSONProducer runtime.Producer
 
-	// KeyAuth registers a function that takes a token and returns a principal
+	// RemoteUserAuth registers a function that takes a token and returns a principal
 	// it performs authentication based on an api key Remote-User provided in the header
-	KeyAuth func(string) (*models.Principal, error)
+	RemoteUserAuth func(string) (*models.Principal, error)
+
+	// TokenAuth registers a function that takes a token and returns a principal
+	// it performs authentication based on an api key X-Token provided in the header
+	TokenAuth func(string) (*models.Principal, error)
 
 	// APIAuthorizer provides access control (ACL/RBAC/ABAC) by providing access to the request and authenticated principal
 	APIAuthorizer runtime.Authorizer
@@ -175,6 +190,8 @@ type NoodleAPI struct {
 	NoodleAPIDeleteNoodleTabsHandler noodle_api.DeleteNoodleTabsHandler
 	// NoodleAPIDeleteNoodleUserApplicationsHandler sets the operation handler for the delete noodle user applications operation
 	NoodleAPIDeleteNoodleUserApplicationsHandler noodle_api.DeleteNoodleUserApplicationsHandler
+	// NoodleAuthGetAuthLogoutHandler sets the operation handler for the get auth logout operation
+	NoodleAuthGetAuthLogoutHandler noodle_auth.GetAuthLogoutHandler
 	// KubernetesGetHealthzHandler sets the operation handler for the get healthz operation
 	KubernetesGetHealthzHandler kubernetes.GetHealthzHandler
 	// NoodleAPIGetNoodleAppTemplatesHandler sets the operation handler for the get noodle app templates operation
@@ -201,6 +218,8 @@ type NoodleAPI struct {
 	NoodleAPIGetNoodleUsersHandler noodle_api.GetNoodleUsersHandler
 	// KubernetesGetReadyzHandler sets the operation handler for the get readyz operation
 	KubernetesGetReadyzHandler kubernetes.GetReadyzHandler
+	// NoodleAuthPostAuthAuthenticateHandler sets the operation handler for the post auth authenticate operation
+	NoodleAuthPostAuthAuthenticateHandler noodle_auth.PostAuthAuthenticateHandler
 	// NoodleAPIPostNoodleApplicationTabsHandler sets the operation handler for the post noodle application tabs operation
 	NoodleAPIPostNoodleApplicationTabsHandler noodle_api.PostNoodleApplicationTabsHandler
 	// NoodleAPIPostNoodleApplicationsHandler sets the operation handler for the post noodle applications operation
@@ -288,8 +307,11 @@ func (o *NoodleAPI) Validate() error {
 		unregistered = append(unregistered, "JSONProducer")
 	}
 
-	if o.KeyAuth == nil {
+	if o.RemoteUserAuth == nil {
 		unregistered = append(unregistered, "RemoteUserAuth")
+	}
+	if o.TokenAuth == nil {
+		unregistered = append(unregistered, "XTokenAuth")
 	}
 
 	if o.NoodleAPIDeleteNoodleApplicationTabsHandler == nil {
@@ -306,6 +328,9 @@ func (o *NoodleAPI) Validate() error {
 	}
 	if o.NoodleAPIDeleteNoodleUserApplicationsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.DeleteNoodleUserApplicationsHandler")
+	}
+	if o.NoodleAuthGetAuthLogoutHandler == nil {
+		unregistered = append(unregistered, "noodle_auth.GetAuthLogoutHandler")
 	}
 	if o.KubernetesGetHealthzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetHealthzHandler")
@@ -346,6 +371,9 @@ func (o *NoodleAPI) Validate() error {
 	if o.KubernetesGetReadyzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetReadyzHandler")
 	}
+	if o.NoodleAuthPostAuthAuthenticateHandler == nil {
+		unregistered = append(unregistered, "noodle_auth.PostAuthAuthenticateHandler")
+	}
 	if o.NoodleAPIPostNoodleApplicationTabsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.PostNoodleApplicationTabsHandler")
 	}
@@ -379,10 +407,16 @@ func (o *NoodleAPI) AuthenticatorsFor(schemes map[string]spec.SecurityScheme) ma
 	result := make(map[string]runtime.Authenticator)
 	for name := range schemes {
 		switch name {
-		case "key":
+		case "remote-user":
 			scheme := schemes[name]
 			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
-				return o.KeyAuth(token)
+				return o.RemoteUserAuth(token)
+			})
+
+		case "token":
+			scheme := schemes[name]
+			result[name] = o.APIKeyAuthenticator(scheme.Name, scheme.In, func(token string) (interface{}, error) {
+				return o.TokenAuth(token)
 			})
 
 		}
@@ -483,6 +517,10 @@ func (o *NoodleAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/auth/logout"] = noodle_auth.NewGetAuthLogout(o.context, o.NoodleAuthGetAuthLogoutHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/healthz"] = kubernetes.NewGetHealthz(o.context, o.KubernetesGetHealthzHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -532,6 +570,10 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/readyz"] = kubernetes.NewGetReadyz(o.context, o.KubernetesGetReadyzHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/auth/authenticate"] = noodle_auth.NewPostAuthAuthenticate(o.context, o.NoodleAuthPostAuthAuthenticateHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

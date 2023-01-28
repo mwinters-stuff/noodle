@@ -34,6 +34,11 @@ func (suite *HandlersTestSuite) TestRegisterAPIHandlers() {
 
 	api_handlers.RegisterApiHandlers(suite.api, suite.mockDatabase, suite.mockLdap, suite.mockHiemdall)
 
+	require.NotNil(suite.T(), suite.api.NoodleAuthGetAuthLogoutHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAuthPostAuthAuthenticateHandler)
+	require.NotNil(suite.T(), suite.api.RemoteUserAuth)
+	require.NotNil(suite.T(), suite.api.TokenAuth)
+
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleAppTemplatesHandler)
 
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleApplicationsHandler)
@@ -65,7 +70,6 @@ func (suite *HandlersTestSuite) TestRegisterAPIHandlers() {
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserGroupsHandler)
 
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUsersHandler)
-
 }
 
 func TestHandlersTestSuite(t *testing.T) {

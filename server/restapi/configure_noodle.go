@@ -6,7 +6,6 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/rs/cors"
@@ -14,7 +13,6 @@ import (
 
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
 	"github.com/mwinters-stuff/noodle/noodle/configure_server"
-	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations"
 	"github.com/mwinters-stuff/noodle/server/restapi/operations/kubernetes"
 )
@@ -51,17 +49,6 @@ func configureAPI(api *operations.NoodleAPI) http.Handler {
 	api.JSONConsumer = runtime.JSONConsumer()
 
 	api.JSONProducer = runtime.JSONProducer()
-
-	// Applies when the "Remote-User" header is set
-	api.KeyAuth = func(token string) (*models.Principal, error) {
-		if token == "mathew" {
-			prin := models.Principal(token)
-			return &prin, nil
-		}
-		// api.Logger("Access attempt with username: %s", token)
-		return nil, errors.New(401, "incorrect username")
-
-	}
 
 	// Set your custom authorizer if needed. Default one is security.Authorized()
 	// Expected interface runtime.Authorizer

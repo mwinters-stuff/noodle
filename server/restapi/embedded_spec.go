@@ -38,6 +38,91 @@ func init() {
   "host": "localhost:8081",
   "basePath": "/api",
   "paths": {
+    "/auth/authenticate": {
+      "post": {
+        "description": "Authenticates a User",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "parameters": [
+          {
+            "name": "auth",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "displayName": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "description": "Log out a user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "description": "used by Kubernetes liveness probe",
@@ -65,7 +150,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of application templates",
@@ -112,7 +200,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of applications under the tab",
@@ -157,7 +248,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new application in a  tab",
@@ -214,7 +308,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the application_tab",
@@ -255,7 +352,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets application by id or template_id",
@@ -304,7 +404,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new application",
@@ -351,7 +454,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the application",
@@ -392,7 +498,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of group applications",
@@ -437,7 +546,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new group application",
@@ -484,7 +596,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the group application",
@@ -525,7 +640,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of groups",
@@ -571,7 +689,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Loads Hiemdall App Templates to Database",
@@ -604,7 +725,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Loads Users and Groups to Database",
@@ -637,7 +761,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of tabs",
@@ -674,7 +801,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new tab",
@@ -731,7 +861,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the tab",
@@ -772,7 +905,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of user applications",
@@ -817,7 +953,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new user application",
@@ -864,7 +1003,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the user application",
@@ -905,7 +1047,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of Groups for a user or users for a group",
@@ -956,7 +1101,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of users or a single user",
@@ -1268,12 +1416,41 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "user_session": {
+      "type": "object",
+      "properties": {
+        "Expires": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Issued": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Token": {
+          "type": "string"
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     }
   },
   "securityDefinitions": {
-    "key": {
+    "remote-user": {
       "type": "apiKey",
       "name": "Remote-User",
+      "in": "header"
+    },
+    "token": {
+      "type": "apiKey",
+      "name": "X-Token",
       "in": "header"
     }
   }
@@ -1299,6 +1476,91 @@ func init() {
   "host": "localhost:8081",
   "basePath": "/api",
   "paths": {
+    "/auth/authenticate": {
+      "post": {
+        "description": "Authenticates a User",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "parameters": [
+          {
+            "name": "auth",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "password": {
+                  "type": "string",
+                  "format": "password"
+                },
+                "username": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "displayName": {
+                  "type": "string"
+                },
+                "token": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "get": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "description": "Log out a user",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "description": "used by Kubernetes liveness probe",
@@ -1326,7 +1588,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of application templates",
@@ -1373,7 +1638,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of applications under the tab",
@@ -1418,7 +1686,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new application in a  tab",
@@ -1475,7 +1746,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the application_tab",
@@ -1516,7 +1790,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets application by id or template_id",
@@ -1565,7 +1842,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new application",
@@ -1612,7 +1892,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the application",
@@ -1653,7 +1936,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of group applications",
@@ -1698,7 +1984,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new group application",
@@ -1745,7 +2034,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the group application",
@@ -1786,7 +2078,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of groups",
@@ -1832,7 +2127,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Loads Hiemdall App Templates to Database",
@@ -1865,7 +2163,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Loads Users and Groups to Database",
@@ -1898,7 +2199,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of tabs",
@@ -1935,7 +2239,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new tab",
@@ -1992,7 +2299,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the tab",
@@ -2033,7 +2343,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of user applications",
@@ -2078,7 +2391,10 @@ func init() {
       "post": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Adds a new user application",
@@ -2125,7 +2441,10 @@ func init() {
       "delete": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Deletes the user application",
@@ -2166,7 +2485,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of Groups for a user or users for a group",
@@ -2217,7 +2539,10 @@ func init() {
       "get": {
         "security": [
           {
-            "key": []
+            "remote-user": []
+          },
+          {
+            "token": []
           }
         ],
         "description": "Gets the list of users or a single user",
@@ -2529,12 +2854,41 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "user_session": {
+      "type": "object",
+      "properties": {
+        "Expires": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Id": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Issued": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Token": {
+          "type": "string"
+        },
+        "UserId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
     }
   },
   "securityDefinitions": {
-    "key": {
+    "remote-user": {
       "type": "apiKey",
       "name": "Remote-User",
+      "in": "header"
+    },
+    "token": {
+      "type": "apiKey",
+      "name": "X-Token",
       "in": "header"
     }
   }

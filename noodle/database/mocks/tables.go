@@ -424,6 +424,44 @@ func (_c *Tables_UserGroupsTable_Call) Return(_a0 database.UserGroupsTable) *Tab
 	return _c
 }
 
+// UserSessionTable provides a mock function with given fields:
+func (_m *Tables) UserSessionTable() database.UserSessionTable {
+	ret := _m.Called()
+
+	var r0 database.UserSessionTable
+	if rf, ok := ret.Get(0).(func() database.UserSessionTable); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(database.UserSessionTable)
+		}
+	}
+
+	return r0
+}
+
+// Tables_UserSessionTable_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UserSessionTable'
+type Tables_UserSessionTable_Call struct {
+	*mock.Call
+}
+
+// UserSessionTable is a helper method to define mock.On call
+func (_e *Tables_Expecter) UserSessionTable() *Tables_UserSessionTable_Call {
+	return &Tables_UserSessionTable_Call{Call: _e.mock.On("UserSessionTable")}
+}
+
+func (_c *Tables_UserSessionTable_Call) Run(run func()) *Tables_UserSessionTable_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *Tables_UserSessionTable_Call) Return(_a0 database.UserSessionTable) *Tables_UserSessionTable_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
 // UserTable provides a mock function with given fields:
 func (_m *Tables) UserTable() database.UserTable {
 	ret := _m.Called()
