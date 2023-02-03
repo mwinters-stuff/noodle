@@ -54,7 +54,7 @@ func (suite *AuthenticationHandlersTestSuite) TearDownTest() {
 	api_handlers.RandToken = api_handlers.RandTokenImpl
 }
 
-func (suite *AuthenticationHandlersTestSuite) TearSuite() {
+func (suite *AuthenticationHandlersTestSuite) TearDownSuite() {
 
 }
 
@@ -237,8 +237,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPost(
 	api_handlers.RandToken = UnRandomToken
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -246,15 +248,17 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPost(
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 
 	mockWriter.EXPECT().WriteHeader(200).Once()
-	mockWriter.EXPECT().Write([]byte(`{"displayName":"Bob Knob","token":"5754d020201b57a27106acd96bffa9f07948366002eb48399834f59341e960af266d91cc27213f45a8317d867544594a4ab3039fbf1880d0568ca7097fb1c587"}`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`{"Expires":"0001-01-01T00:00:00.000Z","Issued":"0001-01-01T00:00:00.000Z","Token":"5754d020201b57a27106acd96bffa9f07948366002eb48399834f59341e960af266d91cc27213f45a8317d867544594a4ab3039fbf1880d0568ca7097fb1c587","UserId":100}`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
 
 func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostErrorNoParams() {
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = ""
-	params.Auth.Username = ""
+	params.Login = &models.UserLogin{
+		Password: "",
+		Username: "",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -271,8 +275,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockLdap.EXPECT().GetUser("bob").Once().Return(models.User{}, errors.New("failed"))
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -289,8 +295,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockLdap.EXPECT().GetUser("bob").Once().Return(models.User{}, nil)
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -312,8 +320,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockLdap.EXPECT().AuthUser("uid=bob,ou=people,dc=example,dc=nz", "letmein").Once().Return(false, errors.New("failed"))
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -335,8 +345,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockLdap.EXPECT().AuthUser("uid=bob,ou=people,dc=example,dc=nz", "letmein").Once().Return(false, nil)
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -363,8 +375,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockUserTable.EXPECT().GetDN("uid=bob,ou=people,dc=example,dc=nz").Once().Return(models.User{}, errors.New("failed"))
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -391,8 +405,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostE
 	suite.mockUserTable.EXPECT().GetDN("uid=bob,ou=people,dc=example,dc=nz").Once().Return(models.User{}, nil)
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)
@@ -430,8 +446,10 @@ func (suite *AuthenticationHandlersTestSuite) TestHandlerAuthAuthenticationPostI
 	api_handlers.RandToken = UnRandomToken
 
 	params := noodle_auth.NewPostAuthAuthenticateParams()
-	params.Auth.Password = "letmein"
-	params.Auth.Username = "bob"
+	params.Login = &models.UserLogin{
+		Password: "letmein",
+		Username: "bob",
+	}
 
 	response := suite.api.NoodleAuthPostAuthAuthenticateHandler.Handle(params)
 	require.NotNil(suite.T(), response)

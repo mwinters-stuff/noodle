@@ -12,7 +12,7 @@ import (
 const UserSessionTableCreate = `CREATE TABLE IF NOT EXISTS user_sessions (
   id SERIAL PRIMARY KEY,
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  token VARCHAR(100) UNIQUE NOT NULL,
+  token VARCHAR(128) UNIQUE NOT NULL,
   issued TIMESTAMP NOT NULL DEFAULT NOW(),
   expires TIMESTAMP NOT NULL DEFAULT NOW() + interval '1 month'
 )`

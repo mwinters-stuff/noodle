@@ -13,6 +13,8 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/validate"
+
+	"github.com/mwinters-stuff/noodle/server/models"
 )
 
 // NewPostAuthAuthenticateParams creates a new PostAuthAuthenticateParams object
@@ -36,7 +38,7 @@ type PostAuthAuthenticateParams struct {
 	  Required: true
 	  In: body
 	*/
-	Auth PostAuthAuthenticateBody
+	Login *models.UserLogin
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -50,12 +52,12 @@ func (o *PostAuthAuthenticateParams) BindRequest(r *http.Request, route *middlew
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
-		var body PostAuthAuthenticateBody
+		var body models.UserLogin
 		if err := route.Consumer.Consume(r.Body, &body); err != nil {
 			if err == io.EOF {
-				res = append(res, errors.Required("auth", "body", ""))
+				res = append(res, errors.Required("login", "body", ""))
 			} else {
-				res = append(res, errors.NewParseError("auth", "body", "", err))
+				res = append(res, errors.NewParseError("login", "body", "", err))
 			}
 		} else {
 			// validate body object
@@ -69,11 +71,11 @@ func (o *PostAuthAuthenticateParams) BindRequest(r *http.Request, route *middlew
 			}
 
 			if len(res) == 0 {
-				o.Auth = body
+				o.Login = &body
 			}
 		}
 	} else {
-		res = append(res, errors.Required("auth", "body", ""))
+		res = append(res, errors.Required("login", "body", ""))
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)

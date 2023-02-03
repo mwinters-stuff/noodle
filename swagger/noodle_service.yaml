@@ -56,28 +56,19 @@ paths:
       description: Authenticates a User
       produces:
       - application/json
+      consumes:
+      - application/json
       parameters:
-        - name: auth
-          in: body
+        - name: login
           required: true
+          in: body
           schema:
-            type: object
-            properties:
-              username: 
-                type: string
-              password:
-                type: string
-                format: password
+            $ref: '#/definitions/user_login'
       responses:
         '200':
           description: OK
           schema:
-            type: object
-            properties:
-              token:
-                type: string
-              displayName:
-                type: string
+            $ref: '#/definitions/user_session'
         '401':
           description: unauthorized
           schema:
@@ -907,3 +898,12 @@ definitions:
       Expires:
         type: string
         format: date-time
+  user_login:
+    type: object
+    properties:
+      username: 
+        type: string
+      password:
+        type: string
+        format: password
+  

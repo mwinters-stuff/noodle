@@ -10,13 +10,12 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	ldap_mocks "github.com/mwinters-stuff/noodle/noodle/ldap_handler/mocks"
 	"github.com/mwinters-stuff/noodle/server/models"
-	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 )
 
-type LdapHandlersUserGroupsSyncTestSuite struct {
+type TestLdapHandlersUserGroupsSyncTestSuite struct {
 	suite.Suite
 	mockLdap            *ldap_mocks.LdapHandler
 	mockDatabase        *mocks.Database
@@ -26,13 +25,13 @@ type LdapHandlersUserGroupsSyncTestSuite struct {
 	mockUserGroupsTable *mocks.UserGroupsTable
 }
 
-func (suite *LdapHandlersUserGroupsSyncTestSuite) SetupSuite() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) SetupSuite() {
 	database.Logger = log.Output(nil)
 	ldap_handler.Logger = log.Output(nil)
 	api_handlers.Logger = log.Output(nil)
 }
 
-func (suite *LdapHandlersUserGroupsSyncTestSuite) SetupTest() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) SetupTest() {
 	suite.mockLdap = ldap_mocks.NewLdapHandler(suite.T())
 
 	suite.mockDatabase = mocks.NewDatabase(suite.T())
@@ -43,14 +42,14 @@ func (suite *LdapHandlersUserGroupsSyncTestSuite) SetupTest() {
 
 }
 
-func (suite *LdapHandlersUserGroupsSyncTestSuite) TearDownTest() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TearDownTest() {
 
 }
-func (suite *LdapHandlersUserGroupsSyncTestSuite) TearSuite() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TearDownSuite() {
 
 }
 
-func (suite *LdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(6)
 	suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(2)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
@@ -149,7 +148,7 @@ func (suite *LdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups() {
 
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetAllError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_DBGetAllError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(1)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
 
@@ -157,10 +156,10 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetAllEr
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_LDAPGetUserGroupsError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_LDAPGetUserGroupsError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(1)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
 
@@ -188,10 +187,10 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_LDAPGetUse
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetUserGroupsError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_DBGetUserGroupsError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(2)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
 	suite.mockTables.EXPECT().UserGroupsTable().Return(suite.mockUserGroupsTable).Times(1)
@@ -235,10 +234,10 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetUserG
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetGroupDNError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_DBGetGroupDNError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(3)
 	suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(1)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
@@ -304,10 +303,10 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBGetGroup
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBInsertUserGroupError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_DBInsertUserGroupError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(5)
 	suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(2)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
@@ -392,10 +391,10 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBInsertUs
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBDeleteUserGroupError() {
+func (suite *TestLdapHandlersUserGroupsSyncTestSuite) TestHandlerSyncUserGroups_DBDeleteUserGroupError() {
 	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Times(6)
 	suite.mockTables.EXPECT().GroupTable().Return(suite.mockGroupTable).Times(2)
 	suite.mockTables.EXPECT().UserTable().Return(suite.mockUserTable).Times(1)
@@ -490,9 +489,9 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUserGroups_DBDeleteUs
 
 	response := api_handlers.SyncLDAPUserGroups(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
-func TestLdapHandlersUserGroupsSyncTestSuite(t *testing.T) {
-	suite.Run(t, new(LdapHandlersUserGroupsSyncTestSuite))
+func TestTestLdapHandlersUserGroupsSyncTestSuite(t *testing.T) {
+	suite.Run(t, new(TestLdapHandlersUserGroupsSyncTestSuite))
 }

@@ -1,12 +1,14 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/go-postgres
 {
-	"name": "Go, Dart, Flutter & PostgreSQL",
+	"name": "Go, NodeJS/TS & PostgreSQL",
 	"dockerComposeFile": "docker-compose.yml",
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
-		"ghcr.io/devcontainers/features/go:1": {}
+		"ghcr.io/devcontainers/features/go:1": {},
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/devcontainers-contrib/features/typescript:2": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -14,12 +16,11 @@
 				"golang.go",
 				"eamodio.gitlens",
 				"mads-hartmann.bash-ide-vscode",
-				"dart-code.dart-code",
-				"Dart-Code.flutter"
+				"bierner.lit-html"
 			]
 		}
 	},
-	"runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
+	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
 	"containerEnv": {
 		"TZ":"Pacific/Auckland"
 	},
@@ -41,8 +42,7 @@
 		"mockery": "go get github.com/vektra/mockery/v2@latest",
 		"go-junit-report-1":"go get  github.com/jstemmer/go-junit-report",
 		"go-junit-report-2":"go install  github.com/jstemmer/go-junit-report",
-		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest",
-		"flutter-doctor":"flutter doctor"
+		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest"
 	},
 
 	"remoteUser": "vscode"

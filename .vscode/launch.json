@@ -5,12 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Package",
-      "type": "go",
+      "command": "npm start",
+      "name": "Run npm start",
       "request": "launch",
-      "mode": "debug",
-      "program": "${workspaceFolder}/main/main.go",
-      "args": ["${workspaceFolder}/noodle.yaml"]
+      "type": "node-terminal",
+      "cwd": "${workspaceFolder}/web-client"
     },
     {
       "name": "Launch Server Package",

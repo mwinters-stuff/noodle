@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
@@ -21,7 +22,7 @@ var (
 type ConfigureServer interface {
 	ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall, error)
 	ConfigureFlags(api *operations.NoodleAPI)
-	SetupDatabase(config options.PostgresOptions, drop bool) (database.Database, error)
+	SetupDatabase(config options.PostgresOptions, drop bool) (database.Database, bool, error)
 	SetupLDAP(config options.LDAPOptions) (ldap_handler.LdapHandler, error)
 }
 
@@ -58,9 +59,8 @@ func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.
 		*lDAPOptions = options.LDAPOptions
 	}
 
-	var db database.Database
-	var err error
-	if db, err = i.SetupDatabase(*postgresOptions, noodleOptions.Drop); err != nil {
+	db, created, err := i.SetupDatabase(*postgresOptions, noodleOptions.Drop)
+	if err != nil {
 		Logger.Error().Msg(err.Error())
 		return nil, nil, nil, err
 	}
@@ -72,6 +72,16 @@ func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.
 	}
 
 	heimdall := heimdall.NewHeimdall(db)
+
+	if !created {
+		if err := api_handlers.LDAPRefresh(db, ldap); err != nil {
+			return nil, nil, nil, err
+		}
+		if err := heimdall.UpdateFromServer(); err != nil {
+			return nil, nil, nil, err
+		}
+	}
+
 	return db, ldap, heimdall, nil
 }
 
@@ -95,41 +105,41 @@ func (i *ConfigureServerImpl) ConfigureFlags(api *operations.NoodleAPI) {
 	})
 }
 
-func (i *ConfigureServerImpl) SetupDatabase(config options.PostgresOptions, drop bool) (database.Database, error) {
+func (i *ConfigureServerImpl) SetupDatabase(config options.PostgresOptions, drop bool) (database.Database, bool, error) {
 	db := database.NewDatabase(config)
 
-	err := db.Connect()
-	if err != nil {
-		return nil, err
+	if err := db.Connect(); err != nil {
+		return nil, false, err
 	}
 
 	db.Tables().InitTables(db)
 
 	if drop {
-		db.Drop()
+		if err := db.Drop(); err != nil {
+			return nil, false, err
+		}
 	}
 
 	created, _ := db.CheckCreated()
 	if !created {
-		err = db.Create()
-		if err != nil {
-			return nil, err
+
+		if err := db.Create(); err != nil {
+			return nil, false, err
 		}
 	} else {
 		needUpgrade, err := db.CheckUpgrade()
 		if err != nil {
-			return nil, err
+			return nil, false, err
 		}
 
 		if needUpgrade {
-			err = db.Upgrade()
-			if err != nil {
-				return nil, err
+			if err = db.Upgrade(); err != nil {
+				return nil, false, err
 			}
 		}
 	}
 
-	return db, nil
+	return db, created, nil
 }
 
 func (i *ConfigureServerImpl) SetupLDAP(config options.LDAPOptions) (ldap_handler.LdapHandler, error) {

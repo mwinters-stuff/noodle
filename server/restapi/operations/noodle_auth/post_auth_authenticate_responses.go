@@ -26,7 +26,7 @@ type PostAuthAuthenticateOK struct {
 	/*
 	  In: Body
 	*/
-	Payload *PostAuthAuthenticateOKBody `json:"body,omitempty"`
+	Payload *models.UserSession `json:"body,omitempty"`
 }
 
 // NewPostAuthAuthenticateOK creates PostAuthAuthenticateOK with default headers values
@@ -36,13 +36,13 @@ func NewPostAuthAuthenticateOK() *PostAuthAuthenticateOK {
 }
 
 // WithPayload adds the payload to the post auth authenticate o k response
-func (o *PostAuthAuthenticateOK) WithPayload(payload *PostAuthAuthenticateOKBody) *PostAuthAuthenticateOK {
+func (o *PostAuthAuthenticateOK) WithPayload(payload *models.UserSession) *PostAuthAuthenticateOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the post auth authenticate o k response
-func (o *PostAuthAuthenticateOK) SetPayload(payload *PostAuthAuthenticateOKBody) {
+func (o *PostAuthAuthenticateOK) SetPayload(payload *models.UserSession) {
 	o.Payload = payload
 }
 

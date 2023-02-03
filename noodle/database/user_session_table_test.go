@@ -42,9 +42,11 @@ func (suite *UserSessionTableTestSuite) TearDownTest() {
 
 func (suite *UserSessionTableTestSuite) TestCreateTable() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
-
-	suite.testFunctions.CreateUserSessionTableSteps(suite.T(), suite.script)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS user_sessions (\n  id SERIAL PRIMARY KEY,\n  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,\n  token VARCHAR(128) UNIQUE NOT NULL,\n  issued TIMESTAMP NOT NULL DEFAULT NOW(),\n  expires TIMESTAMP NOT NULL DEFAULT NOW() + interval '1 month'\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	require.NotNil(suite.T(), db)
 	defer db.Close()

@@ -44,7 +44,14 @@ func (suite *AppTemplateTableTestSuite) TearDownTest() {
 func (suite *AppTemplateTableTestSuite) TestCreateTable() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	suite.testFunctions.CreateAppTemplateTableSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS application_template (\n  appid CHAR(40) PRIMARY KEY,\n  name VARCHAR(50) UNIQUE,\n  website VARCHAR(256),\n  license VARCHAR(100),\n  description VARCHAR(1000),\n  enhanced BOOL,\n  tilebackground VARCHAR(256),\n  icon VARCHAR(256), \n  sha CHAR(40)\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+		`F {"Type": "Query", "String": "CREATE INDEX IF NOT EXISTS application_template_idx1 ON application_template(name)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE INDEX"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)

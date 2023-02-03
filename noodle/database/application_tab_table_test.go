@@ -44,8 +44,11 @@ func (suite *ApplicationTabTableTestSuite) TearDownTest() {
 func (suite *ApplicationTabTableTestSuite) TestCreateTable() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	suite.testFunctions.CreateApplicationTabsTableSteps(suite.T(), suite.script)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Query","String":"CREATE TABLE IF NOT EXISTS application_tabs (\n  id SERIAL PRIMARY KEY,\n  tabid int REFERENCES tabs(id) ON DELETE CASCADE,\n  applicationid int REFERENCES applications(id) ON DELETE CASCADE,\n  displayorder int\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()

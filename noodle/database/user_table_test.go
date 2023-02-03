@@ -43,7 +43,11 @@ func (suite *UserTableTestSuite) TearDownTest() {
 func (suite *UserTableTestSuite) TestCreateTable() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	suite.testFunctions.CreateUserTableSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS users (\n  id SERIAL PRIMARY KEY,\n  username VARCHAR(50) UNIQUE,\n  dn VARCHAR(200) UNIQUE,\n  displayname VARCHAR(100),\n  givenname VARCHAR(100),\n  surname VARCHAR(100),\n  uidnumber INTEGER\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
 
 	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)

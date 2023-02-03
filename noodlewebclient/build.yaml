@@ -6,7 +6,7 @@ targets:
     builders:
       swagger_dart_code_generator:
         options:
-          input_folder: 'swagger'
+          input_folder: 'swagger/'
           output_folder: 'lib/swagger_generated'
           seperate_models: true
           default_header_values_map:

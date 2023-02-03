@@ -50,7 +50,7 @@ func (suite *UserApplicationsHandlersTestSuite) SetupTest() {
 func (suite *UserApplicationsHandlersTestSuite) TearDownTest() {
 
 }
-func (suite *UserApplicationsHandlersTestSuite) TearSuite() {
+func (suite *UserApplicationsHandlersTestSuite) TearDownSuite() {
 
 }
 

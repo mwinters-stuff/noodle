@@ -79,7 +79,7 @@ func (suite *ConfigureServerTestSuite) TearDownTest() {
 	}
 }
 
-func (suite *ConfigureServerTestSuite) TearSuite() {
+func (suite *ConfigureServerTestSuite) TearDownSuite() {
 
 }
 

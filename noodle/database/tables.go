@@ -51,10 +51,6 @@ func (i *TablesImpl) InitTables(db Database) {
 func (i *TablesImpl) Create() error {
 	var err error
 
-	if err = i.userSessionTable.Create(); err != nil {
-		return err
-	}
-
 	if err = i.appTemplateTable.Create(); err != nil {
 		return err
 	}
@@ -90,6 +86,11 @@ func (i *TablesImpl) Create() error {
 	if err = i.userGroupsTable.Create(); err != nil {
 		return err
 	}
+
+	if err = i.userSessionTable.Create(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -111,6 +112,10 @@ func (i *TablesImpl) Drop() error {
 		return err
 	}
 
+	if err = i.userSessionTable.Drop(); err != nil {
+		return err
+	}
+
 	if err = i.userTable.Drop(); err != nil {
 		return err
 	}
@@ -128,10 +133,6 @@ func (i *TablesImpl) Drop() error {
 	}
 
 	if err = i.appTemplateTable.Drop(); err != nil {
-		return err
-	}
-
-	if err = i.userSessionTable.Drop(); err != nil {
 		return err
 	}
 

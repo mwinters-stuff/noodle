@@ -45,8 +45,11 @@ func (suite *GroupTableTestSuite) TearDownTest() {
 func (suite *GroupTableTestSuite) TestCreateTable() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
-	suite.testFunctions.CreateGroupTableSteps(suite.T(), suite.script)
-
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type": "Query", "String": "CREATE TABLE IF NOT EXISTS groups (\n  id SERIAL PRIMARY KEY,\n  dn VARCHAR(200) UNIQUE,\n  name VARCHAR(100)\n)"}`,
+		`B {"Type": "CommandComplete", "CommandTag": "CREATE TABLE"}`,
+		`B {"Type": "ReadyForQuery", "TxStatus": "I"}`,
+	})
 	db := database.NewDatabase(suite.appConfig.PostgresOptions)
 	assert.NotNil(suite.T(), db)
 	defer db.Close()

@@ -6,14 +6,9 @@ package noodle_auth
 // Editing this file might prove futile when you re-run the generate command
 
 import (
-	"context"
 	"net/http"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // PostAuthAuthenticateHandlerFunc turns a function with the right signature into a post auth authenticate handler
@@ -58,106 +53,4 @@ func (o *PostAuthAuthenticate) ServeHTTP(rw http.ResponseWriter, r *http.Request
 	res := o.Handler.Handle(Params) // actually handle the request
 	o.Context.Respond(rw, r, route.Produces, route, res)
 
-}
-
-// PostAuthAuthenticateBody post auth authenticate body
-//
-// swagger:model PostAuthAuthenticateBody
-type PostAuthAuthenticateBody struct {
-
-	// password
-	// Format: password
-	Password strfmt.Password `json:"password,omitempty"`
-
-	// username
-	Username string `json:"username,omitempty"`
-}
-
-// Validate validates this post auth authenticate body
-func (o *PostAuthAuthenticateBody) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := o.validatePassword(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (o *PostAuthAuthenticateBody) validatePassword(formats strfmt.Registry) error {
-	if swag.IsZero(o.Password) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("auth"+"."+"password", "body", "password", o.Password.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// ContextValidate validates this post auth authenticate body based on context it is used
-func (o *PostAuthAuthenticateBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PostAuthAuthenticateBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PostAuthAuthenticateBody) UnmarshalBinary(b []byte) error {
-	var res PostAuthAuthenticateBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
-}
-
-// PostAuthAuthenticateOKBody post auth authenticate o k body
-//
-// swagger:model PostAuthAuthenticateOKBody
-type PostAuthAuthenticateOKBody struct {
-
-	// display name
-	DisplayName string `json:"displayName,omitempty"`
-
-	// token
-	Token string `json:"token,omitempty"`
-}
-
-// Validate validates this post auth authenticate o k body
-func (o *PostAuthAuthenticateOKBody) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this post auth authenticate o k body based on context it is used
-func (o *PostAuthAuthenticateOKBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (o *PostAuthAuthenticateOKBody) MarshalBinary() ([]byte, error) {
-	if o == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(o)
-}
-
-// UnmarshalBinary interface implementation
-func (o *PostAuthAuthenticateOKBody) UnmarshalBinary(b []byte) error {
-	var res PostAuthAuthenticateOKBody
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*o = res
-	return nil
 }

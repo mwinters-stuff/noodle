@@ -41,6 +41,9 @@ func init() {
     "/auth/authenticate": {
       "post": {
         "description": "Authenticates a User",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -49,20 +52,11 @@ func init() {
         ],
         "parameters": [
           {
-            "name": "auth",
+            "name": "login",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "password": {
-                  "type": "string",
-                  "format": "password"
-                },
-                "username": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/user_login"
             }
           }
         ],
@@ -70,15 +64,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "object",
-              "properties": {
-                "displayName": {
-                  "type": "string"
-                },
-                "token": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/user_session"
             }
           },
           "401": {
@@ -1413,6 +1399,18 @@ func init() {
           "format": "int64"
         },
         "UserName": {
+          "type": "string"
+        }
+      }
+    },
+    "user_login": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "format": "password"
+        },
+        "username": {
           "type": "string"
         }
       }
@@ -1479,6 +1477,9 @@ func init() {
     "/auth/authenticate": {
       "post": {
         "description": "Authenticates a User",
+        "consumes": [
+          "application/json"
+        ],
         "produces": [
           "application/json"
         ],
@@ -1487,20 +1488,11 @@ func init() {
         ],
         "parameters": [
           {
-            "name": "auth",
+            "name": "login",
             "in": "body",
             "required": true,
             "schema": {
-              "type": "object",
-              "properties": {
-                "password": {
-                  "type": "string",
-                  "format": "password"
-                },
-                "username": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/user_login"
             }
           }
         ],
@@ -1508,15 +1500,7 @@ func init() {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "object",
-              "properties": {
-                "displayName": {
-                  "type": "string"
-                },
-                "token": {
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/user_session"
             }
           },
           "401": {
@@ -2851,6 +2835,18 @@ func init() {
           "format": "int64"
         },
         "UserName": {
+          "type": "string"
+        }
+      }
+    },
+    "user_login": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "type": "string",
+          "format": "password"
+        },
+        "username": {
           "type": "string"
         }
       }

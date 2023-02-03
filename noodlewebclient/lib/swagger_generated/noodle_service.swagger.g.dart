@@ -203,3 +203,34 @@ Map<String, dynamic> _$AppListToJson(AppList instance) => <String, dynamic>{
       'AppCount': instance.appCount,
       'Apps': instance.apps?.map((e) => e.toJson()).toList(),
     };
+
+UserSession _$UserSessionFromJson(Map<String, dynamic> json) => UserSession(
+      id: json['Id'] as num?,
+      userId: json['UserId'] as num?,
+      token: json['Token'] as String?,
+      issued: json['Issued'] == null
+          ? null
+          : DateTime.parse(json['Issued'] as String),
+      expires: json['Expires'] == null
+          ? null
+          : DateTime.parse(json['Expires'] as String),
+    );
+
+Map<String, dynamic> _$UserSessionToJson(UserSession instance) =>
+    <String, dynamic>{
+      'Id': instance.id,
+      'UserId': instance.userId,
+      'Token': instance.token,
+      'Issued': instance.issued?.toIso8601String(),
+      'Expires': instance.expires?.toIso8601String(),
+    };
+
+UserLogin _$UserLoginFromJson(Map<String, dynamic> json) => UserLogin(
+      username: json['username'] as String?,
+      password: json['password'] as String?,
+    );
+
+Map<String, dynamic> _$UserLoginToJson(UserLogin instance) => <String, dynamic>{
+      'username': instance.username,
+      'password': instance.password,
+    };

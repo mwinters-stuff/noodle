@@ -39,14 +39,45 @@ class _$NoodleService extends NoodleService {
   }
 
   @override
+  Future<Response<UserSession>> _authAuthenticatePost(
+      {required UserLogin? login}) {
+    final Uri $url = Uri.parse('/auth/authenticate');
+    final $body = login;
+    final Request $request = Request(
+      'POST',
+      $url,
+      client.baseUrl,
+      body: $body,
+    );
+    return client.send<UserSession, UserSession>($request);
+  }
+
+  @override
+  Future<Response<dynamic>> _authLogoutGet({String? xToken}) {
+    final Uri $url = Uri.parse('/auth/logout');
+    final Map<String, String> $headers = {
+      if (xToken != null) 'X-Token': xToken,
+    };
+    final Request $request = Request(
+      'GET',
+      $url,
+      client.baseUrl,
+      headers: $headers,
+    );
+    return client.send<dynamic, dynamic>($request);
+  }
+
+  @override
   Future<Response<List<User>>> _noodleUsersGet({
     int? userid,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/users');
     final Map<String, dynamic> $params = <String, dynamic>{'userid': userid};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -62,11 +93,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<List<Group>>> _noodleGroupsGet({
     int? groupid,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/groups');
     final Map<String, dynamic> $params = <String, dynamic>{'groupid': groupid};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -83,6 +116,7 @@ class _$NoodleService extends NoodleService {
     int? userid,
     int? groupid,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/user-groups');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -91,6 +125,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -103,10 +138,14 @@ class _$NoodleService extends NoodleService {
   }
 
   @override
-  Future<Response<dynamic>> _noodleLdapReloadGet({String? remoteUser}) {
+  Future<Response<dynamic>> _noodleLdapReloadGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
     final Uri $url = Uri.parse('/noodle/ldap/reload');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -118,10 +157,14 @@ class _$NoodleService extends NoodleService {
   }
 
   @override
-  Future<Response<dynamic>> _noodleHeimdallReloadGet({String? remoteUser}) {
+  Future<Response<dynamic>> _noodleHeimdallReloadGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
     final Uri $url = Uri.parse('/noodle/heimdall/reload');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -133,10 +176,14 @@ class _$NoodleService extends NoodleService {
   }
 
   @override
-  Future<Response<List<Tab>>> _noodleTabsGet({String? remoteUser}) {
+  Future<Response<List<Tab>>> _noodleTabsGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
     final Uri $url = Uri.parse('/noodle/tabs');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -152,11 +199,13 @@ class _$NoodleService extends NoodleService {
     required String? action,
     required Tab? tab,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/tabs');
     final Map<String, dynamic> $params = <String, dynamic>{'action': action};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final $body = tab;
     final Request $request = Request(
@@ -174,11 +223,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<dynamic>> _noodleTabsDelete({
     required int? tabid,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/tabs');
     final Map<String, dynamic> $params = <String, dynamic>{'tabid': tabid};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'DELETE',
@@ -194,11 +245,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<List<ApplicationTab>>> _noodleApplicationTabsGet({
     required int? tabId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/application-tabs');
     final Map<String, dynamic> $params = <String, dynamic>{'tab_id': tabId};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -215,11 +268,13 @@ class _$NoodleService extends NoodleService {
     required String? action,
     required ApplicationTab? applicationTab,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/application-tabs');
     final Map<String, dynamic> $params = <String, dynamic>{'action': action};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final $body = applicationTab;
     final Request $request = Request(
@@ -237,6 +292,7 @@ class _$NoodleService extends NoodleService {
   Future<Response<dynamic>> _noodleApplicationTabsDelete({
     required int? applicationTabId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/application-tabs');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -244,6 +300,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'DELETE',
@@ -259,11 +316,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<List<UserApplications>>> _noodleUserApplicationsGet({
     required int? userId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/user-applications');
     final Map<String, dynamic> $params = <String, dynamic>{'user_id': userId};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -279,10 +338,12 @@ class _$NoodleService extends NoodleService {
   Future<Response<UserApplications>> _noodleUserApplicationsPost({
     required UserApplications? userApplication,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/user-applications');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final $body = userApplication;
     final Request $request = Request(
@@ -299,6 +360,7 @@ class _$NoodleService extends NoodleService {
   Future<Response<dynamic>> _noodleUserApplicationsDelete({
     required int? userApplicationId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/user-applications');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -306,6 +368,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'DELETE',
@@ -321,11 +384,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<List<GroupApplications>>> _noodleGroupApplicationsGet({
     required int? groupId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/group-applications');
     final Map<String, dynamic> $params = <String, dynamic>{'group_id': groupId};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -341,10 +406,12 @@ class _$NoodleService extends NoodleService {
   Future<Response<GroupApplications>> _noodleGroupApplicationsPost({
     required GroupApplications? groupApplication,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/group-applications');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final $body = groupApplication;
     final Request $request = Request(
@@ -361,6 +428,7 @@ class _$NoodleService extends NoodleService {
   Future<Response<dynamic>> _noodleGroupApplicationsDelete({
     required int? groupApplicationId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/group-applications');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -368,6 +436,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'DELETE',
@@ -383,11 +452,13 @@ class _$NoodleService extends NoodleService {
   Future<Response<List<ApplicationTemplate>>> _noodleAppTemplatesGet({
     required String? search,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/app-templates');
     final Map<String, dynamic> $params = <String, dynamic>{'search': search};
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -405,6 +476,7 @@ class _$NoodleService extends NoodleService {
     int? applicationId,
     String? applicationTemplate,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/applications');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -413,6 +485,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'GET',
@@ -428,10 +501,12 @@ class _$NoodleService extends NoodleService {
   Future<Response<Application>> _noodleApplicationsPost({
     required Application? application,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/applications');
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final $body = application;
     final Request $request = Request(
@@ -448,6 +523,7 @@ class _$NoodleService extends NoodleService {
   Future<Response<dynamic>> _noodleApplicationsDelete({
     required int? applicationId,
     String? remoteUser,
+    String? xToken,
   }) {
     final Uri $url = Uri.parse('/noodle/applications');
     final Map<String, dynamic> $params = <String, dynamic>{
@@ -455,6 +531,7 @@ class _$NoodleService extends NoodleService {
     };
     final Map<String, String> $headers = {
       if (remoteUser != null) 'Remote-User': remoteUser,
+      if (xToken != null) 'X-Token': xToken,
     };
     final Request $request = Request(
       'DELETE',

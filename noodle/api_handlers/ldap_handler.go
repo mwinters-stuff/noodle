@@ -13,17 +13,17 @@ var (
 	RegisterLdapApiHandlers = RegisterLdapApiHandlersImpl
 )
 
-func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
+func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) error {
 	users, err := ldap.GetUsers()
 	if err != nil {
 		Logger.Error().Err(err).Msg("ldap.GetUsers")
-		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+		return err
 	}
 
 	var dbusers []*models.User
 	if dbusers, err = db.Tables().UserTable().GetAll(); err != nil {
 		Logger.Error().Err(err).Msg("userTable.GetAll")
-		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+		return err
 	}
 
 	var insertusers []models.User
@@ -31,7 +31,7 @@ func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middlewa
 		exists, err := db.Tables().UserTable().ExistsDN(user.DN)
 		if err != nil {
 			Logger.Error().Err(err).Msg("userTable.ExistsDN")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 		if exists {
 			i := IndexUser(dbusers, user)
@@ -42,7 +42,7 @@ func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middlewa
 
 				if err = db.Tables().UserTable().Update(user); err != nil {
 					Logger.Error().Err(err).Msg("UserTable.Update")
-					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+					return err
 				}
 			}
 		} else {
@@ -54,7 +54,7 @@ func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middlewa
 		Logger.Info().Msgf("Deleting Database User %s", dbuser.DisplayName)
 		if err = db.Tables().UserTable().Delete(*dbuser); err != nil {
 			Logger.Error().Err(err).Msg("UserTable.Delete")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 	}
 
@@ -62,23 +62,23 @@ func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) middlewa
 		Logger.Info().Msgf("Inserting LDAP User %s", user.DisplayName)
 		if err = db.Tables().UserTable().Insert(&user); err != nil {
 			Logger.Error().Err(err).Msg("UserTable.Insert")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 	}
 	return nil
 }
 
-func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
+func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) error {
 	groups, err := ldap.GetGroups()
 	if err != nil {
 		Logger.Error().Err(err).Msg("ldap.GetGroups")
-		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+		return err
 	}
 
 	var dbgroups []*models.Group
 	if dbgroups, err = db.Tables().GroupTable().GetAll(); err != nil {
 		Logger.Error().Err(err).Msg("groupTable.GetAll")
-		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+		return err
 	}
 
 	var insertgroups []models.Group
@@ -86,7 +86,7 @@ func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middlew
 		exists, err := db.Tables().GroupTable().ExistsDN(group.DN)
 		if err != nil {
 			Logger.Error().Err(err).Msg("GroupTable.ExistsDN")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 		if exists {
 			i := IndexGroup(dbgroups, group)
@@ -96,7 +96,7 @@ func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middlew
 				Logger.Info().Msgf("Updating LDAP Group %s", group.Name)
 				if err = db.Tables().GroupTable().Update(group); err != nil {
 					Logger.Error().Err(err).Msg("GroupTable.Update")
-					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+					return err
 				}
 			}
 		} else {
@@ -108,7 +108,7 @@ func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middlew
 		Logger.Info().Msgf("Deleting Database Group %s", dbgroup.Name)
 		if err = db.Tables().GroupTable().Delete(*dbgroup); err != nil {
 			Logger.Error().Err(err).Msg("GroupTable.Delete")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 	}
 
@@ -116,7 +116,7 @@ func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middlew
 		Logger.Info().Msgf("Inserting LDAP Group %s", group.Name)
 		if err = db.Tables().GroupTable().Insert(&group); err != nil {
 			Logger.Error().Err(err).Msg("GroupTable.Insert")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 	}
 
@@ -124,26 +124,24 @@ func SyncLDAPGroups(db database.Database, ldap ldap_handler.LdapHandler) middlew
 
 }
 
-func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) middleware.Responder {
+func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) error {
 
 	dbusers, err := db.Tables().UserTable().GetAll()
 	if err != nil {
 		Logger.Error().Err(err).Msg("UserTable.GetAll")
-		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+		return err
 	}
 
 	for _, user := range dbusers {
 		usergroups, err := ldap.GetUserGroups(*user)
 		if err != nil {
-			Logger.Error().Err(err)
 			Logger.Error().Err(err).Msg("ldap.GetUserGroups")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 		dbusergroups, err := db.Tables().UserGroupsTable().GetUser(user.ID)
 		if err != nil {
-			Logger.Error().Err(err)
 			Logger.Error().Err(err).Msg("UserGroupsTable.GetUser")
-			return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+			return err
 		}
 
 		for _, usergroup := range usergroups {
@@ -153,7 +151,7 @@ func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) mid
 			group, err := db.Tables().GroupTable().GetDN(usergroup.GroupDN)
 			if err != nil {
 				Logger.Error().Err(err).Msg("GroupTable.GetDN")
-				return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+				return err
 			}
 			usergroup.GroupID = group.ID
 			usergroup.GroupName = group.Name
@@ -165,7 +163,7 @@ func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) mid
 				err := db.Tables().UserGroupsTable().Insert(&usergroup)
 				if err != nil {
 					Logger.Error().Err(err).Msg("userGroupsTable.Insert")
-					return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+					return err
 				}
 			} else {
 				usergroup.ID = dbusergroups[i].ID
@@ -178,28 +176,32 @@ func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) mid
 			err := db.Tables().UserGroupsTable().Delete(*dbusergroup)
 			if err != nil {
 				Logger.Error().Err(err).Msg("UserGroupsTable.delete")
-				return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
+				return err
 			}
 		}
 	}
 	return nil
 }
 
+func LDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler) error {
+
+	if err := SyncLDAPUsers(db, ldap); err != nil {
+		return err
+	}
+
+	if err := SyncLDAPGroups(db, ldap); err != nil {
+		return err
+	}
+
+	return SyncLDAPUserGroups(db, ldap)
+}
+
 func HandleLDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler, params noodle_api.GetNoodleLdapReloadParams, principal *models.Principal) middleware.Responder {
 	Logger.Info().Msg("Starting LDAP Refresh")
 
-	responder := SyncLDAPUsers(db, ldap)
-	if responder != nil {
-		return responder
-	}
-	responder = SyncLDAPGroups(db, ldap)
-	if responder != nil {
-		return responder
-	}
-
-	responder = SyncLDAPUserGroups(db, ldap)
-	if responder != nil {
-		return responder
+	err := LDAPRefresh(db, ldap)
+	if err != nil {
+		return noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: err.Error()})
 	}
 
 	Logger.Info().Msg("Finished LDAP Refresh")

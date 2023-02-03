@@ -48,23 +48,23 @@ func RandTokenImpl(n int) string {
 }
 
 func HandlerAuthAuthenticationPost(db database.Database, ldap ldap_handler.LdapHandler, params noodle_auth.PostAuthAuthenticateParams) middleware.Responder {
-	if params.Auth.Username == "" || params.Auth.Password == "" {
+	if params.Login.Username == "" || params.Login.Password == "" {
 		Logger.Error().Msgf("No Username or Password")
 		return noodle_auth.NewPostAuthAuthenticateConflict().WithPayload(&models.Error{Message: "Username or Password empty"})
 	}
 
-	ldapUser, err := ldap.GetUser(params.Auth.Username)
+	ldapUser, err := ldap.GetUser(params.Login.Username)
 	if err != nil {
 		Logger.Error().Err(err)
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: fmt.Sprintf("LDAP Error %s", err.Error())})
 	}
 
 	if ldapUser.DN == "" {
-		Logger.Error().Msgf("LDAP User %s Not Found", params.Auth.Username)
+		Logger.Error().Msgf("LDAP User %s Not Found", params.Login.Username)
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: "LDAP User not found"})
 	}
 
-	ok, err := ldap.AuthUser(ldapUser.DN, params.Auth.Password.String())
+	ok, err := ldap.AuthUser(ldapUser.DN, params.Login.Password.String())
 	if err != nil {
 
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: fmt.Sprintf("LDAP Error %s", err.Error())})
@@ -78,25 +78,23 @@ func HandlerAuthAuthenticationPost(db database.Database, ldap ldap_handler.LdapH
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: fmt.Sprintf("Database Error %s", err.Error())})
 	}
 
-	if dbUser.Username != params.Auth.Username {
+	if dbUser.Username != params.Login.Username {
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: "Database Error Username mismatch"})
 	}
 
 	token := RandToken(64)
 
-	err = db.Tables().UserSessionTable().Insert(&models.UserSession{
+	userSession := models.UserSession{
 		UserID: dbUser.ID,
 		Token:  token,
-	})
+	}
+
+	err = db.Tables().UserSessionTable().Insert(&userSession)
 	if err != nil {
 		return noodle_auth.NewPostAuthAuthenticateUnauthorized().WithPayload(&models.Error{Message: fmt.Sprintf("Database Error %s", err.Error())})
 	}
 
-	payload := noodle_auth.PostAuthAuthenticateOKBody{
-		Token:       token,
-		DisplayName: dbUser.DisplayName,
-	}
-	return noodle_auth.NewPostAuthAuthenticateOK().WithPayload(&payload)
+	return noodle_auth.NewPostAuthAuthenticateOK().WithPayload(&userSession)
 }
 
 func HandlerAuthLogoutGet(db database.Database, params noodle_auth.GetAuthLogoutParams, principal *models.Principal) middleware.Responder {

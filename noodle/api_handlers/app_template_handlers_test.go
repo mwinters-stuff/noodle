@@ -49,7 +49,7 @@ func (suite *AppTemplateHandlersTestSuite) SetupTest() {
 func (suite *AppTemplateHandlersTestSuite) TearDownTest() {
 
 }
-func (suite *AppTemplateHandlersTestSuite) TearSuite() {
+func (suite *AppTemplateHandlersTestSuite) TearDownSuite() {
 
 }
 

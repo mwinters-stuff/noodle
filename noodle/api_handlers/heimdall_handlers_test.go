@@ -50,7 +50,7 @@ func (suite *HiemdallHandlersTest) SetupTest() {
 func (suite *HiemdallHandlersTest) TearDownTest() {
 
 }
-func (suite *HiemdallHandlersTest) TearSuite() {
+func (suite *HiemdallHandlersTest) TearDownSuite() {
 
 }
 

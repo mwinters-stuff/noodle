@@ -10,7 +10,6 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	ldap_mocks "github.com/mwinters-stuff/noodle/noodle/ldap_handler/mocks"
 	"github.com/mwinters-stuff/noodle/server/models"
-	"github.com/mwinters-stuff/noodle/server/restapi/operations/noodle_api"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -45,7 +44,7 @@ func (suite *LdapHandlersUserSyncTestSuite) SetupTest() {
 func (suite *LdapHandlersUserSyncTestSuite) TearDownTest() {
 
 }
-func (suite *LdapHandlersUserSyncTestSuite) TearSuite() {
+func (suite *LdapHandlersUserSyncTestSuite) TearDownSuite() {
 
 }
 
@@ -136,7 +135,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_LdapGetUsersErr
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBGetAllError() {
@@ -158,7 +157,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBGetAllError()
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBExistsDNError() {
@@ -191,7 +190,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBExistsDNError
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBUpdateError() {
@@ -235,7 +234,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBUpdateError()
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBDeleteError() {
@@ -268,7 +267,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBDeleteError()
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBInsertError() {
@@ -301,7 +300,7 @@ func (suite *LdapHandlersUserSyncTestSuite) TestHandlerSyncUsers_DBInsertError()
 
 	response := api_handlers.SyncLDAPUsers(suite.mockDatabase, suite.mockLdap)
 	require.NotNil(suite.T(), response)
-	require.Equal(suite.T(), noodle_api.NewGetNoodleLdapReloadConflict().WithPayload(&models.Error{Message: "failed"}), response)
+	require.ErrorContains(suite.T(), response, "failed")
 }
 
 func TestLdapHandlersUserSyncTestSuite(t *testing.T) {

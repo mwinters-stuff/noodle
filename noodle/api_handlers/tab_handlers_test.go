@@ -50,7 +50,7 @@ func (suite *TabHandlersTestSuite) SetupTest() {
 func (suite *TabHandlersTestSuite) TearDownTest() {
 
 }
-func (suite *TabHandlersTestSuite) TearSuite() {
+func (suite *TabHandlersTestSuite) TearDownSuite() {
 
 }
 

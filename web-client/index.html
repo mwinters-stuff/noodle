@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="Description" content="Put your description here.">
+  <base href="/">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="node_modules/@material/typography/dist/mdc.typography.css">
+  <style>
+    :root {
+      --mdc-theme-primary: #404040;
+      --mdc-theme-on-primary:  #ffffff;
+      --mdc-theme-secondary: #d7391d;
+      --mdc-theme-on-secondary:  #ffffff;
+      --mdc-theme-error:  #b00020;
+      --mdc-theme-on-error:  #ffffff;
+      --mdc-theme-surface:  #ffffff;
+      --mdc-theme-on-surface:  #000000;
+      --mdc-theme-background:  #ffffff;
+      --mdc-shape-small:  4px;
+      --mdc-shape-medium:  4px;
+      --mdc-shape-large:  0px;
+      --mdc-typography--font-family:  "Roboto";
+    }
+    html,
+    body > mdc-typography {
+      margin: 0;
+      padding: 0;
+      font-family: sans-serif;
+      background-color: #ededed;
+    }
+  </style>
+  <title>noodle-web</title>
+</head>
+
+<body>
+  <noodle-web></noodle-web>
+
+  <script type="module" src="./out-tsc/src/noodle-web.js"></script>
+</body>
+
+</html>

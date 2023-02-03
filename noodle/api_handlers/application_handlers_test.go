@@ -48,7 +48,7 @@ func (suite *ApplicationsHandlersTestSuite) SetupTest() {
 func (suite *ApplicationsHandlersTestSuite) TearDownTest() {
 
 }
-func (suite *ApplicationsHandlersTestSuite) TearSuite() {
+func (suite *ApplicationsHandlersTestSuite) TearDownSuite() {
 
 }
 

@@ -49,7 +49,7 @@ func (suite *UserHandlersTestSuite) SetupTest() {
 func (suite *UserHandlersTestSuite) TearDownTest() {
 
 }
-func (suite *UserHandlersTestSuite) TearSuite() {
+func (suite *UserHandlersTestSuite) TearDownSuite() {
 
 }
 

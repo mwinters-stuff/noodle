@@ -57,14 +57,42 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<Object>> _readyzGet();
 
   ///
+  ///@param login
+  Future<chopper.Response<UserSession>> authAuthenticatePost(
+      {required UserLogin? login}) {
+    generatedMapping.putIfAbsent(UserLogin, () => UserLogin.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        UserSession, () => UserSession.fromJsonFactory);
+
+    return _authAuthenticatePost(login: login);
+  }
+
+  ///
+  ///@param login
+  @Post(path: '/auth/authenticate')
+  Future<chopper.Response<UserSession>> _authAuthenticatePost(
+      {@Body() required UserLogin? login});
+
+  ///
+  Future<chopper.Response> authLogoutGet({String? xToken}) {
+    return _authLogoutGet(xToken: xToken);
+  }
+
+  ///
+  @Get(path: '/auth/logout')
+  Future<chopper.Response> _authLogoutGet({@Header('X-Token') String? xToken});
+
+  ///
   ///@param userid
   Future<chopper.Response<List<User>>> noodleUsersGet({
     int? userid,
     String? remoteUser,
+    String? xToken,
   }) {
     generatedMapping.putIfAbsent(User, () => User.fromJsonFactory);
 
-    return _noodleUsersGet(userid: userid, remoteUser: remoteUser);
+    return _noodleUsersGet(
+        userid: userid, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -73,6 +101,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<User>>> _noodleUsersGet({
     @Query('userid') int? userid,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -80,10 +109,12 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<Group>>> noodleGroupsGet({
     int? groupid,
     String? remoteUser,
+    String? xToken,
   }) {
     generatedMapping.putIfAbsent(Group, () => Group.fromJsonFactory);
 
-    return _noodleGroupsGet(groupid: groupid, remoteUser: remoteUser);
+    return _noodleGroupsGet(
+        groupid: groupid, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -92,6 +123,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<Group>>> _noodleGroupsGet({
     @Query('groupid') int? groupid,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -101,10 +133,15 @@ abstract class NoodleService extends ChopperService {
     int? userid,
     int? groupid,
     String? remoteUser,
+    String? xToken,
   }) {
     generatedMapping.putIfAbsent(UserGroup, () => UserGroup.fromJsonFactory);
 
-    return _noodleUserGroupsGet(userid: userid, groupid: groupid, remoteUser: remoteUser);
+    return _noodleUserGroupsGet(
+        userid: userid,
+        groupid: groupid,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -115,36 +152,55 @@ abstract class NoodleService extends ChopperService {
     @Query('userid') int? userid,
     @Query('groupid') int? groupid,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
-  Future<chopper.Response> noodleLdapReloadGet({String? remoteUser}) {
-    return _noodleLdapReloadGet(remoteUser: remoteUser);
+  Future<chopper.Response> noodleLdapReloadGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
+    return _noodleLdapReloadGet(remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
   @Get(path: '/noodle/ldap/reload')
-  Future<chopper.Response> _noodleLdapReloadGet({@Header('Remote-User') String? remoteUser});
+  Future<chopper.Response> _noodleLdapReloadGet({
+    @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
+  });
 
   ///
-  Future<chopper.Response> noodleHeimdallReloadGet({String? remoteUser}) {
-    return _noodleHeimdallReloadGet(remoteUser: remoteUser);
+  Future<chopper.Response> noodleHeimdallReloadGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
+    return _noodleHeimdallReloadGet(remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
   @Get(path: '/noodle/heimdall/reload')
-  Future<chopper.Response> _noodleHeimdallReloadGet({@Header('Remote-User') String? remoteUser});
+  Future<chopper.Response> _noodleHeimdallReloadGet({
+    @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
+  });
 
   ///
-  Future<chopper.Response<List<Tab>>> noodleTabsGet({String? remoteUser}) {
+  Future<chopper.Response<List<Tab>>> noodleTabsGet({
+    String? remoteUser,
+    String? xToken,
+  }) {
     generatedMapping.putIfAbsent(Tab, () => Tab.fromJsonFactory);
 
-    return _noodleTabsGet(remoteUser: remoteUser);
+    return _noodleTabsGet(remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
   @Get(path: '/noodle/tabs')
-  Future<chopper.Response<List<Tab>>> _noodleTabsGet({@Header('Remote-User') String? remoteUser});
+  Future<chopper.Response<List<Tab>>> _noodleTabsGet({
+    @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
+  });
 
   ///
   ///@param action
@@ -153,10 +209,12 @@ abstract class NoodleService extends ChopperService {
     required String? action,
     required Tab? tab,
     String? remoteUser,
+    String? xToken,
   }) {
     generatedMapping.putIfAbsent(Tab, () => Tab.fromJsonFactory);
 
-    return _noodleTabsPost(action: action, tab: tab, remoteUser: remoteUser);
+    return _noodleTabsPost(
+        action: action, tab: tab, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -167,6 +225,7 @@ abstract class NoodleService extends ChopperService {
     @Query('action') required String? action,
     @Body() required Tab? tab,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -174,8 +233,10 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> noodleTabsDelete({
     required int? tabid,
     String? remoteUser,
+    String? xToken,
   }) {
-    return _noodleTabsDelete(tabid: tabid, remoteUser: remoteUser);
+    return _noodleTabsDelete(
+        tabid: tabid, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -184,6 +245,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> _noodleTabsDelete({
     @Query('tabid') required int? tabid,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -191,10 +253,13 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<ApplicationTab>>> noodleApplicationTabsGet({
     required int? tabId,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(ApplicationTab, () => ApplicationTab.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        ApplicationTab, () => ApplicationTab.fromJsonFactory);
 
-    return _noodleApplicationTabsGet(tabId: tabId, remoteUser: remoteUser);
+    return _noodleApplicationTabsGet(
+        tabId: tabId, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -203,6 +268,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<ApplicationTab>>> _noodleApplicationTabsGet({
     @Query('tab_id') required int? tabId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -212,10 +278,16 @@ abstract class NoodleService extends ChopperService {
     required String? action,
     required ApplicationTab? applicationTab,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(ApplicationTab, () => ApplicationTab.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        ApplicationTab, () => ApplicationTab.fromJsonFactory);
 
-    return _noodleApplicationTabsPost(action: action, applicationTab: applicationTab, remoteUser: remoteUser);
+    return _noodleApplicationTabsPost(
+        action: action,
+        applicationTab: applicationTab,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -226,6 +298,7 @@ abstract class NoodleService extends ChopperService {
     @Query('action') required String? action,
     @Body() required ApplicationTab? applicationTab,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -233,8 +306,12 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> noodleApplicationTabsDelete({
     required int? applicationTabId,
     String? remoteUser,
+    String? xToken,
   }) {
-    return _noodleApplicationTabsDelete(applicationTabId: applicationTabId, remoteUser: remoteUser);
+    return _noodleApplicationTabsDelete(
+        applicationTabId: applicationTabId,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -243,6 +320,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> _noodleApplicationTabsDelete({
     @Query('application_tab_id') required int? applicationTabId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -250,10 +328,13 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<UserApplications>>> noodleUserApplicationsGet({
     required int? userId,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(UserApplications, () => UserApplications.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        UserApplications, () => UserApplications.fromJsonFactory);
 
-    return _noodleUserApplicationsGet(userId: userId, remoteUser: remoteUser);
+    return _noodleUserApplicationsGet(
+        userId: userId, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -262,6 +343,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<UserApplications>>> _noodleUserApplicationsGet({
     @Query('user_id') required int? userId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -269,10 +351,15 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<UserApplications>> noodleUserApplicationsPost({
     required UserApplications? userApplication,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(UserApplications, () => UserApplications.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        UserApplications, () => UserApplications.fromJsonFactory);
 
-    return _noodleUserApplicationsPost(userApplication: userApplication, remoteUser: remoteUser);
+    return _noodleUserApplicationsPost(
+        userApplication: userApplication,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -281,6 +368,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<UserApplications>> _noodleUserApplicationsPost({
     @Body() required UserApplications? userApplication,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -288,8 +376,12 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> noodleUserApplicationsDelete({
     required int? userApplicationId,
     String? remoteUser,
+    String? xToken,
   }) {
-    return _noodleUserApplicationsDelete(userApplicationId: userApplicationId, remoteUser: remoteUser);
+    return _noodleUserApplicationsDelete(
+        userApplicationId: userApplicationId,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -298,6 +390,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> _noodleUserApplicationsDelete({
     @Query('user_application_id') required int? userApplicationId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -305,18 +398,23 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<GroupApplications>>> noodleGroupApplicationsGet({
     required int? groupId,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(GroupApplications, () => GroupApplications.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        GroupApplications, () => GroupApplications.fromJsonFactory);
 
-    return _noodleGroupApplicationsGet(groupId: groupId, remoteUser: remoteUser);
+    return _noodleGroupApplicationsGet(
+        groupId: groupId, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
   ///@param group_id
   @Get(path: '/noodle/group-applications')
-  Future<chopper.Response<List<GroupApplications>>> _noodleGroupApplicationsGet({
+  Future<chopper.Response<List<GroupApplications>>>
+      _noodleGroupApplicationsGet({
     @Query('group_id') required int? groupId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -324,10 +422,15 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<GroupApplications>> noodleGroupApplicationsPost({
     required GroupApplications? groupApplication,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(GroupApplications, () => GroupApplications.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        GroupApplications, () => GroupApplications.fromJsonFactory);
 
-    return _noodleGroupApplicationsPost(groupApplication: groupApplication, remoteUser: remoteUser);
+    return _noodleGroupApplicationsPost(
+        groupApplication: groupApplication,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -336,6 +439,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<GroupApplications>> _noodleGroupApplicationsPost({
     @Body() required GroupApplications? groupApplication,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -343,8 +447,12 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> noodleGroupApplicationsDelete({
     required int? groupApplicationId,
     String? remoteUser,
+    String? xToken,
   }) {
-    return _noodleGroupApplicationsDelete(groupApplicationId: groupApplicationId, remoteUser: remoteUser);
+    return _noodleGroupApplicationsDelete(
+        groupApplicationId: groupApplicationId,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -353,6 +461,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> _noodleGroupApplicationsDelete({
     @Query('group_application_id') required int? groupApplicationId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -360,10 +469,13 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<ApplicationTemplate>>> noodleAppTemplatesGet({
     required String? search,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(ApplicationTemplate, () => ApplicationTemplate.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        ApplicationTemplate, () => ApplicationTemplate.fromJsonFactory);
 
-    return _noodleAppTemplatesGet(search: search, remoteUser: remoteUser);
+    return _noodleAppTemplatesGet(
+        search: search, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -372,6 +484,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<List<ApplicationTemplate>>> _noodleAppTemplatesGet({
     @Query('search') required String? search,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -381,10 +494,16 @@ abstract class NoodleService extends ChopperService {
     int? applicationId,
     String? applicationTemplate,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(Application, () => Application.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        Application, () => Application.fromJsonFactory);
 
-    return _noodleApplicationsGet(applicationId: applicationId, applicationTemplate: applicationTemplate, remoteUser: remoteUser);
+    return _noodleApplicationsGet(
+        applicationId: applicationId,
+        applicationTemplate: applicationTemplate,
+        remoteUser: remoteUser,
+        xToken: xToken);
   }
 
   ///
@@ -395,6 +514,7 @@ abstract class NoodleService extends ChopperService {
     @Query('application_id') int? applicationId,
     @Query('application_template') String? applicationTemplate,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -402,10 +522,13 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<Application>> noodleApplicationsPost({
     required Application? application,
     String? remoteUser,
+    String? xToken,
   }) {
-    generatedMapping.putIfAbsent(Application, () => Application.fromJsonFactory);
+    generatedMapping.putIfAbsent(
+        Application, () => Application.fromJsonFactory);
 
-    return _noodleApplicationsPost(application: application, remoteUser: remoteUser);
+    return _noodleApplicationsPost(
+        application: application, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -414,6 +537,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response<Application>> _noodleApplicationsPost({
     @Body() required Application? application,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 
   ///
@@ -421,8 +545,10 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> noodleApplicationsDelete({
     required int? applicationId,
     String? remoteUser,
+    String? xToken,
   }) {
-    return _noodleApplicationsDelete(applicationId: applicationId, remoteUser: remoteUser);
+    return _noodleApplicationsDelete(
+        applicationId: applicationId, remoteUser: remoteUser, xToken: xToken);
   }
 
   ///
@@ -431,6 +557,7 @@ abstract class NoodleService extends ChopperService {
   Future<chopper.Response> _noodleApplicationsDelete({
     @Query('application_id') required int? applicationId,
     @Header('Remote-User') String? remoteUser,
+    @Header('X-Token') String? xToken,
   });
 }
 
@@ -458,25 +585,42 @@ class Error {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Error &&
-            (identical(other.code, code) || const DeepCollectionEquality().equals(other.code, code)) &&
-            (identical(other.message, message) || const DeepCollectionEquality().equals(other.message, message)) &&
-            (identical(other.fields, fields) || const DeepCollectionEquality().equals(other.fields, fields)));
+            (identical(other.code, code) ||
+                const DeepCollectionEquality().equals(other.code, code)) &&
+            (identical(other.message, message) ||
+                const DeepCollectionEquality()
+                    .equals(other.message, message)) &&
+            (identical(other.fields, fields) ||
+                const DeepCollectionEquality().equals(other.fields, fields)));
   }
 
   @override
   String toString() => jsonEncode(this);
 
   @override
-  int get hashCode => const DeepCollectionEquality().hash(code) ^ const DeepCollectionEquality().hash(message) ^ const DeepCollectionEquality().hash(fields) ^ runtimeType.hashCode;
+  int get hashCode =>
+      const DeepCollectionEquality().hash(code) ^
+      const DeepCollectionEquality().hash(message) ^
+      const DeepCollectionEquality().hash(fields) ^
+      runtimeType.hashCode;
 }
 
 extension $ErrorExtension on Error {
   Error copyWith({num? code, String? message, String? fields}) {
-    return Error(code: code ?? this.code, message: message ?? this.message, fields: fields ?? this.fields);
+    return Error(
+        code: code ?? this.code,
+        message: message ?? this.message,
+        fields: fields ?? this.fields);
   }
 
-  Error copyWithWrapped({Wrapped<num?>? code, Wrapped<String?>? message, Wrapped<String?>? fields}) {
-    return Error(code: (code != null ? code.value : this.code), message: (message != null ? message.value : this.message), fields: (fields != null ? fields.value : this.fields));
+  Error copyWithWrapped(
+      {Wrapped<num?>? code,
+      Wrapped<String?>? message,
+      Wrapped<String?>? fields}) {
+    return Error(
+        code: (code != null ? code.value : this.code),
+        message: (message != null ? message.value : this.message),
+        fields: (fields != null ? fields.value : this.fields));
   }
 }
 
@@ -516,13 +660,25 @@ class User {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is User &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.username, username) || const DeepCollectionEquality().equals(other.username, username)) &&
-            (identical(other.dn, dn) || const DeepCollectionEquality().equals(other.dn, dn)) &&
-            (identical(other.displayName, displayName) || const DeepCollectionEquality().equals(other.displayName, displayName)) &&
-            (identical(other.givenName, givenName) || const DeepCollectionEquality().equals(other.givenName, givenName)) &&
-            (identical(other.surname, surname) || const DeepCollectionEquality().equals(other.surname, surname)) &&
-            (identical(other.uidNumber, uidNumber) || const DeepCollectionEquality().equals(other.uidNumber, uidNumber)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.username, username) ||
+                const DeepCollectionEquality()
+                    .equals(other.username, username)) &&
+            (identical(other.dn, dn) ||
+                const DeepCollectionEquality().equals(other.dn, dn)) &&
+            (identical(other.displayName, displayName) ||
+                const DeepCollectionEquality()
+                    .equals(other.displayName, displayName)) &&
+            (identical(other.givenName, givenName) ||
+                const DeepCollectionEquality()
+                    .equals(other.givenName, givenName)) &&
+            (identical(other.surname, surname) ||
+                const DeepCollectionEquality()
+                    .equals(other.surname, surname)) &&
+            (identical(other.uidNumber, uidNumber) ||
+                const DeepCollectionEquality()
+                    .equals(other.uidNumber, uidNumber)));
   }
 
   @override
@@ -541,7 +697,14 @@ class User {
 }
 
 extension $UserExtension on User {
-  User copyWith({num? id, String? username, String? dn, String? displayName, String? givenName, String? surname, int? uidNumber}) {
+  User copyWith(
+      {num? id,
+      String? username,
+      String? dn,
+      String? displayName,
+      String? givenName,
+      String? surname,
+      int? uidNumber}) {
     return User(
         id: id ?? this.id,
         username: username ?? this.username,
@@ -553,12 +716,19 @@ extension $UserExtension on User {
   }
 
   User copyWithWrapped(
-      {Wrapped<num?>? id, Wrapped<String?>? username, Wrapped<String?>? dn, Wrapped<String?>? displayName, Wrapped<String?>? givenName, Wrapped<String?>? surname, Wrapped<int?>? uidNumber}) {
+      {Wrapped<num?>? id,
+      Wrapped<String?>? username,
+      Wrapped<String?>? dn,
+      Wrapped<String?>? displayName,
+      Wrapped<String?>? givenName,
+      Wrapped<String?>? surname,
+      Wrapped<int?>? uidNumber}) {
     return User(
         id: (id != null ? id.value : this.id),
         username: (username != null ? username.value : this.username),
         dn: (dn != null ? dn.value : this.dn),
-        displayName: (displayName != null ? displayName.value : this.displayName),
+        displayName:
+            (displayName != null ? displayName.value : this.displayName),
         givenName: (givenName != null ? givenName.value : this.givenName),
         surname: (surname != null ? surname.value : this.surname),
         uidNumber: (uidNumber != null ? uidNumber.value : this.uidNumber));
@@ -589,16 +759,23 @@ class Group {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Group &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.dn, dn) || const DeepCollectionEquality().equals(other.dn, dn)) &&
-            (identical(other.name, name) || const DeepCollectionEquality().equals(other.name, name)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.dn, dn) ||
+                const DeepCollectionEquality().equals(other.dn, dn)) &&
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)));
   }
 
   @override
   String toString() => jsonEncode(this);
 
   @override
-  int get hashCode => const DeepCollectionEquality().hash(id) ^ const DeepCollectionEquality().hash(dn) ^ const DeepCollectionEquality().hash(name) ^ runtimeType.hashCode;
+  int get hashCode =>
+      const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(dn) ^
+      const DeepCollectionEquality().hash(name) ^
+      runtimeType.hashCode;
 }
 
 extension $GroupExtension on Group {
@@ -606,8 +783,12 @@ extension $GroupExtension on Group {
     return Group(id: id ?? this.id, dn: dn ?? this.dn, name: name ?? this.name);
   }
 
-  Group copyWithWrapped({Wrapped<num?>? id, Wrapped<String?>? dn, Wrapped<String?>? name}) {
-    return Group(id: (id != null ? id.value : this.id), dn: (dn != null ? dn.value : this.dn), name: (name != null ? name.value : this.name));
+  Group copyWithWrapped(
+      {Wrapped<num?>? id, Wrapped<String?>? dn, Wrapped<String?>? name}) {
+    return Group(
+        id: (id != null ? id.value : this.id),
+        dn: (dn != null ? dn.value : this.dn),
+        name: (name != null ? name.value : this.name));
   }
 }
 
@@ -623,7 +804,8 @@ class UserGroup {
     this.userName,
   });
 
-  factory UserGroup.fromJson(Map<String, dynamic> json) => _$UserGroupFromJson(json);
+  factory UserGroup.fromJson(Map<String, dynamic> json) =>
+      _$UserGroupFromJson(json);
 
   @JsonKey(name: 'Id')
   final num? id;
@@ -647,13 +829,24 @@ class UserGroup {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is UserGroup &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.groupId, groupId) || const DeepCollectionEquality().equals(other.groupId, groupId)) &&
-            (identical(other.groupDN, groupDN) || const DeepCollectionEquality().equals(other.groupDN, groupDN)) &&
-            (identical(other.groupName, groupName) || const DeepCollectionEquality().equals(other.groupName, groupName)) &&
-            (identical(other.userId, userId) || const DeepCollectionEquality().equals(other.userId, userId)) &&
-            (identical(other.userDN, userDN) || const DeepCollectionEquality().equals(other.userDN, userDN)) &&
-            (identical(other.userName, userName) || const DeepCollectionEquality().equals(other.userName, userName)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.groupId, groupId) ||
+                const DeepCollectionEquality()
+                    .equals(other.groupId, groupId)) &&
+            (identical(other.groupDN, groupDN) ||
+                const DeepCollectionEquality()
+                    .equals(other.groupDN, groupDN)) &&
+            (identical(other.groupName, groupName) ||
+                const DeepCollectionEquality()
+                    .equals(other.groupName, groupName)) &&
+            (identical(other.userId, userId) ||
+                const DeepCollectionEquality().equals(other.userId, userId)) &&
+            (identical(other.userDN, userDN) ||
+                const DeepCollectionEquality().equals(other.userDN, userDN)) &&
+            (identical(other.userName, userName) ||
+                const DeepCollectionEquality()
+                    .equals(other.userName, userName)));
   }
 
   @override
@@ -672,7 +865,14 @@ class UserGroup {
 }
 
 extension $UserGroupExtension on UserGroup {
-  UserGroup copyWith({num? id, num? groupId, String? groupDN, String? groupName, num? userId, String? userDN, String? userName}) {
+  UserGroup copyWith(
+      {num? id,
+      num? groupId,
+      String? groupDN,
+      String? groupName,
+      num? userId,
+      String? userDN,
+      String? userName}) {
     return UserGroup(
         id: id ?? this.id,
         groupId: groupId ?? this.groupId,
@@ -684,7 +884,13 @@ extension $UserGroupExtension on UserGroup {
   }
 
   UserGroup copyWithWrapped(
-      {Wrapped<num?>? id, Wrapped<num?>? groupId, Wrapped<String?>? groupDN, Wrapped<String?>? groupName, Wrapped<num?>? userId, Wrapped<String?>? userDN, Wrapped<String?>? userName}) {
+      {Wrapped<num?>? id,
+      Wrapped<num?>? groupId,
+      Wrapped<String?>? groupDN,
+      Wrapped<String?>? groupName,
+      Wrapped<num?>? userId,
+      Wrapped<String?>? userDN,
+      Wrapped<String?>? userName}) {
     return UserGroup(
         id: (id != null ? id.value : this.id),
         groupId: (groupId != null ? groupId.value : this.groupId),
@@ -705,7 +911,8 @@ class UserApplications {
     this.application,
   });
 
-  factory UserApplications.fromJson(Map<String, dynamic> json) => _$UserApplicationsFromJson(json);
+  factory UserApplications.fromJson(Map<String, dynamic> json) =>
+      _$UserApplicationsFromJson(json);
 
   @JsonKey(name: 'Id')
   final num? id;
@@ -723,10 +930,16 @@ class UserApplications {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is UserApplications &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.applicationId, applicationId) || const DeepCollectionEquality().equals(other.applicationId, applicationId)) &&
-            (identical(other.userId, userId) || const DeepCollectionEquality().equals(other.userId, userId)) &&
-            (identical(other.application, application) || const DeepCollectionEquality().equals(other.application, application)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.applicationId, applicationId) ||
+                const DeepCollectionEquality()
+                    .equals(other.applicationId, applicationId)) &&
+            (identical(other.userId, userId) ||
+                const DeepCollectionEquality().equals(other.userId, userId)) &&
+            (identical(other.application, application) ||
+                const DeepCollectionEquality()
+                    .equals(other.application, application)));
   }
 
   @override
@@ -742,16 +955,27 @@ class UserApplications {
 }
 
 extension $UserApplicationsExtension on UserApplications {
-  UserApplications copyWith({num? id, num? applicationId, num? userId, Application? application}) {
-    return UserApplications(id: id ?? this.id, applicationId: applicationId ?? this.applicationId, userId: userId ?? this.userId, application: application ?? this.application);
+  UserApplications copyWith(
+      {num? id, num? applicationId, num? userId, Application? application}) {
+    return UserApplications(
+        id: id ?? this.id,
+        applicationId: applicationId ?? this.applicationId,
+        userId: userId ?? this.userId,
+        application: application ?? this.application);
   }
 
-  UserApplications copyWithWrapped({Wrapped<num?>? id, Wrapped<num?>? applicationId, Wrapped<num?>? userId, Wrapped<Application?>? application}) {
+  UserApplications copyWithWrapped(
+      {Wrapped<num?>? id,
+      Wrapped<num?>? applicationId,
+      Wrapped<num?>? userId,
+      Wrapped<Application?>? application}) {
     return UserApplications(
         id: (id != null ? id.value : this.id),
-        applicationId: (applicationId != null ? applicationId.value : this.applicationId),
+        applicationId:
+            (applicationId != null ? applicationId.value : this.applicationId),
         userId: (userId != null ? userId.value : this.userId),
-        application: (application != null ? application.value : this.application));
+        application:
+            (application != null ? application.value : this.application));
   }
 }
 
@@ -779,25 +1003,43 @@ class Tab {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Tab &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.label, label) || const DeepCollectionEquality().equals(other.label, label)) &&
-            (identical(other.displayOrder, displayOrder) || const DeepCollectionEquality().equals(other.displayOrder, displayOrder)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.label, label) ||
+                const DeepCollectionEquality().equals(other.label, label)) &&
+            (identical(other.displayOrder, displayOrder) ||
+                const DeepCollectionEquality()
+                    .equals(other.displayOrder, displayOrder)));
   }
 
   @override
   String toString() => jsonEncode(this);
 
   @override
-  int get hashCode => const DeepCollectionEquality().hash(id) ^ const DeepCollectionEquality().hash(label) ^ const DeepCollectionEquality().hash(displayOrder) ^ runtimeType.hashCode;
+  int get hashCode =>
+      const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(label) ^
+      const DeepCollectionEquality().hash(displayOrder) ^
+      runtimeType.hashCode;
 }
 
 extension $TabExtension on Tab {
   Tab copyWith({num? id, String? label, int? displayOrder}) {
-    return Tab(id: id ?? this.id, label: label ?? this.label, displayOrder: displayOrder ?? this.displayOrder);
+    return Tab(
+        id: id ?? this.id,
+        label: label ?? this.label,
+        displayOrder: displayOrder ?? this.displayOrder);
   }
 
-  Tab copyWithWrapped({Wrapped<num?>? id, Wrapped<String?>? label, Wrapped<int?>? displayOrder}) {
-    return Tab(id: (id != null ? id.value : this.id), label: (label != null ? label.value : this.label), displayOrder: (displayOrder != null ? displayOrder.value : this.displayOrder));
+  Tab copyWithWrapped(
+      {Wrapped<num?>? id,
+      Wrapped<String?>? label,
+      Wrapped<int?>? displayOrder}) {
+    return Tab(
+        id: (id != null ? id.value : this.id),
+        label: (label != null ? label.value : this.label),
+        displayOrder:
+            (displayOrder != null ? displayOrder.value : this.displayOrder));
   }
 }
 
@@ -810,7 +1052,8 @@ class GroupApplications {
     this.application,
   });
 
-  factory GroupApplications.fromJson(Map<String, dynamic> json) => _$GroupApplicationsFromJson(json);
+  factory GroupApplications.fromJson(Map<String, dynamic> json) =>
+      _$GroupApplicationsFromJson(json);
 
   @JsonKey(name: 'Id')
   final num? id;
@@ -828,10 +1071,17 @@ class GroupApplications {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is GroupApplications &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.applicationId, applicationId) || const DeepCollectionEquality().equals(other.applicationId, applicationId)) &&
-            (identical(other.groupId, groupId) || const DeepCollectionEquality().equals(other.groupId, groupId)) &&
-            (identical(other.application, application) || const DeepCollectionEquality().equals(other.application, application)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.applicationId, applicationId) ||
+                const DeepCollectionEquality()
+                    .equals(other.applicationId, applicationId)) &&
+            (identical(other.groupId, groupId) ||
+                const DeepCollectionEquality()
+                    .equals(other.groupId, groupId)) &&
+            (identical(other.application, application) ||
+                const DeepCollectionEquality()
+                    .equals(other.application, application)));
   }
 
   @override
@@ -847,16 +1097,27 @@ class GroupApplications {
 }
 
 extension $GroupApplicationsExtension on GroupApplications {
-  GroupApplications copyWith({num? id, num? applicationId, num? groupId, Application? application}) {
-    return GroupApplications(id: id ?? this.id, applicationId: applicationId ?? this.applicationId, groupId: groupId ?? this.groupId, application: application ?? this.application);
+  GroupApplications copyWith(
+      {num? id, num? applicationId, num? groupId, Application? application}) {
+    return GroupApplications(
+        id: id ?? this.id,
+        applicationId: applicationId ?? this.applicationId,
+        groupId: groupId ?? this.groupId,
+        application: application ?? this.application);
   }
 
-  GroupApplications copyWithWrapped({Wrapped<num?>? id, Wrapped<num?>? applicationId, Wrapped<num?>? groupId, Wrapped<Application?>? application}) {
+  GroupApplications copyWithWrapped(
+      {Wrapped<num?>? id,
+      Wrapped<num?>? applicationId,
+      Wrapped<num?>? groupId,
+      Wrapped<Application?>? application}) {
     return GroupApplications(
         id: (id != null ? id.value : this.id),
-        applicationId: (applicationId != null ? applicationId.value : this.applicationId),
+        applicationId:
+            (applicationId != null ? applicationId.value : this.applicationId),
         groupId: (groupId != null ? groupId.value : this.groupId),
-        application: (application != null ? application.value : this.application));
+        application:
+            (application != null ? application.value : this.application));
   }
 }
 
@@ -874,7 +1135,8 @@ class Application {
     this.icon,
   });
 
-  factory Application.fromJson(Map<String, dynamic> json) => _$ApplicationFromJson(json);
+  factory Application.fromJson(Map<String, dynamic> json) =>
+      _$ApplicationFromJson(json);
 
   @JsonKey(name: 'Id')
   final num? id;
@@ -902,15 +1164,30 @@ class Application {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is Application &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.templateAppid, templateAppid) || const DeepCollectionEquality().equals(other.templateAppid, templateAppid)) &&
-            (identical(other.name, name) || const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.website, website) || const DeepCollectionEquality().equals(other.website, website)) &&
-            (identical(other.license, license) || const DeepCollectionEquality().equals(other.license, license)) &&
-            (identical(other.description, description) || const DeepCollectionEquality().equals(other.description, description)) &&
-            (identical(other.enhanced, enhanced) || const DeepCollectionEquality().equals(other.enhanced, enhanced)) &&
-            (identical(other.tileBackground, tileBackground) || const DeepCollectionEquality().equals(other.tileBackground, tileBackground)) &&
-            (identical(other.icon, icon) || const DeepCollectionEquality().equals(other.icon, icon)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.templateAppid, templateAppid) ||
+                const DeepCollectionEquality()
+                    .equals(other.templateAppid, templateAppid)) &&
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.website, website) ||
+                const DeepCollectionEquality()
+                    .equals(other.website, website)) &&
+            (identical(other.license, license) ||
+                const DeepCollectionEquality()
+                    .equals(other.license, license)) &&
+            (identical(other.description, description) ||
+                const DeepCollectionEquality()
+                    .equals(other.description, description)) &&
+            (identical(other.enhanced, enhanced) ||
+                const DeepCollectionEquality()
+                    .equals(other.enhanced, enhanced)) &&
+            (identical(other.tileBackground, tileBackground) ||
+                const DeepCollectionEquality()
+                    .equals(other.tileBackground, tileBackground)) &&
+            (identical(other.icon, icon) ||
+                const DeepCollectionEquality().equals(other.icon, icon)));
   }
 
   @override
@@ -931,7 +1208,16 @@ class Application {
 }
 
 extension $ApplicationExtension on Application {
-  Application copyWith({num? id, String? templateAppid, String? name, String? website, String? license, String? description, bool? enhanced, String? tileBackground, String? icon}) {
+  Application copyWith(
+      {num? id,
+      String? templateAppid,
+      String? name,
+      String? website,
+      String? license,
+      String? description,
+      bool? enhanced,
+      String? tileBackground,
+      String? icon}) {
     return Application(
         id: id ?? this.id,
         templateAppid: templateAppid ?? this.templateAppid,
@@ -956,13 +1242,17 @@ extension $ApplicationExtension on Application {
       Wrapped<String?>? icon}) {
     return Application(
         id: (id != null ? id.value : this.id),
-        templateAppid: (templateAppid != null ? templateAppid.value : this.templateAppid),
+        templateAppid:
+            (templateAppid != null ? templateAppid.value : this.templateAppid),
         name: (name != null ? name.value : this.name),
         website: (website != null ? website.value : this.website),
         license: (license != null ? license.value : this.license),
-        description: (description != null ? description.value : this.description),
+        description:
+            (description != null ? description.value : this.description),
         enhanced: (enhanced != null ? enhanced.value : this.enhanced),
-        tileBackground: (tileBackground != null ? tileBackground.value : this.tileBackground),
+        tileBackground: (tileBackground != null
+            ? tileBackground.value
+            : this.tileBackground),
         icon: (icon != null ? icon.value : this.icon));
   }
 }
@@ -977,7 +1267,8 @@ class ApplicationTab {
     this.application,
   });
 
-  factory ApplicationTab.fromJson(Map<String, dynamic> json) => _$ApplicationTabFromJson(json);
+  factory ApplicationTab.fromJson(Map<String, dynamic> json) =>
+      _$ApplicationTabFromJson(json);
 
   @JsonKey(name: 'Id')
   final num? id;
@@ -997,11 +1288,19 @@ class ApplicationTab {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is ApplicationTab &&
-            (identical(other.id, id) || const DeepCollectionEquality().equals(other.id, id)) &&
-            (identical(other.applicationId, applicationId) || const DeepCollectionEquality().equals(other.applicationId, applicationId)) &&
-            (identical(other.tabId, tabId) || const DeepCollectionEquality().equals(other.tabId, tabId)) &&
-            (identical(other.displayOrder, displayOrder) || const DeepCollectionEquality().equals(other.displayOrder, displayOrder)) &&
-            (identical(other.application, application) || const DeepCollectionEquality().equals(other.application, application)));
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.applicationId, applicationId) ||
+                const DeepCollectionEquality()
+                    .equals(other.applicationId, applicationId)) &&
+            (identical(other.tabId, tabId) ||
+                const DeepCollectionEquality().equals(other.tabId, tabId)) &&
+            (identical(other.displayOrder, displayOrder) ||
+                const DeepCollectionEquality()
+                    .equals(other.displayOrder, displayOrder)) &&
+            (identical(other.application, application) ||
+                const DeepCollectionEquality()
+                    .equals(other.application, application)));
   }
 
   @override
@@ -1018,7 +1317,12 @@ class ApplicationTab {
 }
 
 extension $ApplicationTabExtension on ApplicationTab {
-  ApplicationTab copyWith({num? id, num? applicationId, num? tabId, int? displayOrder, Application? application}) {
+  ApplicationTab copyWith(
+      {num? id,
+      num? applicationId,
+      num? tabId,
+      int? displayOrder,
+      Application? application}) {
     return ApplicationTab(
         id: id ?? this.id,
         applicationId: applicationId ?? this.applicationId,
@@ -1027,13 +1331,21 @@ extension $ApplicationTabExtension on ApplicationTab {
         application: application ?? this.application);
   }
 
-  ApplicationTab copyWithWrapped({Wrapped<num?>? id, Wrapped<num?>? applicationId, Wrapped<num?>? tabId, Wrapped<int?>? displayOrder, Wrapped<Application?>? application}) {
+  ApplicationTab copyWithWrapped(
+      {Wrapped<num?>? id,
+      Wrapped<num?>? applicationId,
+      Wrapped<num?>? tabId,
+      Wrapped<int?>? displayOrder,
+      Wrapped<Application?>? application}) {
     return ApplicationTab(
         id: (id != null ? id.value : this.id),
-        applicationId: (applicationId != null ? applicationId.value : this.applicationId),
+        applicationId:
+            (applicationId != null ? applicationId.value : this.applicationId),
         tabId: (tabId != null ? tabId.value : this.tabId),
-        displayOrder: (displayOrder != null ? displayOrder.value : this.displayOrder),
-        application: (application != null ? application.value : this.application));
+        displayOrder:
+            (displayOrder != null ? displayOrder.value : this.displayOrder),
+        application:
+            (application != null ? application.value : this.application));
   }
 }
 
@@ -1051,7 +1363,8 @@ class ApplicationTemplate {
     this.sha,
   });
 
-  factory ApplicationTemplate.fromJson(Map<String, dynamic> json) => _$ApplicationTemplateFromJson(json);
+  factory ApplicationTemplate.fromJson(Map<String, dynamic> json) =>
+      _$ApplicationTemplateFromJson(json);
 
   @JsonKey(name: 'Appid')
   final String? appid;
@@ -1079,15 +1392,29 @@ class ApplicationTemplate {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is ApplicationTemplate &&
-            (identical(other.appid, appid) || const DeepCollectionEquality().equals(other.appid, appid)) &&
-            (identical(other.name, name) || const DeepCollectionEquality().equals(other.name, name)) &&
-            (identical(other.website, website) || const DeepCollectionEquality().equals(other.website, website)) &&
-            (identical(other.license, license) || const DeepCollectionEquality().equals(other.license, license)) &&
-            (identical(other.description, description) || const DeepCollectionEquality().equals(other.description, description)) &&
-            (identical(other.enhanced, enhanced) || const DeepCollectionEquality().equals(other.enhanced, enhanced)) &&
-            (identical(other.tileBackground, tileBackground) || const DeepCollectionEquality().equals(other.tileBackground, tileBackground)) &&
-            (identical(other.icon, icon) || const DeepCollectionEquality().equals(other.icon, icon)) &&
-            (identical(other.sha, sha) || const DeepCollectionEquality().equals(other.sha, sha)));
+            (identical(other.appid, appid) ||
+                const DeepCollectionEquality().equals(other.appid, appid)) &&
+            (identical(other.name, name) ||
+                const DeepCollectionEquality().equals(other.name, name)) &&
+            (identical(other.website, website) ||
+                const DeepCollectionEquality()
+                    .equals(other.website, website)) &&
+            (identical(other.license, license) ||
+                const DeepCollectionEquality()
+                    .equals(other.license, license)) &&
+            (identical(other.description, description) ||
+                const DeepCollectionEquality()
+                    .equals(other.description, description)) &&
+            (identical(other.enhanced, enhanced) ||
+                const DeepCollectionEquality()
+                    .equals(other.enhanced, enhanced)) &&
+            (identical(other.tileBackground, tileBackground) ||
+                const DeepCollectionEquality()
+                    .equals(other.tileBackground, tileBackground)) &&
+            (identical(other.icon, icon) ||
+                const DeepCollectionEquality().equals(other.icon, icon)) &&
+            (identical(other.sha, sha) ||
+                const DeepCollectionEquality().equals(other.sha, sha)));
   }
 
   @override
@@ -1108,7 +1435,16 @@ class ApplicationTemplate {
 }
 
 extension $ApplicationTemplateExtension on ApplicationTemplate {
-  ApplicationTemplate copyWith({String? appid, String? name, String? website, String? license, String? description, bool? enhanced, String? tileBackground, String? icon, String? sha}) {
+  ApplicationTemplate copyWith(
+      {String? appid,
+      String? name,
+      String? website,
+      String? license,
+      String? description,
+      bool? enhanced,
+      String? tileBackground,
+      String? icon,
+      String? sha}) {
     return ApplicationTemplate(
         appid: appid ?? this.appid,
         name: name ?? this.name,
@@ -1136,9 +1472,12 @@ extension $ApplicationTemplateExtension on ApplicationTemplate {
         name: (name != null ? name.value : this.name),
         website: (website != null ? website.value : this.website),
         license: (license != null ? license.value : this.license),
-        description: (description != null ? description.value : this.description),
+        description:
+            (description != null ? description.value : this.description),
         enhanced: (enhanced != null ? enhanced.value : this.enhanced),
-        tileBackground: (tileBackground != null ? tileBackground.value : this.tileBackground),
+        tileBackground: (tileBackground != null
+            ? tileBackground.value
+            : this.tileBackground),
         icon: (icon != null ? icon.value : this.icon),
         sha: (sha != null ? sha.value : this.sha));
   }
@@ -1151,7 +1490,8 @@ class AppList {
     this.apps,
   });
 
-  factory AppList.fromJson(Map<String, dynamic> json) => _$AppListFromJson(json);
+  factory AppList.fromJson(Map<String, dynamic> json) =>
+      _$AppListFromJson(json);
 
   @JsonKey(name: 'AppCount')
   final int? appCount;
@@ -1165,24 +1505,175 @@ class AppList {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is AppList &&
-            (identical(other.appCount, appCount) || const DeepCollectionEquality().equals(other.appCount, appCount)) &&
-            (identical(other.apps, apps) || const DeepCollectionEquality().equals(other.apps, apps)));
+            (identical(other.appCount, appCount) ||
+                const DeepCollectionEquality()
+                    .equals(other.appCount, appCount)) &&
+            (identical(other.apps, apps) ||
+                const DeepCollectionEquality().equals(other.apps, apps)));
   }
 
   @override
   String toString() => jsonEncode(this);
 
   @override
-  int get hashCode => const DeepCollectionEquality().hash(appCount) ^ const DeepCollectionEquality().hash(apps) ^ runtimeType.hashCode;
+  int get hashCode =>
+      const DeepCollectionEquality().hash(appCount) ^
+      const DeepCollectionEquality().hash(apps) ^
+      runtimeType.hashCode;
 }
 
 extension $AppListExtension on AppList {
   AppList copyWith({int? appCount, List<ApplicationTemplate>? apps}) {
-    return AppList(appCount: appCount ?? this.appCount, apps: apps ?? this.apps);
+    return AppList(
+        appCount: appCount ?? this.appCount, apps: apps ?? this.apps);
   }
 
-  AppList copyWithWrapped({Wrapped<int?>? appCount, Wrapped<List<ApplicationTemplate>?>? apps}) {
-    return AppList(appCount: (appCount != null ? appCount.value : this.appCount), apps: (apps != null ? apps.value : this.apps));
+  AppList copyWithWrapped(
+      {Wrapped<int?>? appCount, Wrapped<List<ApplicationTemplate>?>? apps}) {
+    return AppList(
+        appCount: (appCount != null ? appCount.value : this.appCount),
+        apps: (apps != null ? apps.value : this.apps));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class UserSession {
+  UserSession({
+    this.id,
+    this.userId,
+    this.token,
+    this.issued,
+    this.expires,
+  });
+
+  factory UserSession.fromJson(Map<String, dynamic> json) =>
+      _$UserSessionFromJson(json);
+
+  @JsonKey(name: 'Id')
+  final num? id;
+  @JsonKey(name: 'UserId')
+  final num? userId;
+  @JsonKey(name: 'Token')
+  final String? token;
+  @JsonKey(name: 'Issued')
+  final DateTime? issued;
+  @JsonKey(name: 'Expires')
+  final DateTime? expires;
+  static const fromJsonFactory = _$UserSessionFromJson;
+  static const toJsonFactory = _$UserSessionToJson;
+  Map<String, dynamic> toJson() => _$UserSessionToJson(this);
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is UserSession &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.userId, userId) ||
+                const DeepCollectionEquality().equals(other.userId, userId)) &&
+            (identical(other.token, token) ||
+                const DeepCollectionEquality().equals(other.token, token)) &&
+            (identical(other.issued, issued) ||
+                const DeepCollectionEquality().equals(other.issued, issued)) &&
+            (identical(other.expires, expires) ||
+                const DeepCollectionEquality().equals(other.expires, expires)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(userId) ^
+      const DeepCollectionEquality().hash(token) ^
+      const DeepCollectionEquality().hash(issued) ^
+      const DeepCollectionEquality().hash(expires) ^
+      runtimeType.hashCode;
+}
+
+extension $UserSessionExtension on UserSession {
+  UserSession copyWith(
+      {num? id,
+      num? userId,
+      String? token,
+      DateTime? issued,
+      DateTime? expires}) {
+    return UserSession(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        token: token ?? this.token,
+        issued: issued ?? this.issued,
+        expires: expires ?? this.expires);
+  }
+
+  UserSession copyWithWrapped(
+      {Wrapped<num?>? id,
+      Wrapped<num?>? userId,
+      Wrapped<String?>? token,
+      Wrapped<DateTime?>? issued,
+      Wrapped<DateTime?>? expires}) {
+    return UserSession(
+        id: (id != null ? id.value : this.id),
+        userId: (userId != null ? userId.value : this.userId),
+        token: (token != null ? token.value : this.token),
+        issued: (issued != null ? issued.value : this.issued),
+        expires: (expires != null ? expires.value : this.expires));
+  }
+}
+
+@JsonSerializable(explicitToJson: true)
+class UserLogin {
+  UserLogin({
+    this.username,
+    this.password,
+  });
+
+  factory UserLogin.fromJson(Map<String, dynamic> json) =>
+      _$UserLoginFromJson(json);
+
+  @JsonKey(name: 'username')
+  final String? username;
+  @JsonKey(name: 'password')
+  final String? password;
+  static const fromJsonFactory = _$UserLoginFromJson;
+  static const toJsonFactory = _$UserLoginToJson;
+  Map<String, dynamic> toJson() => _$UserLoginToJson(this);
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is UserLogin &&
+            (identical(other.username, username) ||
+                const DeepCollectionEquality()
+                    .equals(other.username, username)) &&
+            (identical(other.password, password) ||
+                const DeepCollectionEquality()
+                    .equals(other.password, password)));
+  }
+
+  @override
+  String toString() => jsonEncode(this);
+
+  @override
+  int get hashCode =>
+      const DeepCollectionEquality().hash(username) ^
+      const DeepCollectionEquality().hash(password) ^
+      runtimeType.hashCode;
+}
+
+extension $UserLoginExtension on UserLogin {
+  UserLogin copyWith({String? username, String? password}) {
+    return UserLogin(
+        username: username ?? this.username,
+        password: password ?? this.password);
+  }
+
+  UserLogin copyWithWrapped(
+      {Wrapped<String?>? username, Wrapped<String?>? password}) {
+    return UserLogin(
+        username: (username != null ? username.value : this.username),
+        password: (password != null ? password.value : this.password));
   }
 }
 
@@ -1226,12 +1717,14 @@ class $CustomJsonDecoder {
     return jsonFactory(values);
   }
 
-  List<T> _decodeList<T>(Iterable values) => values.where((v) => v != null).map<T>((v) => decode<T>(v) as T).toList();
+  List<T> _decodeList<T>(Iterable values) =>
+      values.where((v) => v != null).map<T>((v) => decode<T>(v) as T).toList();
 }
 
 class $JsonSerializableConverter extends chopper.JsonConverter {
   @override
-  FutureOr<chopper.Response<ResultType>> convertResponse<ResultType, Item>(chopper.Response response) async {
+  FutureOr<chopper.Response<ResultType>> convertResponse<ResultType, Item>(
+      chopper.Response response) async {
     if (response.bodyString.isEmpty) {
       // In rare cases, when let's say 204 (no content) is returned -
       // we cannot decode the missing json with the result type specified
@@ -1239,7 +1732,8 @@ class $JsonSerializableConverter extends chopper.JsonConverter {
     }
 
     final jsonRes = await super.convertResponse(response);
-    return jsonRes.copyWith<ResultType>(body: $jsonDecoder.decode<Item>(jsonRes.body) as ResultType);
+    return jsonRes.copyWith<ResultType>(
+        body: $jsonDecoder.decode<Item>(jsonRes.body) as ResultType);
   }
 }
 

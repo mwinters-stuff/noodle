@@ -57,7 +57,7 @@ func (suite *LdapHandlersOtherTestSuite) SetupTest() {
 func (suite *LdapHandlersOtherTestSuite) TearDownTest() {
 
 }
-func (suite *LdapHandlersOtherTestSuite) TearSuite() {
+func (suite *LdapHandlersOtherTestSuite) TearDownSuite() {
 
 }
 
