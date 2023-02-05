@@ -21,6 +21,14 @@ func HandlerUserApplicationGet(db database.Database, params noodle_api.GetNoodle
 	return noodle_api.NewGetNoodleUserApplicationsOK().WithPayload(applicationTabs)
 }
 
+func HandlerUserAllowedApplicationGet(db database.Database, params noodle_api.GetNoodleUserAllowedApplicationsParams, principal *models.Principal) middleware.Responder {
+	applications, err := db.Tables().UserApplicationsTable().GetUserAllowdApplications(params.UserID)
+	if err != nil {
+		return noodle_api.NewGetNoodleUserAllowedApplicationsConflict().WithPayload(&models.Error{Message: err.Error()})
+	}
+	return noodle_api.NewGetNoodleUserAllowedApplicationsOK().WithPayload(applications)
+}
+
 func HandlerUserApplicationPost(db database.Database, params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
 	err := db.Tables().UserApplicationsTable().Insert(params.UserApplication)
 
@@ -48,5 +56,8 @@ func RegisterUserApplicationsApiHandlersImpl(api *operations.NoodleAPI, db datab
 	})
 	api.NoodleAPIDeleteNoodleUserApplicationsHandler = noodle_api.DeleteNoodleUserApplicationsHandlerFunc(func(params noodle_api.DeleteNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
 		return HandlerUserApplicationDelete(db, params, principal)
+	})
+	api.NoodleAPIGetNoodleUserAllowedApplicationsHandler = noodle_api.GetNoodleUserAllowedApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserAllowedApplicationsParams, principal *models.Principal) middleware.Responder {
+		return HandlerUserAllowedApplicationGet(db, params, principal)
 	})
 }

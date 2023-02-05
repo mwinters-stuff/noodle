@@ -1,10 +1,10 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
 
-import { NoodleWeb } from '../src/noodle-web.js';
+import { NoodleLogin } from '../src/noodle-login.js';
 
 describe('NoodleWeb', () => {
-  let element: NoodleWeb;
+  let element: NoodleLogin;
   beforeEach(async () => {
     element = await fixture(html`<noodle-web></noodle-web>`);
   });

@@ -109,6 +109,50 @@ func init() {
         }
       }
     },
+    "/auth/session": {
+      "get": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "description": "Get Session for Token",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "token",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/user_session"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "description": "used by Kubernetes liveness probe",
@@ -887,6 +931,53 @@ func init() {
         }
       }
     },
+    "/noodle/user-allowed-applications": {
+      "get": {
+        "security": [
+          {
+            "remote-user": []
+          },
+          {
+            "token": []
+          }
+        ],
+        "description": "Gets the list of the applications the user can see",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/users_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/user-applications": {
       "get": {
         "security": [
@@ -1157,20 +1248,6 @@ func init() {
     }
   },
   "definitions": {
-    "app_list": {
-      "type": "object",
-      "properties": {
-        "AppCount": {
-          "type": "integer"
-        },
-        "Apps": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/application_template"
-          }
-        }
-      }
-    },
     "application": {
       "type": "object",
       "properties": {
@@ -1437,6 +1514,28 @@ func init() {
           "type": "integer",
           "format": "int64"
         }
+      }
+    },
+    "users_application_item": {
+      "type": "object",
+      "properties": {
+        "Application": {
+          "$ref": "#/definitions/application"
+        },
+        "DisplayOrder": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "TabId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "users_applications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/users_application_item"
       }
     }
   },
@@ -1545,6 +1644,50 @@ func init() {
         }
       }
     },
+    "/auth/session": {
+      "get": {
+        "security": [
+          {
+            "token": []
+          }
+        ],
+        "description": "Get Session for Token",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-auth"
+        ],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "token",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/user_session"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "description": "used by Kubernetes liveness probe",
@@ -2323,6 +2466,53 @@ func init() {
         }
       }
     },
+    "/noodle/user-allowed-applications": {
+      "get": {
+        "security": [
+          {
+            "remote-user": []
+          },
+          {
+            "token": []
+          }
+        ],
+        "description": "Gets the list of the applications the user can see",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "noodle-api"
+        ],
+        "parameters": [
+          {
+            "type": "integer",
+            "name": "user_id",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/users_applications"
+            }
+          },
+          "401": {
+            "description": "unauthorized",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          },
+          "409": {
+            "description": "Failed",
+            "schema": {
+              "$ref": "#/definitions/error"
+            }
+          }
+        }
+      }
+    },
     "/noodle/user-applications": {
       "get": {
         "security": [
@@ -2593,20 +2783,6 @@ func init() {
     }
   },
   "definitions": {
-    "app_list": {
-      "type": "object",
-      "properties": {
-        "AppCount": {
-          "type": "integer"
-        },
-        "Apps": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/application_template"
-          }
-        }
-      }
-    },
     "application": {
       "type": "object",
       "properties": {
@@ -2873,6 +3049,28 @@ func init() {
           "type": "integer",
           "format": "int64"
         }
+      }
+    },
+    "users_application_item": {
+      "type": "object",
+      "properties": {
+        "Application": {
+          "$ref": "#/definitions/application"
+        },
+        "DisplayOrder": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "TabId": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
+    "users_applications": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/users_application_item"
       }
     }
   },

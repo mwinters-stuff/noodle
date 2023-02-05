@@ -135,6 +135,16 @@ export interface UserLogin {
   password?: string;
 }
 
+export interface UsersApplicationItem {
+  /** @format int64 */
+  TabId?: number;
+  /** @format int64 */
+  DisplayOrder?: number;
+  Application?: Application;
+}
+
+export type UsersApplications = UsersApplicationItem[];
+
 export type QueryParamsType = Record<string | number, any>;
 export type ResponseFormat = keyof Omit<Body, 'body' | 'bodyUsed'>;
 
@@ -770,6 +780,29 @@ export class Api<
         query: query,
         secure: true,
         type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * @description Gets the list of the applications the user can see
+     *
+     * @tags noodle-api
+     * @name UserAllowedApplicationsList
+     * @request GET:/noodle/user-allowed-applications
+     * @secure
+     */
+    userAllowedApplicationsList: (
+      query: {
+        user_id: number;
+      },
+      params: RequestParams = {}
+    ) =>
+      this.request<UsersApplications, Error>({
+        path: `/noodle/user-allowed-applications`,
+        method: 'GET',
+        query: query,
+        secure: true,
+        format: 'json',
         ...params,
       }),
 

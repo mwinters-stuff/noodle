@@ -35,6 +35,10 @@ func RegisterAuthenticaionApiHandlersImpl(api *operations.NoodleAPI, db database
 	api.NoodleAuthGetAuthLogoutHandler = noodle_auth.GetAuthLogoutHandlerFunc(func(params noodle_auth.GetAuthLogoutParams, principal *models.Principal) middleware.Responder {
 		return HandlerAuthLogoutGet(db, params, principal)
 	})
+
+	api.NoodleAuthGetAuthSessionHandler = noodle_auth.GetAuthSessionHandlerFunc(func(params noodle_auth.GetAuthSessionParams, principal *models.Principal) middleware.Responder {
+		return HandlerGetSession(db, params, principal)
+	})
 }
 
 var (
@@ -142,4 +146,12 @@ func TokenAuthHandler(db database.Database, token string) (*models.Principal, er
 
 	prin := models.Principal(token)
 	return &prin, nil
+}
+
+func HandlerGetSession(db database.Database, params noodle_auth.GetAuthSessionParams, principal *models.Principal) middleware.Responder {
+	session, err := db.Tables().UserSessionTable().GetToken(params.Token)
+	if err != nil {
+		return noodle_auth.NewGetAuthSessionConflict().WithPayload(&models.Error{Message: fmt.Sprintf("Database Error %s", err.Error())})
+	}
+	return noodle_auth.NewGetAuthSessionOK().WithPayload(&session)
 }

@@ -36,7 +36,9 @@
     "@material/mwc-textarea": "^0.27.0",
     "@material/mwc-textfield": "^0.27.0",
     "@material/mwc-top-app-bar": "^0.27.0",
+    "@material/mwc-top-app-bar-fixed": "^0.27.0",
     "@material/typography": "^14.0.0",
+    "@vaadin/router": "^1.7.4",
     "lit": "^2.0.2"
   },
   "devDependencies": {
@@ -45,7 +47,6 @@
     "@open-wc/building-rollup": "^2.0.2",
     "@open-wc/eslint-config": "^9.2.1",
     "@open-wc/testing": "^3.1.6",
-    "@pwrs/lit-css": "^2.0.0",
     "@rollup/plugin-alias": "^4.0.3",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-node-resolve": "^13.0.6",
@@ -66,7 +67,6 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.60.0",
     "rollup-plugin-esbuild": "^5.0.0",
-    "rollup-plugin-lit-css": "^4.0.1",
     "rollup-plugin-workbox": "^6.2.0",
     "root": "github:bennypowers/lit-css",
     "tslib": "^2.3.1",

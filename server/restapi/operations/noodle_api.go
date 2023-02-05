@@ -65,6 +65,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		NoodleAuthGetAuthLogoutHandler: noodle_auth.GetAuthLogoutHandlerFunc(func(params noodle_auth.GetAuthLogoutParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_auth.GetAuthLogout has not yet been implemented")
 		}),
+		NoodleAuthGetAuthSessionHandler: noodle_auth.GetAuthSessionHandlerFunc(func(params noodle_auth.GetAuthSessionParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_auth.GetAuthSession has not yet been implemented")
+		}),
 		KubernetesGetHealthzHandler: kubernetes.GetHealthzHandlerFunc(func(params kubernetes.GetHealthzParams) middleware.Responder {
 			return middleware.NotImplemented("operation kubernetes.GetHealthz has not yet been implemented")
 		}),
@@ -91,6 +94,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		}),
 		NoodleAPIGetNoodleTabsHandler: noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleTabs has not yet been implemented")
+		}),
+		NoodleAPIGetNoodleUserAllowedApplicationsHandler: noodle_api.GetNoodleUserAllowedApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserAllowedApplicationsParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleUserAllowedApplications has not yet been implemented")
 		}),
 		NoodleAPIGetNoodleUserApplicationsHandler: noodle_api.GetNoodleUserApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleUserApplications has not yet been implemented")
@@ -192,6 +198,8 @@ type NoodleAPI struct {
 	NoodleAPIDeleteNoodleUserApplicationsHandler noodle_api.DeleteNoodleUserApplicationsHandler
 	// NoodleAuthGetAuthLogoutHandler sets the operation handler for the get auth logout operation
 	NoodleAuthGetAuthLogoutHandler noodle_auth.GetAuthLogoutHandler
+	// NoodleAuthGetAuthSessionHandler sets the operation handler for the get auth session operation
+	NoodleAuthGetAuthSessionHandler noodle_auth.GetAuthSessionHandler
 	// KubernetesGetHealthzHandler sets the operation handler for the get healthz operation
 	KubernetesGetHealthzHandler kubernetes.GetHealthzHandler
 	// NoodleAPIGetNoodleAppTemplatesHandler sets the operation handler for the get noodle app templates operation
@@ -210,6 +218,8 @@ type NoodleAPI struct {
 	NoodleAPIGetNoodleLdapReloadHandler noodle_api.GetNoodleLdapReloadHandler
 	// NoodleAPIGetNoodleTabsHandler sets the operation handler for the get noodle tabs operation
 	NoodleAPIGetNoodleTabsHandler noodle_api.GetNoodleTabsHandler
+	// NoodleAPIGetNoodleUserAllowedApplicationsHandler sets the operation handler for the get noodle user allowed applications operation
+	NoodleAPIGetNoodleUserAllowedApplicationsHandler noodle_api.GetNoodleUserAllowedApplicationsHandler
 	// NoodleAPIGetNoodleUserApplicationsHandler sets the operation handler for the get noodle user applications operation
 	NoodleAPIGetNoodleUserApplicationsHandler noodle_api.GetNoodleUserApplicationsHandler
 	// NoodleAPIGetNoodleUserGroupsHandler sets the operation handler for the get noodle user groups operation
@@ -332,6 +342,9 @@ func (o *NoodleAPI) Validate() error {
 	if o.NoodleAuthGetAuthLogoutHandler == nil {
 		unregistered = append(unregistered, "noodle_auth.GetAuthLogoutHandler")
 	}
+	if o.NoodleAuthGetAuthSessionHandler == nil {
+		unregistered = append(unregistered, "noodle_auth.GetAuthSessionHandler")
+	}
 	if o.KubernetesGetHealthzHandler == nil {
 		unregistered = append(unregistered, "kubernetes.GetHealthzHandler")
 	}
@@ -358,6 +371,9 @@ func (o *NoodleAPI) Validate() error {
 	}
 	if o.NoodleAPIGetNoodleTabsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleTabsHandler")
+	}
+	if o.NoodleAPIGetNoodleUserAllowedApplicationsHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleUserAllowedApplicationsHandler")
 	}
 	if o.NoodleAPIGetNoodleUserApplicationsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleUserApplicationsHandler")
@@ -521,6 +537,10 @@ func (o *NoodleAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/auth/session"] = noodle_auth.NewGetAuthSession(o.context, o.NoodleAuthGetAuthSessionHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/healthz"] = kubernetes.NewGetHealthz(o.context, o.KubernetesGetHealthzHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -554,6 +574,10 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/noodle/tabs"] = noodle_api.NewGetNoodleTabs(o.context, o.NoodleAPIGetNoodleTabsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/noodle/user-allowed-applications"] = noodle_api.NewGetNoodleUserAllowedApplications(o.context, o.NoodleAPIGetNoodleUserAllowedApplicationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

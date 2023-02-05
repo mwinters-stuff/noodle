@@ -45,6 +45,7 @@ func (suite *UserApplicationsHandlersTestSuite) SetupTest() {
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserApplicationsHandler)
 	require.NotNil(suite.T(), suite.api.NoodleAPIPostNoodleUserApplicationsHandler)
 	require.NotNil(suite.T(), suite.api.NoodleAPIDeleteNoodleUserApplicationsHandler)
+	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserAllowedApplicationsHandler)
 }
 
 func (suite *UserApplicationsHandlersTestSuite) TearDownTest() {
@@ -203,6 +204,72 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsDelet
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(409).Once()
 	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserAllowedApplicationsGet() {
+	suite.mockUserApplicationsTable.EXPECT().GetUserAllowdApplications(int64(1)).Return([]*models.UsersApplicationItem{
+		{
+			Application: &models.Application{
+				Description:    "application_tab_1",
+				Enhanced:       false,
+				Icon:           "string",
+				ID:             2,
+				License:        "string",
+				Name:           "applicationtab1",
+				TemplateAppid:  "",
+				TileBackground: "string",
+				Website:        "string",
+			},
+			DisplayOrder: 0,
+			TabID:        1,
+		},
+		{
+			Application: &models.Application{
+				Description:    "user custom app",
+				Enhanced:       false,
+				Icon:           "string",
+				ID:             1,
+				License:        "string",
+				Name:           "usercustomapp",
+				TemplateAppid:  "",
+				TileBackground: "string",
+				Website:        "string",
+			},
+			DisplayOrder: 6,
+			TabID:        1,
+		},
+	}, nil)
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewGetNoodleUserAllowedApplicationsParams()
+	params.UserID = 1
+	response := suite.api.NoodleAPIGetNoodleUserAllowedApplicationsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(200).Once()
+
+	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"application_tab_1","Icon":"string","Id":2,"License":"string","Name":"applicationtab1","TileBackground":"string","Website":"string"},"TabId":1},{"Application":{"Description":"user custom app","Icon":"string","Id":1,"License":"string","Name":"usercustomapp","TileBackground":"string","Website":"string"},"DisplayOrder":6,"TabId":1}]`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserAllowedApplicationsGetError() {
+	suite.mockUserApplicationsTable.EXPECT().GetUserAllowdApplications(int64(1)).Return([]*models.UsersApplicationItem{}, errors.New("failed"))
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewGetNoodleUserAllowedApplicationsParams()
+	params.UserID = 1
+	response := suite.api.NoodleAPIGetNoodleUserAllowedApplicationsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(409).Once()
+	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
+
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
 

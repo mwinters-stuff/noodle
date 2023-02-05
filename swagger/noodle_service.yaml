@@ -95,6 +95,33 @@ paths:
         - noodle-auth
       security: 
        - token: []
+  /auth/session:
+    get:
+      description: Get Session for Token
+      produces:
+      - application/json
+      parameters:
+        - name: token
+          required: true
+          in: query
+          type: string
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/user_session'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-auth
+      security: 
+       - token: []
 
   /noodle/users:
     get:
@@ -501,6 +528,35 @@ paths:
        - remote-user: []
        - token: []
 
+  /noodle/user-allowed-applications:
+    get:
+      description: Gets the list of the applications the user can see
+      produces:
+      - application/json
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/users_applications'
+        '401':
+          description: unauthorized
+          schema:
+            $ref: "#/definitions/error"
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+       - remote-user: []
+       - token: []
+
   /noodle/group-applications:
     get:
       description: Gets the list of group applications 
@@ -872,15 +928,7 @@ definitions:
         type: string
       SHA:
         type: string
-  app_list:
-    type: object
-    properties:
-      AppCount:
-        type: integer
-      Apps:
-        type: array
-        items:
-          $ref: "#/definitions/application_template"
+
   user_session:
     type: object
     properties:
@@ -906,4 +954,20 @@ definitions:
       password:
         type: string
         format: password
-  
+  users_application_item:
+    type: object
+    properties:
+      TabId: 
+        type: integer
+        format: int64
+      DisplayOrder: 
+        type: integer
+        format: int64
+      Application:
+        $ref: "#/definitions/application"
+
+  users_applications:
+    type: array
+    items:
+      $ref: "#/definitions/users_application_item"
+

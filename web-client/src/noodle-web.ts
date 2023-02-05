@@ -1,115 +1,68 @@
-import { LitElement, html, css } from 'lit';
-import { property, customElement, query } from 'lit/decorators.js';
+import { html, css } from 'lit';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Commands, Context, Router } from '@vaadin/router';
+import { customElement } from 'lit/decorators.js';
 
-import '@material/mwc-button';
-import '@material/mwc-textfield';
-import * as mwcTextfield from '@material/mwc-textfield';
-import {
-  Api,
-  UserLogin,
-  UserSession,
-  Error,
-  HttpResponse,
-} from './noodleApi.js';
+import './noodle-login.js';
+import './noodle-dash.js';
+import { NoodleAuthenticatedBase } from './noodle-authenticated-base.js';
 
 @customElement('noodle-web')
-export class NoodleWeb extends LitElement {
-  @property({ type: String }) header = 'Noodle';
-
-  @query('#username')
-  _usernameField!: mwcTextfield.TextField;
-
-  @query('#password')
-  _passwordField!: mwcTextfield.TextField;
-
-  @property({ type: String }) _errorMessage: string = '';
-
+export class NoodleWeb extends NoodleAuthenticatedBase {
   static styles = css`
     :host {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-center;
-      max-width: 960px;
-      margin: 0 auto;
-      text-align: center;
-      background-color: var(--noodle-web-background-color);
+      display: block;
+      border-width: 0;
+      width: 100%;
+      height: 100%;
     }
-
     main {
-      flex-grow: 1;
-    }
-    div.middle {
-      max-width: 400px;
-      display: flex;
-      align-items: center;
-      flex-direction: column;
-    }
-    mwc-textfield {
-      /* margin-top: 30px; */
-      margin-bottom: 16px;
-    }
-    div.error {
-      margin-top: 10px;
-      // color: var(--red)
+      width: 100%;
+      height: 100%;
+      border-width: 0;
+      box-sizing: border-box;
     }
   `;
 
-  firstUpdated() {
-    // const userNameText = this.shadowRoot!.getElementById('username');
-    // const passwordText = this.shadowRoot!.getElementById('password');
-    // const loginButton = this.shadowRoot!.getElementById('login-button');
-    // loginButton?.onClick()
+  activeRoute: string = '';
+
+  params: string = '';
+
+  query: string = '';
+
+  data: string = '';
+
+  static async logout(context: Context, commands: Commands) {
+    const response =
+      await NoodleAuthenticatedBase.getAuthenticatedApi().auth.logoutList();
+    if (response.error != null) {
+      console.error(response.error);
+      // this._errorMessage = value.error.message ?? 'Unknown Error';
+    }
+    document.cookie =
+      'noodle-auth=; expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure';
+
+    return commands.redirect('/login'); // pass to the next route in the list
   }
 
-  login() {
-    // const userNameText = this.shadowRoot!.getElementById('username');
-    // const passwordText = this.shadowRoot!.getElementById('password');
-    this._errorMessage = '';
-    console.log(this._usernameField.value);
-    console.log(this._passwordField.value);
-
-    const api = new Api();
-    const userLogin: UserLogin = {
-      username: this._usernameField.value,
-      password: this._passwordField.value,
-    };
-    api.auth
-      .authenticateCreate(userLogin)
-      .then((value: HttpResponse<UserSession, Error>) => {
-        if (value.error != null) {
-          console.error(value.error);
-          this._errorMessage = value.error.message ?? 'Unknown Error';
-        } else if (value.ok) {
-          console.log(value.data.Expires);
-        }
-      })
-      .catch(reason => {
-        console.error(reason.error.message);
-        this._errorMessage = reason.error.message;
-      });
+  firstUpdated() {
+    super.firstUpdated();
+    const router = new Router(this.shadowRoot!.querySelector('main'));
+    router.setRoutes([
+      { path: '/dash', component: 'noodle-dash' },
+      { path: '/login', component: 'noodle-login' },
+      { path: '/logout', action: NoodleWeb.logout },
+      {
+        path: '(.*)',
+        redirect: '/dash',
+      },
+    ]);
+    if (!NoodleAuthenticatedBase.IsAuthenticated()) {
+      Router.go(`/login`);
+    }
   }
 
   render() {
-    return html`
-      <main>
-        <div align="center" class="middle">
-          <img width="250px" height="250px" src="../../assets/noodle-icon.svg" alt="Noodle Logo"></img>
-          <div class="mdc-typography--headline1" >${this.header}</div>
-          <mwc-textfield  outlined id="username" minlength="3" maxlength="64" label="Username" required>
-          </mwc-textfield>
-      
-          <mwc-textfield  outlined id="password" minlength="3" maxlength="64" label="Password" required type="password">
-          </mwc-textfield>
-      
-          <mwc-button id="login-button" raised slot="primaryAction" @click=${() =>
-            this.login()}>
-            Login
-          </mwc-button>
-          <div class="error">${this._errorMessage}</div>
-        </div>
-      </main>
-    `;
+    return html` <main></main> `;
   }
 }

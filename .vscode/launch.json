@@ -9,7 +9,7 @@
       "name": "Run npm start",
       "request": "launch",
       "type": "node-terminal",
-      "cwd": "${workspaceFolder}/web-client"
+      "cwd": "${workspaceFolder}/web-client",
     },
     {
       "name": "Launch Server Package",
@@ -17,7 +17,12 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/server/cmd/noodle-server/main.go",
-      "args": ["--port","8080", "--config", "${workspaceFolder}/noodle.yaml"]
+      "args": [
+        "--port",
+        "8081",
+        "--config",
+        "${workspaceFolder}/noodle.yaml"
+      ]
     },
     {
       "name": "Launch Server Package Dropping Tables",
@@ -25,7 +30,13 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceFolder}/server/cmd/noodle-server/main.go",
-      "args": ["--port","8080", "--config", "${workspaceFolder}/noodle.yaml", "--drop"]
+      "args": [
+        "--port",
+        "8081",
+        "--config",
+        "${workspaceFolder}/noodle.yaml",
+        "--drop"
+      ]
     }
   ]
 }

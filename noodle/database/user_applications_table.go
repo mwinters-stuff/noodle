@@ -18,6 +18,19 @@ const userApplicationsTableDrop = `DROP TABLE user_applications`
 const userApplicationsTableDeleteRow = `DELETE FROM user_applications WHERE id = $1`
 const userApplicationsTableQueryAll = `SELECT ua.id, app.id, app.name,app.website,app.license,app.description,app.enhanced,app.tilebackground,app.icon FROM user_applications ua, applications app WHERE ua.userid = $1 AND app.id = ua.applicationid`
 
+const userAllowedQuery = `SELECT d.tabid, d.displayorder, a.id as application_id,a.name,a.website,a.license,a.description,a.enhanced,a.tilebackground,a.icon
+FROM applications a ,
+(
+  SELECT ua.applicationid, at.tabid, at.displayorder FROM user_applications ua, application_tabs at WHERE at.applicationid = ua.applicationid AND userid = $1
+  UNION
+  SELECT ga.applicationid, at.tabid, at.displayorder FROM user_groups ug, group_applications ga, application_tabs at WHERE at.applicationid = ga.applicationid AND ga.groupid = ug.groupid AND userid = $1
+  UNION
+  SELECT applicationid, tabid, displayorder FROM application_tabs at WHERE at.applicationid NOT IN (SELECT applicationid  FROM user_applications UNION select applicationid FROM group_applications)
+) as d
+WHERE a.id = d.applicationid
+ORDER BY d.tabid, d.displayorder;
+`
+
 var (
 	NewUserApplicationsTable = NewUserApplicationsTableImpl
 )
@@ -32,10 +45,47 @@ type UserApplicationsTable interface {
 	Delete(id int64) error
 
 	GetUserApps(userid int64) ([]*models.UserApplications, error)
+
+	GetUserAllowdApplications(userid int64) (models.UsersApplications, error)
 }
 
 type UserApplicationsTableImpl struct {
 	database Database
+}
+
+// GetUserAllowdApplications implements UserApplicationsTable
+func (i *UserApplicationsTableImpl) GetUserAllowdApplications(userid int64) (models.UsersApplications, error) {
+	rows, err := i.database.Pool().Query(context.Background(), userAllowedQuery, userid)
+	if err != nil {
+		return nil, err
+	}
+	applist := models.UsersApplications{}
+	var applicationid, tabid, displayorder int64
+	var name, website, license, description, tilebackground, icon string
+	var enhanced bool
+	_, err = pgx.ForEachRow(rows, []any{
+		&tabid,
+		&displayorder,
+		&applicationid,
+		&name,
+		&website,
+		&license,
+		&description,
+		&enhanced,
+		&tilebackground,
+		&icon,
+	}, func() error {
+
+		applist = append(applist, &models.UsersApplicationItem{
+			Application:  &models.Application{ID: applicationid, Name: name, Website: website, License: license, Description: description, Enhanced: enhanced, TileBackground: tilebackground, Icon: icon},
+			DisplayOrder: displayorder,
+			TabID:        tabid,
+		})
+		return nil
+	})
+
+	return applist, err
+
 }
 
 // Drop implements UserApplicationsTable

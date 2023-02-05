@@ -74,9 +74,11 @@ func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.
 	heimdall := heimdall.NewHeimdall(db)
 
 	if !created {
+		Logger.Info().Msg("Initial Load from LDAP")
 		if err := api_handlers.LDAPRefresh(db, ldap); err != nil {
 			return nil, nil, nil, err
 		}
+		Logger.Info().Msg("Initial Load from Heimdall")
 		if err := heimdall.UpdateFromServer(); err != nil {
 			return nil, nil, nil, err
 		}

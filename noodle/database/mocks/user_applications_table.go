@@ -129,6 +129,52 @@ func (_c *UserApplicationsTable_Drop_Call) Return(_a0 error) *UserApplicationsTa
 	return _c
 }
 
+// GetUserAllowdApplications provides a mock function with given fields: userid
+func (_m *UserApplicationsTable) GetUserAllowdApplications(userid int64) (models.UsersApplications, error) {
+	ret := _m.Called(userid)
+
+	var r0 models.UsersApplications
+	if rf, ok := ret.Get(0).(func(int64) models.UsersApplications); ok {
+		r0 = rf(userid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.UsersApplications)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int64) error); ok {
+		r1 = rf(userid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserApplicationsTable_GetUserAllowdApplications_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetUserAllowdApplications'
+type UserApplicationsTable_GetUserAllowdApplications_Call struct {
+	*mock.Call
+}
+
+// GetUserAllowdApplications is a helper method to define mock.On call
+//   - userid int64
+func (_e *UserApplicationsTable_Expecter) GetUserAllowdApplications(userid interface{}) *UserApplicationsTable_GetUserAllowdApplications_Call {
+	return &UserApplicationsTable_GetUserAllowdApplications_Call{Call: _e.mock.On("GetUserAllowdApplications", userid)}
+}
+
+func (_c *UserApplicationsTable_GetUserAllowdApplications_Call) Run(run func(userid int64)) *UserApplicationsTable_GetUserAllowdApplications_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(int64))
+	})
+	return _c
+}
+
+func (_c *UserApplicationsTable_GetUserAllowdApplications_Call) Return(_a0 models.UsersApplications, _a1 error) *UserApplicationsTable_GetUserAllowdApplications_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
 // GetUserApps provides a mock function with given fields: userid
 func (_m *UserApplicationsTable) GetUserApps(userid int64) ([]*models.UserApplications, error) {
 	ret := _m.Called(userid)

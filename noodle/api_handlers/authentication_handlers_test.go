@@ -467,6 +467,51 @@ func (suite *AuthenticationHandlersTestSuite) TestRandTokenOk() {
 	require.Len(suite.T(), random, 128)
 }
 
+func (suite *AuthenticationHandlersTestSuite) TestHandlerGetSessionGet() {
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockTables.EXPECT().UserSessionTable().Once().Return(suite.mockUserSessionTable)
+	suite.mockUserSessionTable.EXPECT().GetToken("ABCDEF").Return(models.UserSession{
+		ID:      100,
+		UserID:  2,
+		Token:   "ABCDEF",
+		Issued:  strfmt.NewDateTime(),
+		Expires: strfmt.NewDateTime(),
+	}, nil)
+
+	pr := models.Principal("")
+
+	params := noodle_auth.NewGetAuthSessionParams()
+	params.Token = "ABCDEF"
+	response := suite.api.NoodleAuthGetAuthSessionHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(200).Once()
+
+	mockWriter.EXPECT().Write([]byte(`{"Expires":"1970-01-01T00:00:00.000Z","Id":100,"Issued":"1970-01-01T00:00:00.000Z","Token":"ABCDEF","UserId":2}`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *AuthenticationHandlersTestSuite) TestHandlerGetSessionGetError() {
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockTables.EXPECT().UserSessionTable().Once().Return(suite.mockUserSessionTable)
+	suite.mockUserSessionTable.EXPECT().GetToken("ABCDEF").Return(models.UserSession{}, errors.New("failed"))
+
+	pr := models.Principal("")
+
+	params := noodle_auth.NewGetAuthSessionParams()
+	params.Token = "ABCDEF"
+	response := suite.api.NoodleAuthGetAuthSessionHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(409).Once()
+	mockWriter.EXPECT().Write([]byte(`{"message":"Database Error failed"}`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
 func TestAuthenticationHandlersTestSuite(t *testing.T) {
 	suite.Run(t, new(AuthenticationHandlersTestSuite))
 }

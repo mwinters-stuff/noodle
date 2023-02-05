@@ -3,7 +3,7 @@ postgres:
   password: postgres
   db: postgres
   hostname: localhost
-  port: 5432
+  port: 15432
 ldap:
   url: ldap://192.168.30.23
   base_dn: dc=winters,dc=nz
