@@ -6,9 +6,23 @@
 	"service": "app",
 	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
 	"features": {
-		"ghcr.io/devcontainers/features/go:1": {},
-		"ghcr.io/devcontainers/features/node:1": {},
-		"ghcr.io/devcontainers-contrib/features/typescript:2": {}
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/node:1": {
+			"nodeGypDependencies": true,
+			"version": "lts"
+		},
+		"ghcr.io/devcontainers-contrib/features/typescript:2": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/java:1": {
+			"version": "latest",
+			"jdkDistro": "ms",
+			"gradleVersion": "latest",
+			"mavenVersion": "latest",
+			"antVersion": "latest"
+		}
 	},
 	"customizations": {
 		"vscode": {
@@ -22,31 +36,27 @@
 	},
 	// "runArgs": [ "--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined" ],
 	"containerEnv": {
-		"TZ":"Pacific/Auckland"
+		"TZ": "Pacific/Auckland"
 	},
 	"mounts": [
 		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh"
 	],
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
-
 	// Configure tool-specific properties.
 	// "customizations": {},
-
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [5432],
-
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": {
 		"pgmockproxy": "go install github.com/jackc/pgmock/pgmockproxy",
 		"mockery": "go get github.com/vektra/mockery/v2@latest",
-		"go-junit-report-1":"go get  github.com/jstemmer/go-junit-report",
-		"go-junit-report-2":"go install  github.com/jstemmer/go-junit-report",
-		"gcov2lcov":"go install github.com/jandelgado/gcov2lcov@latest"
+		"go-junit-report-1": "go get  github.com/jstemmer/go-junit-report",
+		"go-junit-report-2": "go install  github.com/jstemmer/go-junit-report",
+		"gcov2lcov": "go install github.com/jandelgado/gcov2lcov@latest",
+		"openapigen": "npm install @openapitools/openapi-generator-cli -g"
 	},
-
 	"remoteUser": "vscode"
-
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
 }

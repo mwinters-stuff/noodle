@@ -424,6 +424,46 @@ func (suite *UserApplicationsTableTestSuite) TestGetUserAllowedApps() {
 
 }
 
+func (suite *UserApplicationsTableTestSuite) TestGetUserAllowedAppsError() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_3","Query":"SELECT d.tabid, d.displayorder, a.id as application_id,a.name,a.website,a.license,a.description,a.enhanced,a.tilebackground,a.icon\nFROM applications a ,\n(\n  SELECT ua.applicationid, at.tabid, at.displayorder FROM user_applications ua, application_tabs at WHERE at.applicationid = ua.applicationid AND userid = $1\n  UNION\n  SELECT ga.applicationid, at.tabid, at.displayorder FROM user_groups ug, group_applications ga, application_tabs at WHERE at.applicationid = ga.applicationid AND ga.groupid = ug.groupid AND userid = $1\n  UNION\n  SELECT applicationid, tabid, displayorder FROM application_tabs at WHERE at.applicationid NOT IN (SELECT applicationid  FROM user_applications UNION select applicationid FROM group_applications)\n) as d\nWHERE a.id = d.applicationid\nORDER BY d.tabid, d.displayorder;\n","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_3"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[23]}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"tabid","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0},{"Name":"displayorder","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0},{"Name":"application_id","TableOID":36653,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":0},{"Name":"name","TableOID":36653,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"website","TableOID":36653,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0},{"Name":"license","TableOID":36653,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"description","TableOID":36653,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":1004,"Format":0},{"Name":"enhanced","TableOID":36653,"TableAttributeNumber":7,"DataTypeOID":16,"DataTypeSize":1,"TypeModifier":-1,"Format":0},{"Name":"tilebackground","TableOID":36653,"TableAttributeNumber":8,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0},{"Name":"icon","TableOID":36653,"TableAttributeNumber":9,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0}]}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_3","ParameterFormatCodes":[1],"Parameters":[{"binary":"00000004"}],"ResultFormatCodes":[1,1,1,0,0,0,0,1,0,0]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"RowDescription","Fields":[{"Name":"tabid","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1},{"Name":"displayorder","TableOID":0,"TableAttributeNumber":0,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1},{"Name":"application_id","TableOID":36653,"TableAttributeNumber":1,"DataTypeOID":23,"DataTypeSize":4,"TypeModifier":-1,"Format":1},{"Name":"name","TableOID":36653,"TableAttributeNumber":3,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":54,"Format":0},{"Name":"website","TableOID":36653,"TableAttributeNumber":4,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0},{"Name":"license","TableOID":36653,"TableAttributeNumber":5,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":104,"Format":0},{"Name":"description","TableOID":36653,"TableAttributeNumber":6,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":1004,"Format":0},{"Name":"enhanced","TableOID":36653,"TableAttributeNumber":7,"DataTypeOID":16,"DataTypeSize":1,"TypeModifier":-1,"Format":1},{"Name":"tilebackground","TableOID":36653,"TableAttributeNumber":8,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0},{"Name":"icon","TableOID":36653,"TableAttributeNumber":9,"DataTypeOID":1043,"DataTypeSize":-1,"TypeModifier":260,"Format":0}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000001"},{"binary":"00000000"},{"binary":"00000002"},{"text":"applicationtab1"},{"text":"string"},{"text":"string"},{"text":"application_tab_1"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000001"},{"binary":"00000006"},{"binary":"00000001"},{"text":"usercustomapp"},{"text":"string"},{"text":"string"},{"text":"user custom app"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000002"},{"binary":"00000000"},{"binary":"00000003"},{"text":"applicationtab2"},{"text":"string"},{"text":"string"},{"text":"application_tab_2"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000002"},{"binary":"00000002"},{"binary":"00000006"},{"text":"application2"},{"text":"string"},{"text":"string"},{"text":"application_2"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000003"},{"binary":"00000000"},{"binary":"00000004"},{"text":"applicationtab3"},{"text":"string"},{"text":"string"},{"text":"application_tab_3"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000003"},{"binary":"00000001"},{"binary":"00000005"},{"text":"application1"},{"text":"string"},{"text":"string"},{"text":"application_1"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"DataRow","Values":[{"binary":"00000003"},{"binary":"00000002"},{"binary":"00000007"},{"text":"application3"},{"text":"string"},{"text":"string"},{"text":"application_3"},{"binary":"00"},{"text":"string"},{"text":"string"}]}`,
+		`B {"Type":"CommandComplete","CommandTag":"SELECT 7"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+
+	table := database.NewUserApplicationsTable(db)
+	db.Close()
+	_, err = table.GetUserAllowdApplications(1)
+	require.Error(suite.T(), err)
+
+}
+
 func TestUserApplicationsTableSuite(t *testing.T) {
 	suite.Run(t, new(UserApplicationsTableTestSuite))
 }

@@ -11,6 +11,7 @@ import (
 
 var (
 	RegisterLdapApiHandlers = RegisterLdapApiHandlersImpl
+	LDAPRefresh             = LDAPRefreshImpl
 )
 
 func SyncLDAPUsers(db database.Database, ldap ldap_handler.LdapHandler) error {
@@ -183,7 +184,7 @@ func SyncLDAPUserGroups(db database.Database, ldap ldap_handler.LdapHandler) err
 	return nil
 }
 
-func LDAPRefresh(db database.Database, ldap ldap_handler.LdapHandler) error {
+func LDAPRefreshImpl(db database.Database, ldap ldap_handler.LdapHandler) error {
 
 	if err := SyncLDAPUsers(db, ldap); err != nil {
 		return err

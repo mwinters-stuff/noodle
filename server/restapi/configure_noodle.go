@@ -5,6 +5,7 @@ package restapi
 import (
 	"crypto/tls"
 	"net/http"
+	"strings"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -96,13 +97,25 @@ func configureServer(s *http.Server, scheme, addr string) {
 // The middleware configuration is for the handler executors. These do not apply to the swagger.json document.
 // The middleware executes after routing but before authentication, binding and validation.
 func setupMiddlewares(handler http.Handler) http.Handler {
-	return handler
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		Logger.Info().Msgf("Middlware %s", r.URL)
+		handler.ServeHTTP(w, r)
+	})
+	// return handler
 }
 
 // The middleware configuration happens before anything, this middleware also applies to serving the swagger.json document.
 // So this is a good place to plug in a panic handling middleware, logging and metrics.
 func setupGlobalMiddleware(handler http.Handler) http.Handler {
 	handleCORS := cors.AllowAll().Handler
-	return handleCORS(handler)
+
+	return handleCORS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api") || r.URL.Path == "/swagger.json" {
+			handler.ServeHTTP(w, r)
+		} else {
+			Logger.Info().Msgf("Serve %s", r.URL)
+			http.FileServer(http.Dir("/workspaces/noodle/web-client/dist/")).ServeHTTP(w, r)
+		}
+	}))
 
 }

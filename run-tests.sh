@@ -5,5 +5,5 @@ cat /tmp/test.out
 go tool cover -html coverage.out -o cover.html
 gcov2lcov -infile=coverage.out -outfile=coverage.lcov
 
-pushd noodlewebclient
-flutter test --coverage --reporter json | tee test.json
+# pushd noodlewebclient
+# flutter test --coverage --reporter json | tee test.json

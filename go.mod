@@ -18,7 +18,7 @@ require (
 	github.com/jessevdk/go-flags v1.5.0
 	github.com/rs/zerolog v1.28.0
 	github.com/stretchr/testify v1.8.1
-	github.com/vektra/mockery/v2 v2.16.0
+	github.com/vektra/mockery/v2 v2.18.0
 	golang.org/x/net v0.5.0
 )
 

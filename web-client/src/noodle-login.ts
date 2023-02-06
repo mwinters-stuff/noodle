@@ -2,19 +2,12 @@
 import { LitElement, html, css } from 'lit';
 import { property, customElement, query } from 'lit/decorators.js';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Router } from '@vaadin/router';
 
 import '@material/mwc-button';
 import '@material/mwc-textfield';
 import * as mwcTextfield from '@material/mwc-textfield';
-import {
-  Api,
-  UserLogin,
-  UserSession,
-  Error,
-  HttpResponse,
-} from './noodleApi.js';
+import { NoodleAuthApi, AuthAuthenticatePostRequest } from './api/index.js';
 
 @customElement('noodle-login')
 export class NoodleLogin extends LitElement {
@@ -65,26 +58,21 @@ export class NoodleLogin extends LitElement {
 
   login() {
     this._errorMessage = '';
+    const api = new NoodleAuthApi();
 
-    const api = new Api();
-    const userLogin: UserLogin = {
-      username: this._usernameField.value,
-      password: this._passwordField.value,
+    const params: AuthAuthenticatePostRequest = {
+      login: {
+        username: this._usernameField.value,
+        password: this._passwordField.value,
+      },
     };
-    api.auth
-      .authenticateCreate(userLogin)
-      .then((value: HttpResponse<UserSession, Error>) => {
-        if (value.error != null) {
-          console.error(value.error);
-          this._errorMessage = value.error.message ?? 'Unknown Error';
-        } else if (value.ok) {
-          const expires = new Date(
-            Date.parse(value.data.Expires!)
-          ).toUTCString();
 
-          document.cookie = `noodle-auth=${value.data.Token}; expires=${expires}; Secure`;
-          Router.go('/dash');
-        }
+    api
+      .authAuthenticatePost(params)
+      .then(value => {
+        const expires = value.expires?.toUTCString();
+        document.cookie = `noodle-auth=${value.token}; expires=${expires}; Secure`;
+        Router.go('/dash');
       })
       .catch(reason => {
         console.error(reason.error.message);

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
 	"github.com/mwinters-stuff/noodle/noodle/configure_server"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	database_mocks "github.com/mwinters-stuff/noodle/noodle/database/mocks"
@@ -109,6 +110,27 @@ func (suite *ConfigureServerTestSuite) TestConfigureAPI() {
 	require.Equal(suite.T(), suite.mockDatabase, db)
 	require.Equal(suite.T(), suite.mockLdap, ldap)
 	require.Equal(suite.T(), suite.mockHeimdall, heimdall)
+
+}
+
+func (suite *ConfigureServerTestSuite) TestConfigureAPIDropError() {
+	api := &operations.NoodleAPI{}
+
+	configure_server.NewConfigureServer().ConfigureFlags(api)
+	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
+	noodleOptions.Debug = true
+	noodleOptions.Drop = true
+
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockDatabase.EXPECT().Connect().Once().Return(nil)
+	suite.mockTables.EXPECT().InitTables(suite.mockDatabase).Once()
+	suite.mockDatabase.EXPECT().Drop().Once().Return(errors.New("failed"))
+
+	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
+	require.ErrorContains(suite.T(), err, "failed")
+	require.Nil(suite.T(), db)
+	require.Nil(suite.T(), ldap)
+	require.Nil(suite.T(), heimdall)
 
 }
 
@@ -378,6 +400,90 @@ func (suite *ConfigureServerTestSuite) TestConfigureAPIErrorDBUpgradeFailed() {
 		return suite.loghook.LastLevel == zerolog.ErrorLevel && suite.loghook.LastMsg == "failed"
 	}, time.Second, time.Millisecond*500)
 
+}
+
+func (suite *ConfigureServerTestSuite) TestConfigureAPIPreloadDBOK() {
+	api := &operations.NoodleAPI{}
+
+	configure_server.NewConfigureServer().ConfigureFlags(api)
+	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
+	noodleOptions.Debug = true
+	noodleOptions.Drop = true
+
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockDatabase.EXPECT().Connect().Once().Return(nil)
+	suite.mockTables.EXPECT().InitTables(suite.mockDatabase).Once()
+	suite.mockDatabase.EXPECT().Drop().Once().Return(nil)
+	suite.mockDatabase.EXPECT().CheckCreated().Once().Return(false, nil)
+	suite.mockDatabase.EXPECT().Create().Once().Return(nil)
+
+	suite.mockLdap.EXPECT().Connect().Once().Return(nil)
+	suite.mockHeimdall.EXPECT().UpdateFromServer().Once().Return(nil)
+
+	api_handlers.LDAPRefresh = func(db database.Database, ldap ldap_handler.LdapHandler) error { return nil }
+
+	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
+	require.Nil(suite.T(), err)
+
+	require.NotNil(suite.T(), db)
+	require.NotNil(suite.T(), ldap)
+	require.NotNil(suite.T(), heimdall)
+}
+
+func (suite *ConfigureServerTestSuite) TestConfigureAPIPreloadDBLdapFailed() {
+	api := &operations.NoodleAPI{}
+
+	configure_server.NewConfigureServer().ConfigureFlags(api)
+	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
+	noodleOptions.Debug = true
+	noodleOptions.Drop = true
+
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockDatabase.EXPECT().Connect().Once().Return(nil)
+	suite.mockTables.EXPECT().InitTables(suite.mockDatabase).Once()
+	suite.mockDatabase.EXPECT().Drop().Once().Return(nil)
+	suite.mockDatabase.EXPECT().CheckCreated().Once().Return(false, nil)
+	suite.mockDatabase.EXPECT().Create().Once().Return(nil)
+
+	suite.mockLdap.EXPECT().Connect().Once().Return(nil)
+	// suite.mockHeimdall.EXPECT().UpdateFromServer().Once().Return(nil)
+
+	api_handlers.LDAPRefresh = func(db database.Database, ldap ldap_handler.LdapHandler) error { return errors.New("failed") }
+
+	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
+	require.ErrorContains(suite.T(), err, "failed")
+
+	require.Nil(suite.T(), db)
+	require.Nil(suite.T(), ldap)
+	require.Nil(suite.T(), heimdall)
+}
+
+func (suite *ConfigureServerTestSuite) TestConfigureAPIPreloadDBHeimdallFailed() {
+	api := &operations.NoodleAPI{}
+
+	configure_server.NewConfigureServer().ConfigureFlags(api)
+	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
+	noodleOptions.Debug = true
+	noodleOptions.Drop = true
+
+	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
+	suite.mockDatabase.EXPECT().Connect().Once().Return(nil)
+	suite.mockTables.EXPECT().InitTables(suite.mockDatabase).Once()
+	suite.mockDatabase.EXPECT().Drop().Once().Return(nil)
+	suite.mockDatabase.EXPECT().CheckCreated().Once().Return(false, nil)
+	suite.mockDatabase.EXPECT().Create().Once().Return(nil)
+
+	suite.mockLdap.EXPECT().Connect().Once().Return(nil)
+	suite.mockHeimdall.EXPECT().UpdateFromServer().Once().Return(errors.New("failed"))
+
+	api_handlers.LDAPRefresh = func(db database.Database, ldap ldap_handler.LdapHandler) error { return nil }
+
+	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
+	require.ErrorContains(suite.T(), err, "failed")
+
+	require.Nil(suite.T(), db)
+	require.Nil(suite.T(), ldap)
+	require.Nil(suite.T(), heimdall)
 }
 
 func (suite *ConfigureServerTestSuite) TestConfigureFlags() {
