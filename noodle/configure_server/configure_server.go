@@ -1,8 +1,6 @@
 package configure_server
 
 import (
-	"os"
-
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/swag"
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
@@ -29,7 +27,6 @@ type ConfigureServer interface {
 type ConfigureServerImpl struct {
 }
 
-// ConfgureAPI implements ConfigureServer
 func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.Database, ldap_handler.LdapHandler, heimdall.Heimdall, error) {
 
 	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
@@ -41,22 +38,6 @@ func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	if noodleOptions.Debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
-	}
-
-	if noodleOptions.Config != "" {
-		yfile, err := os.ReadFile(noodleOptions.Config)
-		if err != nil {
-			Logger.Error().Msg(err.Error())
-			return nil, nil, nil, err
-		}
-
-		options, err := options.UnmarshalOptions(yfile)
-		if err != nil {
-			Logger.Error().Msg(err.Error())
-			return nil, nil, nil, err
-		}
-		*postgresOptions = options.PostgresOptions
-		*lDAPOptions = options.LDAPOptions
 	}
 
 	db, created, err := i.SetupDatabase(*postgresOptions, noodleOptions.Drop)
@@ -71,7 +52,7 @@ func (i *ConfigureServerImpl) ConfigureAPI(api *operations.NoodleAPI) (database.
 		return nil, nil, nil, err
 	}
 
-	heimdall := heimdall.NewHeimdall(db)
+	heimdall := heimdall.NewHeimdall(db, *noodleOptions)
 
 	if !created {
 		Logger.Info().Msg("Initial Load from LDAP")

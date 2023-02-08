@@ -131,14 +131,15 @@ export class NoodleWeb extends LitElement {
   firstUpdated() {
     const router = new Router(this.shadowRoot!.querySelector('main'));
     router.setRoutes([
+      { path: '/', component: 'noodle-dash' },
       { path: '/dash', component: 'noodle-dash' },
       { path: '/login', component: 'noodle-login' },
       { path: '/logout', action: this.logout },
       { path: '/user-applications', component: 'noodle-user-applications' },
-      {
-        path: '(.*)',
-        redirect: '/dash',
-      },
+      // {
+      //   path: /^(?!api.*$).*/,
+      //   redirect: '/dash',
+      // },
     ]);
     if (!NoodleWeb.IsAuthenticated()) {
       Router.go(`/login`);

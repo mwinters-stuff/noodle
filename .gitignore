@@ -25,3 +25,4 @@ cover.html
 coverage.lcov
 report.xml
 coverage.out
+server/cmd/noodle-server/__debug_bin

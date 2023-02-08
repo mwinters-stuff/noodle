@@ -3,11 +3,13 @@ package ldap_handler_test
 import (
 	"crypto/tls"
 	"errors"
+	"os"
 	"strconv"
 	"testing"
 	"time"
 
 	"github.com/go-ldap/ldap/v3"
+	"github.com/jessevdk/go-flags"
 	"github.com/mwinters-stuff/noodle/noodle/ldap_handler"
 	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/package-shims/ldap/mocks"
@@ -34,7 +36,7 @@ func (h *ldapHandlerLogHook) Run(e *zerolog.Event, l zerolog.Level, m string) {
 type LdapHandlerTestSuite struct {
 	suite.Suite
 	loghook     ldapHandlerLogHook
-	appConfig   options.AllNoodleOptions
+	ldapOptions options.LDAPOptions
 	mockLdap    *mocks.LdapShim
 	ldapHandler ldap_handler.LdapHandler
 }
@@ -43,37 +45,31 @@ func (suite *LdapHandlerTestSuite) SetupSuite() {
 	suite.loghook = ldapHandlerLogHook{}
 	ldap_handler.Logger = log.Hook(&suite.loghook).Output(nil)
 
-	yamltext := `
-postgres:
-  user: postgresuser
-  password: postgrespass
-  db: postgres
-  hostname: localhost
-  port: 5432
-ldap:
-  url: ldap://example.nz
-  base_dn: DC=example,DC=nz
-  username_attribute: uid
-  user_filter: (&(objectClass=organizationalPerson)(uid=%s))
-  all_users_filter: (objectclass=organizationalPerson)
-  all_groups_filter: (objectclass=groupOfUniqueNames)
-  user_groups_filter: (&(uniquemember=%s)(objectclass=groupOfUniqueNames))
-  group_users_filter: (&(objectClass=groupOfUniqueNames)(cn=%s))
-  group_name_attribute: cn
-  user_display_name_attribute: displayName
-  user: CN=readonly,DC=example,DC=nz
-  password: readonly
-  group_member_attribute: uniqueMember
-`
-	var err error
+	os.Setenv("NOODLE_LDAP_URL", "ldap://example.nz")
+	os.Setenv("NOODLE_LDAP_BASE_DN", "DC=example,DC=nz")
+	os.Setenv("NOODLE_LDAP_USER", "CN=readonly,DC=example,DC=nz")
+	os.Setenv("NOODLE_LDAP_PASSWORD", "readonly")
 
-	suite.appConfig, err = options.UnmarshalOptions([]byte(yamltext))
+	os.Setenv("NOODLE_LDAP_USER_FILTER", "(&(objectClass=organizationalPerson)(uid=%s))")
+	os.Setenv("NOODLE_LDAP_ALL_USERS_FILTER", "(objectclass=organizationalPerson)")
+	os.Setenv("NOODLE_LDAP_ALL_GROUPS_FILTER", "(objectclass=groupOfUniqueNames)")
+	os.Setenv("NOODLE_LDAP_USER_GROUPS_FILTER", "(&(uniquemember=%s)(objectclass=groupOfUniqueNames))")
+	os.Setenv("NOODLE_LDAP_GROUP_USERS_FILTER", "(&(objectClass=groupOfUniqueNames)(cn=%s))")
+	os.Setenv("NOODLE_LDAP_USERNAME_ATTRIBUTE", "uid")
+	os.Setenv("NOODLE_LDAP_GROUP_NAME_ATTRIBUTE", "cn")
+	os.Setenv("NOODLE_LDAP_USER_DISPLAY_NAME_ATTRIBUTE", "displayName")
+	os.Setenv("NOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE", "uniqueMember")
+
+	parser := flags.NewParser(&suite.ldapOptions, flags.IgnoreUnknown)
+	_, err := parser.Parse()
+
 	require.NoError(suite.T(), err)
 
 }
+
 func (suite *LdapHandlerTestSuite) SetupTest() {
 	suite.mockLdap = mocks.NewLdapShim(suite.T())
-	suite.ldapHandler = ldap_handler.NewLdapHandler(suite.mockLdap, suite.appConfig.LDAPOptions)
+	suite.ldapHandler = ldap_handler.NewLdapHandler(suite.mockLdap, suite.ldapOptions)
 }
 
 func (suite *LdapHandlerTestSuite) TearDownTest() {
@@ -1103,80 +1099,3 @@ func (suite *LdapHandlerTestSuite) TestGetUsersError() {
 func TestLDAPHandlerSuite(t *testing.T) {
 	suite.Run(t, new(LdapHandlerTestSuite))
 }
-
-// func TestCheck(t *testing.T) {
-// 	// The username and password we want to check
-// 	// username := "jessica"
-// 	// password := "harperismydog"
-
-// 	bindusername := "cn=readonly,dc=winters,dc=nz"
-// 	bindpassword := "readonly"
-
-// 	l, err := ldap.DialURL("ldap://192.168.30.23:389")
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	defer l.Close()
-
-// 	// Reconnect with TLS
-// 	err = l.StartTLS(&tls.Config{InsecureSkipVerify: true})
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	// First bind with a read only user
-// 	err = l.Bind(bindusername, bindpassword)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	// Search for the given username
-// 	searchRequest := ldap.NewSearchRequest(
-// 		"cn=jenkins,ou=groups,dc=winters,dc=nz",
-// 		ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-// 		, // ldap.EscapeFilter("cn=jenkins,ou=groups,dc=winters,dc=nz")),
-// 		[]string{"dn", "cn", "uniqueMember"},
-// 		nil,
-// 	)
-
-// 	sr, err := l.Search(searchRequest)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	for _, e := range sr.Entries {
-// 		e.PrettyPrint(2)
-// 	}
-
-// 	// sr.Entries[0].PrettyPrint(2)
-// 	// log.Print(sr.Entries[0], userdn)
-// 	// // Bind as the user to verify their password
-// 	// err = l.Bind(userdn, password)
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// // Rebind as the read only user for any further queries
-// 	// err = l.Bind(bindusername, bindpassword)
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// searchRequest = ldap.NewSearchRequest(
-// 	// 	"dc=winters,dc=nz", // The base dn to search
-// 	// 	ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
-// 	// 	fmt.Sprintf("(&(uniquemember=%s)(objectclass=groupOfUniqueNames))", "*"), // The filter to apply
-// 	// 	[]string{"dn", "cn", "uniqueMember"},                                     // A list attributes to retrieve
-// 	// 	nil,
-// 	// )
-
-// 	// sr, err = l.Search(searchRequest)
-// 	// if err != nil {
-// 	// 	log.Fatal(err)
-// 	// }
-
-// 	// for _, e := range sr.Entries {
-// 	// 	e.PrettyPrint(2)
-// 	// }
-
-// }

@@ -3,10 +3,12 @@ package database_test
 import (
 	"fmt"
 	"net"
+	"os"
 	"testing"
 	"time"
 
 	"github.com/jackc/pgmock"
+	"github.com/jessevdk/go-flags"
 	database_test "github.com/mwinters-stuff/noodle/internal/database"
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
@@ -68,34 +70,25 @@ func (suite *DatabaseTestInitialSuite) TearDownSuite() {
 }
 
 func (suite *DatabaseTestInitialSuite) TestBadConnect() {
-	yamltext := `
-postgres:
-  user: postgresuser
-  password: postgrespass
-  db: postgres
-  hostname: badhostname
-  port: 1231
-ldap:
-  url: ldap://example.com
-  base_dn: dc=example,dc=com
-  username_attribute: uid
-  additional_users_dn: ou=people
-  users_filter: (&({username_attribute}={input})(objectClass=person))
-  additional_groups_dn: ou=groups
-  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
-  group_name_attribute: cn
-  display_name_attribute: displayName
-  user: CN=readonly,DC=example,DC=com
-  password: readonly
-`
 
-	config, _ := options.UnmarshalOptions([]byte(yamltext))
+	os.Setenv("NOODLE_POSTGRES_USER", "postgresuser")
+	os.Setenv("NOODLE_POSTGRES_PASSWORD", "postgrespass")
+	os.Setenv("NOODLE_POSTGRES_DB", "postgres")
+	os.Setenv("NOODLE_POSTGRES_PORT", "5432")
+	os.Setenv("NOODLE_POSTGRES_HOSTNAME", "badhostname")
 
-	db := database.NewDatabase(config.PostgresOptions)
+	pgOptions := options.PostgresOptions{}
+
+	parser := flags.NewParser(&pgOptions, flags.IgnoreUnknown)
+	_, err := parser.Parse()
+
+	require.NoError(suite.T(), err)
+
+	db := database.NewDatabase(pgOptions)
 	assert.NotNil(suite.T(), db)
 
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
-	err := db.Connect()
+	err = db.Connect()
 	require.Error(suite.T(), err)
 
 	assert.Eventually(suite.T(), func() bool {

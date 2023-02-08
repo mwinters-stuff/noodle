@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/jessevdk/go-flags"
 	"github.com/mwinters-stuff/noodle/noodle/api_handlers"
 	"github.com/mwinters-stuff/noodle/noodle/configure_server"
 	"github.com/mwinters-stuff/noodle/noodle/database"
@@ -65,7 +66,9 @@ func (suite *ConfigureServerTestSuite) SetupTest() {
 	ldap_handler.NewLdapHandler = func(ldapShim ldap_shim.LdapShim, ldapConfig options.LDAPOptions) ldap_handler.LdapHandler {
 		return suite.mockLdap
 	}
-	heimdall.NewHeimdall = func(database database.Database) heimdall.Heimdall { return suite.mockHeimdall }
+	heimdall.NewHeimdall = func(database database.Database, options options.NoodleOptions) heimdall.Heimdall {
+		return suite.mockHeimdall
+	}
 
 	suite.tempFile = nil
 }
@@ -134,41 +137,57 @@ func (suite *ConfigureServerTestSuite) TestConfigureAPIDropError() {
 
 }
 
-func (suite *ConfigureServerTestSuite) TestConfigureAPIReadConfigFileOk() {
+type _Server struct {
+}
+
+func (suite *ConfigureServerTestSuite) TestConfigureAPIReadConfigENVOk() {
+	os.Setenv("NOODLE_DEBUG", "true")
+
+	os.Setenv("NOODLE_ICON_SAVE_PATH", "/disk/web-client/icons")
+	os.Setenv("NOODLE_WEB_CLIENT_PATH", "/disk/web-client")
+	os.Setenv("NOODLE_HEIMDALL_LIST_JSON_URL", "http://site/list.json")
+	os.Setenv("NOODLE_HEIMDALL_ICON_BASE_URL", "http://site/icons")
+
+	os.Setenv("NOODLE_POSTGRES_USER", "postgresuser")
+	os.Setenv("NOODLE_POSTGRES_PASSWORD", "postgrespass")
+	os.Setenv("NOODLE_POSTGRES_DB", "postgres")
+	os.Setenv("NOODLE_POSTGRES_PORT", "5432")
+	os.Setenv("NOODLE_POSTGRES_HOSTNAME", "localhost")
+
+	os.Setenv("NOODLE_LDAP_URL", "ldap://example.com")
+	os.Setenv("NOODLE_LDAP_BASE_DN", "dc=example,dc=com")
+	os.Setenv("NOODLE_LDAP_USER", "CN=readonly,DC=example,DC=com")
+	os.Setenv("NOODLE_LDAP_PASSWORD", "readonly")
+
+	os.Setenv("NOODLE_LDAP_USER_FILTER", "(&(objectClass=organizationalPerson)(uid=%s))")
+	os.Setenv("NOODLE_LDAP_ALL_USERS_FILTER", "(objectclass=organizationalPerson)")
+	os.Setenv("NOODLE_LDAP_ALL_GROUPS_FILTER", "(objectclass=groupOfUniqueNames)")
+	os.Setenv("NOODLE_LDAP_USER_GROUPS_FILTER", "(&(uniquemember={dn})(objectclass=groupOfUniqueNames))")
+	os.Setenv("NOODLE_LDAP_GROUP_USERS_FILTER", "(&(objectClass=groupOfUniqueNames)(cn=%s))")
+	os.Setenv("NOODLE_LDAP_USERNAME_ATTRIBUTE", "uid")
+	os.Setenv("NOODLE_LDAP_GROUP_NAME_ATTRIBUTE", "cn")
+	os.Setenv("NOODLE_LDAP_USER_DISPLAY_NAME_ATTRIBUTE", "displayName")
+	os.Setenv("NOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE", "uniqueMember")
+
 	api := &operations.NoodleAPI{}
+	serv := _Server{}
 
-	yamltext := `
-postgres:
-  user: postgresuser
-  password: postgrespass
-  db: postgres
-  hostname: localhost
-  port: 5432
-ldap:
-  url: ldap://example.com
-  base_dn: dc=example,dc=com
-  username_attribute: uid
-  user_filter: (&(objectClass=organizationalPerson)(uid=%s))
-  all_users_filter: (objectclass=organizationalPerson)
-  all_groups_filter: (objectclass=groupOfUniqueNames)
-  user_groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
-  group_users_filter: (&(objectClass=groupOfUniqueNames)(cn=%s))
-  group_name_attribute: cn
-  user_display_name_attribute: displayName
-  user: CN=readonly,DC=example,DC=com
-  password: readonly
-  group_member_attribute: uniqueMember
-`
-
-	suite.tempFile, _ = os.CreateTemp("", "conffile")
-	suite.tempFile.WriteString(yamltext)
-	suite.tempFile.Close()
+	parser := flags.NewParser(&serv, flags.IgnoreUnknown)
+	parser.ShortDescription = "Noodle"
+	parser.LongDescription = "Noodle"
 
 	configure_server.NewConfigureServer().ConfigureFlags(api)
+
+	for _, optsGroup := range api.CommandLineOptionsGroups {
+		parser.AddGroup(optsGroup.ShortDescription, optsGroup.LongDescription, optsGroup.Options)
+	}
+
+	_, err := parser.Parse()
+
+	require.NoError(suite.T(), err)
+
 	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
-	noodleOptions.Debug = true
 	noodleOptions.Drop = true
-	noodleOptions.Config = suite.tempFile.Name()
 
 	suite.mockDatabase.EXPECT().Tables().Once().Return(suite.mockTables)
 	suite.mockDatabase.EXPECT().Connect().Once().Return(nil)
@@ -188,6 +207,14 @@ ldap:
 	require.Equal(suite.T(), suite.mockDatabase, db)
 	require.Equal(suite.T(), suite.mockLdap, ldap)
 	require.Equal(suite.T(), suite.mockHeimdall, heimdall)
+
+	require.True(suite.T(), noodleOptions.Debug)
+	require.True(suite.T(), noodleOptions.Drop)
+
+	require.Equal(suite.T(), "http://site/list.json", noodleOptions.HeimdallListJsonURL)
+	require.Equal(suite.T(), "http://site/icons", noodleOptions.HeimdallIconBaseURL)
+	require.Equal(suite.T(), "/disk/web-client/icons", noodleOptions.IconSavePath)
+	require.Equal(suite.T(), "/disk/web-client", noodleOptions.WebClientPath)
 
 	postgresOptions := api.CommandLineOptionsGroups[1].Options.(*options.PostgresOptions)
 	require.Equal(suite.T(), "postgresuser", postgresOptions.User)
@@ -210,57 +237,6 @@ ldap:
 	require.Equal(suite.T(), "CN=readonly,DC=example,DC=com", ldapOptions.User)
 	require.Equal(suite.T(), "readonly", ldapOptions.Password)
 	require.Equal(suite.T(), "uniqueMember", ldapOptions.GroupMemberAttribute)
-
-}
-
-func (suite *ConfigureServerTestSuite) TestConfigureAPIReadConfigFileFailed() {
-	api := &operations.NoodleAPI{}
-
-	configure_server.NewConfigureServer().ConfigureFlags(api)
-	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
-	noodleOptions.Debug = true
-	noodleOptions.Drop = true
-	noodleOptions.Config = "stupidfile.yaml"
-
-	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
-	require.NotNil(suite.T(), err)
-	require.Nil(suite.T(), db)
-	require.Nil(suite.T(), ldap)
-	require.Nil(suite.T(), heimdall)
-
-	require.EqualError(suite.T(), err, "open stupidfile.yaml: no such file or directory")
-
-}
-
-func (suite *ConfigureServerTestSuite) TestConfigureAPIUnmarshalConfigFileFailed() {
-	api := &operations.NoodleAPI{}
-
-	yamltext := `
-postgres:
-  user: postgresuser
-    password: postgrespass
-db: postgres
-  hostname: 
-  port: 5432
-`
-
-	suite.tempFile, _ = os.CreateTemp("", "conffile")
-	suite.tempFile.WriteString(yamltext)
-	suite.tempFile.Close()
-
-	configure_server.NewConfigureServer().ConfigureFlags(api)
-	noodleOptions := api.CommandLineOptionsGroups[0].Options.(*options.NoodleOptions)
-	noodleOptions.Debug = true
-	noodleOptions.Drop = true
-	noodleOptions.Config = suite.tempFile.Name()
-
-	db, ldap, heimdall, err := configure_server.NewConfigureServer().ConfigureAPI(api)
-	require.NotNil(suite.T(), err)
-	require.Nil(suite.T(), db)
-	require.Nil(suite.T(), ldap)
-	require.Nil(suite.T(), heimdall)
-
-	require.EqualError(suite.T(), err, "yaml: line 4: mapping values are not allowed in this context")
 
 }
 

@@ -52,13 +52,22 @@ export class NoodleLogin extends LitElement {
     }
   `;
 
-  // firstUpdated() {
-
-  // }
+  keyEvent(ev: KeyboardEvent) {
+    if (ev.key === 'Enter') {
+      this.login();
+    }
+  }
 
   login() {
     this._errorMessage = '';
     const api = new NoodleAuthApi();
+
+    if (
+      !this._usernameField.checkValidity() ||
+      !this._passwordField.checkValidity()
+    ) {
+      return;
+    }
 
     const params: AuthAuthenticatePostRequest = {
       login: {
@@ -75,8 +84,13 @@ export class NoodleLogin extends LitElement {
         Router.go('/dash');
       })
       .catch(reason => {
-        console.error(reason.error.message);
-        this._errorMessage = reason.error.message;
+        if (reason.response.statusText) {
+          console.error(reason.response.statusText);
+          this._errorMessage = reason.response.statusText;
+        } else {
+          console.error(reason);
+          this._errorMessage = reason;
+        }
       });
   }
 
@@ -86,13 +100,17 @@ export class NoodleLogin extends LitElement {
         <div align="center" class="middle">
           <img width="250px" height="250px" src="../../assets/noodle-icon.svg" alt="Noodle Logo"></img>
           <h1>${this.header}</h1>
-          <mwc-textfield outlined id="username" minlength="3" maxlength="64" label="Username" required>
+      
+          <mwc-textfield outlined id="username" minlength="3" maxlength="64" label="Username" required @keyup=${(
+            ev: KeyboardEvent
+          ) => this.keyEvent(ev)}>
           </mwc-textfield>
       
-          <mwc-textfield outlined id="password" minlength="3" maxlength="64" label="Password" required type="password">
+          <mwc-textfield outlined id="password" minlength="3" maxlength="64" label="Password" required type="password"
+            @keyup=${(ev: KeyboardEvent) => this.keyEvent(ev)}>
           </mwc-textfield>
       
-          <mwc-button id="login-button" raised slot="primaryAction" @click=${() =>
+          <mwc-button type="submit" id="login-button" raised @click=${() =>
             this.login()}>
             Login
           </mwc-button>

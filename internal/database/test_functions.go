@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -115,30 +116,40 @@ func (i *TestFunctions) TestStepsRunner(t *testing.T, script *pgmock.Script) (ne
 
 	parts := strings.Split(listener.Addr().String(), ":")
 	host := parts[0]
-	port := parts[1]
+	port, _ := strconv.Atoi(parts[1])
 
-	yamltext := fmt.Sprintf(`
-postgres:
-  user: postgresuser
-  password: postgrespass
-  db: postgres
-  hostname: %s
-  port: %s
-ldap:
-  url: ldap://example.com
-  base_dn: dc=example,dc=com
-  username_attribute: uid
-  additional_users_dn: ou=people
-  users_filter: (&({username_attribute}={input})(objectClass=person))
-  additional_groups_dn: ou=groups
-  groups_filter: (&(uniquemember={dn})(objectclass=groupOfUniqueNames))
-  group_name_attribute: cn
-  display_name_attribute: displayName
-  user: CN=readonly,DC=example,DC=com
-  password: readonly
-`, host, port)
-
-	config, _ := options.UnmarshalOptions([]byte(yamltext))
+	config := options.AllNoodleOptions{
+		NoodleOptions: options.NoodleOptions{
+			Debug:               false,
+			Drop:                false,
+			IconSavePath:        "",
+			WebClientPath:       "",
+			HeimdallListJsonURL: "",
+			HeimdallIconBaseURL: "",
+		},
+		PostgresOptions: options.PostgresOptions{
+			User:     "postgresuser",
+			Password: "postgrespass",
+			Database: "postgres",
+			Hostname: host,
+			Port:     port,
+		},
+		LDAPOptions: options.LDAPOptions{
+			URL:                      "ldap://example.com",
+			BaseDN:                   "dc=example,dc=com",
+			User:                     "CN=readonly,DC=example,DC=com",
+			Password:                 "readonly",
+			UserFilter:               "(&({username_attribute}={input})(objectClass=person))",
+			AllUsersFilter:           "(objectclass=organizationalPerson)",
+			AllGroupsFilter:          "(objectclass=groupOfUniqueNames)",
+			UserGroupsFilter:         "(&(uniquemember=%s)(objectclass=groupOfUniqueNames))",
+			GroupUsersFilter:         "(&(objectClass=groupOfUniqueNames)(cn=%s))",
+			UserNameAttribute:        "uid",
+			GroupNameAttribute:       "cn",
+			UserDisplayNameAttribute: "cn",
+			GroupMemberAttribute:     "uniqueMember",
+		},
+	}
 
 	return listener, config
 }

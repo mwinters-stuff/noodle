@@ -20,9 +20,30 @@
       "args": [
         "--port",
         "8081",
-        "--config",
-        "${workspaceFolder}/noodle.yaml"
-      ]
+      ],
+      "env": {
+        "NOODLE_DEBUG": "true",
+        "NOODLE_ICON_SAVE_PATH": "${workspaceFolder}/web-client/out-tsc/icons",
+        "NOODLE_WEB_CLIENT_PATH": "${workspaceFolder}/web-client/out-tsc",
+        "NOODLE_POSTGRES_USER": "postgres",
+        "NOODLE_POSTGRES_PASSWORD": "postgres",
+        "NOODLE_POSTGRES_DB": "postgres",
+        "NOODLE_POSTGRES_PORT": "5432",
+        "NOODLE_POSTGRES_HOSTNAME": "localhost",
+        "NOODLE_LDAP_URL": "ldap://192.168.30.23",
+        "NOODLE_LDAP_BASE_DN": "dc=winters,dc=nz",
+        "NOODLE_LDAP_USER": "cn=readonly,dc=winters,dc=nz",
+        "NOODLE_LDAP_PASSWORD": "readonly",
+        "NOODLE_LDAP_USER_FILTER": "(&(objectClass=organizationalPerson)(uid=%s))",
+        "NOODLE_LDAP_ALL_USERS_FILTER": "(objectclass=organizationalPerson)",
+        "NOODLE_LDAP_ALL_GROUPS_FILTER": "(objectclass=groupOfUniqueNames)",
+        "NOODLE_LDAP_USER_GROUPS_FILTER": "(&(uniquemember=%s)(objectclass=groupOfUniqueNames))",
+        "NOODLE_LDAP_GROUP_USERS_FILTER": "(&(objectClass=groupOfUniqueNames)(cn=%s))",
+        "NOODLE_LDAP_USERNAME_ATTRIBUTE": "uid",
+        "NOODLE_LDAP_GROUP_NAME_ATTRIBUTE": "cn",
+        "NOODLE_LDAP_USER_DISPLAY_NAME_ATTRIBUTE": "displayName",
+        "NOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE": "uniqueMember",
+      }
     },
     {
       "name": "Launch Server Package Dropping Tables",
@@ -33,10 +54,33 @@
       "args": [
         "--port",
         "8081",
-        "--config",
-        "${workspaceFolder}/noodle.yaml",
         "--drop"
-      ]
+      ],
+      "env": {
+        "NOODLE_DEBUG": "true",
+        "NOODLE_ICON_SAVE_PATH": "${workspaceFolder}/web-client/out-tsc/icons",
+        "NOODLE_WEB_CLIENT_PATH": "${workspaceFolder}/web-client/out-tsc",
+        "NOODLE_HEIMDALL_LIST_JSON_URL": "http://site/list.json",
+        "NOODLE_HEIMDALL_ICON_BASE_URL": "http://site/icons",
+        "NOODLE_POSTGRES_USER": "postgres",
+        "NOODLE_POSTGRES_PASSWORD": "postgres",
+        "NOODLE_POSTGRES_DB": "postgres",
+        "NOODLE_POSTGRES_PORT": "5432",
+        "NOODLE_POSTGRES_HOSTNAME": "localhost",
+        "NOODLE_LDAP_URL": "ldap://192.168.30.23",
+        "NOODLE_LDAP_BASE_DN": "dc=winters,dc=nz",
+        "NOODLE_LDAP_USER": "cn=readonly,dc=winters,dc=nz",
+        "NOODLE_LDAP_PASSWORD": "readonly",
+        "NOODLE_LDAP_USER_FILTER": "(&(objectClass=organizationalPerson)(uid=%s))",
+        "NOODLE_LDAP_ALL_USERS_FILTER": "(objectclass=organizationalPerson)",
+        "NOODLE_LDAP_ALL_GROUPS_FILTER": "(objectclass=groupOfUniqueNames)",
+        "NOODLE_LDAP_USER_GROUPS_FILTER": "(&(uniquemember=%s)(objectclass=groupOfUniqueNames))",
+        "NOODLE_LDAP_GROUP_USERS_FILTER": "(&(objectClass=groupOfUniqueNames)(cn=%s))",
+        "NOODLE_LDAP_USERNAME_ATTRIBUTE": "uid",
+        "NOODLE_LDAP_GROUP_NAME_ATTRIBUTE": "cn",
+        "NOODLE_LDAP_USER_DISPLAY_NAME_ATTRIBUTE": "displayName",
+        "NOODLE_LDAP_GROUP_MEMBER_ATTRIBUTE": "uniqueMember",
+      }
     }
   ]
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/mwinters-stuff/noodle/noodle/database"
 	"github.com/mwinters-stuff/noodle/noodle/database/mocks"
 	"github.com/mwinters-stuff/noodle/noodle/heimdall"
+	"github.com/mwinters-stuff/noodle/noodle/options"
 	"github.com/mwinters-stuff/noodle/server/models"
 	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/require"
@@ -19,6 +20,8 @@ type HeimdallAppsTestSuite struct {
 
 	mockDatabase         *mocks.Database
 	mockAppTemplateTable *mocks.AppTemplateTable
+
+	testOptions options.NoodleOptions
 }
 
 func (suite *HeimdallAppsTestSuite) SetupSuite() {
@@ -32,6 +35,11 @@ func (suite *HeimdallAppsTestSuite) SetupTest() {
 	database.NewAppTemplateTable = func(database database.Database) database.AppTemplateTable {
 		return suite.mockAppTemplateTable
 	}
+
+	suite.testOptions.HeimdallIconBaseURL = "http://site/icons"
+	suite.testOptions.HeimdallListJsonURL = "http://site/list.json"
+	suite.testOptions.IconSavePath = "/tmp"
+
 }
 
 func (suite *HeimdallAppsTestSuite) TearDownTest() {
@@ -94,12 +102,22 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServer() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").
 		Reply(200).
 		JSON(json)
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	gock.New("http://site").
+		Get("/icons/adguardhome.png").
+		Reply(200).
+		BodyString("FILECONTENTS")
+
+	gock.New("http://site").
+		Get("/icons/zulip.png").
+		Reply(200).
+		BodyString("FILECONTENTS")
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	suite.mockAppTemplateTable.EXPECT().Exists("140902edbcc424c09736af28ab2de604c3bde936").Return(false, nil)
@@ -117,14 +135,14 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailedGet() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").ReplyError(errors.New("failed"))
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	err := h.UpdateFromServer()
-	require.EqualError(suite.T(), err, "Get \"https://appslist.heimdall.site/list.json\": failed")
+	require.EqualError(suite.T(), err, "Get \"http://site/list.json\": failed")
 
 }
 
@@ -132,10 +150,10 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailed401() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").Response.Status(401).BodyString("not found")
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	err := h.UpdateFromServer()
@@ -147,10 +165,10 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailedUnMarshal() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").Response.Status(200)
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	err := h.UpdateFromServer()
@@ -180,12 +198,12 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailDatabaseExists() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").
 		Reply(200).
 		JSON(json)
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	suite.mockAppTemplateTable.EXPECT().Exists("140902edbcc424c09736af28ab2de604c3bde936").Return(false, errors.New("something went wrong"))
@@ -217,12 +235,12 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailDatabaseUpdate() {
 
 	defer gock.Off()
 
-	gock.New("https://appslist.heimdall.site").
+	gock.New("http://site").
 		Get("/list.json").
 		Reply(200).
 		JSON(json)
 
-	h := heimdall.NewHeimdall(suite.mockDatabase)
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
 	require.NotNil(suite.T(), h)
 
 	app1 := models.ApplicationTemplate{
@@ -242,6 +260,171 @@ func (suite *HeimdallAppsTestSuite) TestUpdateFromServerFailDatabaseUpdate() {
 
 	err := h.UpdateFromServer()
 	require.EqualError(suite.T(), err, "something else went wrong")
+}
+
+func (suite *HeimdallAppsTestSuite) TestDownloadIconError() {
+	json := `
+	{
+		"appcount": 2,
+		"apps": [
+			{
+				"appid": "140902edbcc424c09736af28ab2de604c3bde936",
+				"name": "AdGuard Home",
+				"website": "https://github.com/AdguardTeam/AdGuardHome",
+				"license": "GNU General Public License v3.0 only",
+				"description": "AdGuard Home is a network-wide software for blocking ads & tracking.",
+				"enhanced": true,
+				"tile_background": "light",
+				"icon": "adguardhome.png",
+				"sha": "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7"
+			}
+	]
+	}`
+
+	app1 := models.ApplicationTemplate{
+		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads & tracking.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+		SHA:            "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7",
+	}
+
+	defer gock.Off()
+
+	gock.New("http://site").
+		Get("/list.json").
+		Reply(200).
+		JSON(json)
+
+	gock.New("http://site").
+		Get("/icons/adguardhome.png").
+		Reply(401)
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	suite.mockAppTemplateTable.EXPECT().Exists("140902edbcc424c09736af28ab2de604c3bde936").Return(false, nil)
+
+	suite.mockAppTemplateTable.EXPECT().Insert(app1).Return(nil)
+
+	err := h.UpdateFromServer()
+	require.ErrorContains(suite.T(), err, "download icon failed: 401 Unauthorized")
+
+}
+
+func (suite *HeimdallAppsTestSuite) TestDownloadIconHttpError() {
+	json := `
+	{
+		"appcount": 2,
+		"apps": [
+			{
+				"appid": "140902edbcc424c09736af28ab2de604c3bde936",
+				"name": "AdGuard Home",
+				"website": "https://github.com/AdguardTeam/AdGuardHome",
+				"license": "GNU General Public License v3.0 only",
+				"description": "AdGuard Home is a network-wide software for blocking ads & tracking.",
+				"enhanced": true,
+				"tile_background": "light",
+				"icon": "adguardhome.png",
+				"sha": "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7"
+			}
+	]
+	}`
+
+	app1 := models.ApplicationTemplate{
+		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads & tracking.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+		SHA:            "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7",
+	}
+
+	defer gock.Off()
+
+	gock.New("http://site").
+		Get("/list.json").
+		Reply(200).
+		JSON(json)
+
+	gock.New("http://site").
+		Get("/icons/adguardhome.png").
+		ReplyError(errors.New("failed"))
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	suite.mockAppTemplateTable.EXPECT().Exists("140902edbcc424c09736af28ab2de604c3bde936").Return(false, nil)
+
+	suite.mockAppTemplateTable.EXPECT().Insert(app1).Return(nil)
+
+	err := h.UpdateFromServer()
+	require.ErrorContains(suite.T(), err, "failed")
+
+}
+
+func (suite *HeimdallAppsTestSuite) TestDownloadIconWriteFileError() {
+	json := `
+	{
+		"appcount": 2,
+		"apps": [
+			{
+				"appid": "140902edbcc424c09736af28ab2de604c3bde936",
+				"name": "AdGuard Home",
+				"website": "https://github.com/AdguardTeam/AdGuardHome",
+				"license": "GNU General Public License v3.0 only",
+				"description": "AdGuard Home is a network-wide software for blocking ads & tracking.",
+				"enhanced": true,
+				"tile_background": "light",
+				"icon": "adguardhome.png",
+				"sha": "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7"
+			}
+	]
+	}`
+
+	app1 := models.ApplicationTemplate{
+		Appid:          "140902edbcc424c09736af28ab2de604c3bde936",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads & tracking.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+		SHA:            "ed488a0993be8bff0c59e9bf6fe4fbc2f21cffb7",
+	}
+
+	suite.testOptions.IconSavePath = "/somepath/that/doesnt/exist"
+
+	defer gock.Off()
+
+	gock.New("http://site").
+		Get("/list.json").
+		Reply(200).
+		JSON(json)
+
+	gock.New("http://site").
+		Get("/icons/adguardhome.png").
+		Reply(200).
+		BodyString("FILECONTENTS")
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	suite.mockAppTemplateTable.EXPECT().Exists("140902edbcc424c09736af28ab2de604c3bde936").Return(false, nil)
+
+	suite.mockAppTemplateTable.EXPECT().Insert(app1).Return(nil)
+
+	err := h.UpdateFromServer()
+	require.ErrorContains(suite.T(), err, "open /somepath/that/doesnt/exist/adguardhome.png: no such file or directory")
+
 }
 
 func TestHeimdallAppsSuite(t *testing.T) {
