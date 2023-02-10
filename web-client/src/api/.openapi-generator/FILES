@@ -1,4 +1,3 @@
-.openapi-generator-ignore
 apis/KubernetesApi.ts
 apis/NoodleApiApi.ts
 apis/NoodleAuthApi.ts

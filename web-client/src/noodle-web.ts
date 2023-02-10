@@ -136,10 +136,10 @@ export class NoodleWeb extends LitElement {
       { path: '/login', component: 'noodle-login' },
       { path: '/logout', action: this.logout },
       { path: '/user-applications', component: 'noodle-user-applications' },
-      // {
-      //   path: /^(?!api.*$).*/,
-      //   redirect: '/dash',
-      // },
+      {
+        path: '(.*)',
+        redirect: '/dash',
+      },
     ]);
     if (!NoodleWeb.IsAuthenticated()) {
       Router.go(`/login`);
