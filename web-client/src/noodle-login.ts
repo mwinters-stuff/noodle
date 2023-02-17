@@ -81,7 +81,7 @@ export class NoodleLogin extends LitElement {
       .then(value => {
         const expires = value.expires?.toUTCString();
         document.cookie = `noodle-auth=${value.token}; expires=${expires}; Secure`;
-        Router.go('/dash');
+        Router.go('/dash/-1');
       })
       .catch(reason => {
         if (reason.response.statusText) {

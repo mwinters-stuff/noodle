@@ -5202,6 +5202,11 @@ listr2@^3.2.2:
     through "^2.3.8"
     wrap-ansi "^7.0.0"
 
+lit-element-router@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.npmjs.org/lit-element-router/-/lit-element-router-2.0.3.tgz"
+  integrity sha512-ASaFeB5E4hsd2LYH3keY3ImuaW1+Dc3BcjauTRZhVcYmEIYDkIs/ci7Vfv/SroHhbyQ5nF/nPFBcOFipYsGwXg==
+
 lit-element@^3.2.0:
   version "3.2.2"
   resolved "https://registry.npmjs.org/lit-element/-/lit-element-3.2.2.tgz"

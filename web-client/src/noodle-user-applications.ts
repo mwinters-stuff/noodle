@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { query, customElement, property, state } from 'lit/decorators.js';
+import { query, customElement, state } from 'lit/decorators.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { consume, ContextConsumer } from '@lit-labs/context';
 
@@ -8,7 +8,6 @@ import '@material/mwc-icon-button';
 import '@material/mwc-list';
 import '@material/mwc-snackbar';
 import './noodle-add-user-application.js';
-import { Router } from '@vaadin/router';
 
 import * as mwcSnackBar from '@material/mwc-snackbar';
 import * as aua from './noodle-add-user-application.js';
@@ -39,19 +38,19 @@ export class NoodleUserApplications extends LitElement {
     true
   );
 
-  @property({ attribute: false })
+  @state()
   tabs: Tab[] = [];
 
-  @property({ attribute: false })
+  @state()
   selectedApplication: UserApplications | undefined;
 
-  @property({ attribute: false })
+  @state()
   applicationTabs: ApplicationTab[][] = [];
 
-  @property({ attribute: false })
+  @state()
   errorMessage = '';
 
-  @property({ attribute: false })
+  @state()
   userApplications: UserApplications[] = [];
 
   @query('#error-snack')
@@ -72,6 +71,12 @@ export class NoodleUserApplications extends LitElement {
       margin-left: 8px;
       margin-right: 8px;
       margin-bottom: 8px;
+    }
+    div.icons {
+      display: flex;
+      flex-direction: row;
+      justify-content: left;
+      align-items: center;
     }
   `;
 
@@ -132,7 +137,19 @@ export class NoodleUserApplications extends LitElement {
             <li divider padded role="separator"></li>
             ${this.getAppsForTab(tab.id!).map(
               app =>
-                html`<mwc-list-item>${app.application?.name}</mwc-list-item> `
+                html`<mwc-list-item graphic="avatar" twoLine hasMeta>
+                  <span>${app.application?.name}</span>
+                  <span slot="secondary">${app.application?.website}</span>
+                  <img
+                    slot="graphic"
+                    src="/out-tsc/icons/${app.application?.icon}"
+                    alt="${app.application?.icon}"
+                  />
+                  <div class="icons" slot="meta">
+                    <mwc-icon-button icon="edit"></mwc-icon-button>
+                    <mwc-icon-button icon="delete"></mwc-icon-button>
+                  </div>
+                </mwc-list-item> `
             )}`
         )}
       </mwc-list>
@@ -149,7 +166,7 @@ export class NoodleUserApplications extends LitElement {
         <mwc-icon-button
           slot="navigationIcon"
           icon="arrow_back"
-          @click=${() => Router.go('/dash')}
+          @click=${() => window.history.back()}
         ></mwc-icon-button>
         <div slot="title" id="title">Noodle - User Applications</div>
         <mwc-icon-button

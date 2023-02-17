@@ -24,7 +24,7 @@
       "env": {
         "NOODLE_DEBUG": "true",
         "NOODLE_ICON_SAVE_PATH": "${workspaceFolder}/web-client/out-tsc/icons",
-        "NOODLE_WEB_CLIENT_PATH": "${workspaceFolder}/web-client/out-tsc",
+        "NOODLE_WEB_CLIENT_PATH": "${workspaceFolder}/web-client/out-tscx",
         "NOODLE_POSTGRES_USER": "postgres",
         "NOODLE_POSTGRES_PASSWORD": "postgres",
         "NOODLE_POSTGRES_DB": "postgres",

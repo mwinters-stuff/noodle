@@ -1,26 +1,32 @@
 /* eslint-disable no-console */
 import { html, css, LitElement } from 'lit';
 import { Commands, Context, Router } from '@vaadin/router';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, query, state } from 'lit/decorators.js';
 
 import './noodle-login.js';
 import './noodle-dash.js';
 import './noodle-user-applications.js';
 
-// eslint-disable-next-line import/no-extraneous-dependencies
+import * as mwcSnackBar from '@material/mwc-snackbar';
+
 import { provide } from '@lit-labs/context';
 import {
+  Application,
   AuthSessionGetRequest,
   Configuration,
   ConfigurationParameters,
   NoodleApiApi,
   NoodleAuthApi,
+  Tab,
   UserSession,
+  UsersApplicationItem,
 } from './api/index.js';
 import {
   authApiContext,
+  dataCacheContext,
   noodleApiContext,
   userSessionContext,
+  DataCache,
 } from './noodle-context.js';
 
 @customElement('noodle-web')
@@ -37,6 +43,51 @@ export class NoodleWeb extends LitElement {
   @state()
   userSession: UserSession = {};
 
+  @provide({ context: dataCacheContext })
+  @state()
+  dataCache: DataCache = {
+    _applications: [],
+    _tabs: [],
+    router: undefined,
+    // _userApplications: [],
+
+    SetUserApplications(uai: UsersApplicationItem[]): void {
+      // this._userApplications = uai;
+      this._applications = [];
+      uai.forEach(userApp => {
+        this._applications.push(userApp.application!);
+      });
+    },
+
+    Applications(): Application[] {
+      return this._applications;
+    },
+    Tabs(): Tab[] {
+      return this._tabs;
+    },
+    getApplication(id: number): Application {
+      return this.Applications().find(value => value.id === id)!;
+    },
+    // UserApplications(): UsersApplicationItem[] {
+    //   return this._userApplications;
+    // },
+
+    SetTabs(value: Tab[]): void {
+      this._tabs = value;
+    },
+  };
+
+  @state()
+  errorMessage = '';
+
+  @query('#error-snack')
+  _errorSnack!: mwcSnackBar.Snackbar;
+
+  showError(error: string) {
+    this.errorMessage = error;
+    this._errorSnack.show();
+  }
+
   static styles = css`
     :host {
       display: block;
@@ -52,13 +103,17 @@ export class NoodleWeb extends LitElement {
     }
   `;
 
+  @state()
   activeRoute: string = '';
 
-  params: string = '';
+  @state()
+  routeParams: any = {};
 
-  query: string = '';
+  @state()
+  routeQuery: Object = {};
 
-  data: string = '';
+  @state()
+  routeData: Object = {};
 
   constructor() {
     super();
@@ -74,17 +129,21 @@ export class NoodleWeb extends LitElement {
       token: NoodleWeb.getAuthToken(),
     };
 
-    this.authApi
-      .authSessionGet(params)
-      .then(value => {
-        this.userSession = value;
-      })
-      .catch(reason => {
-        console.log('GetUserSession Error: ', reason);
-      });
+    if (params.token !== '') {
+      this.authApi
+        .authSessionGet(params)
+        .then(value => {
+          this.userSession = value;
+          this.RefreshTabs();
+        })
+        .catch(reason => {
+          console.log('GetUserSession Error: ', reason);
+        });
+    }
   }
 
   private static apiKey(name: string): string {
+    console.log(`GetAPIKey ${name}`);
     if (name === 'X-Token') {
       return NoodleWeb.getAuthToken() || '';
     }
@@ -128,11 +187,17 @@ export class NoodleWeb extends LitElement {
     return commands.redirect('/login'); // pass to the next route in the list
   }
 
+  private RefreshTabs() {
+    this.noodleApi.noodleTabsGet().then(value => {
+      this.dataCache.SetTabs(value);
+    });
+  }
+
   firstUpdated() {
     const router = new Router(this.shadowRoot!.querySelector('main'));
     router.setRoutes([
       { path: '/', component: 'noodle-dash' },
-      { path: '/dash', component: 'noodle-dash' },
+      { path: '/dash/:tabId', component: 'noodle-dash' },
       { path: '/login', component: 'noodle-login' },
       { path: '/logout', action: this.logout },
       { path: '/user-applications', component: 'noodle-user-applications' },
@@ -141,6 +206,7 @@ export class NoodleWeb extends LitElement {
         redirect: '/dash',
       },
     ]);
+    this.dataCache.router = router;
     if (!NoodleWeb.IsAuthenticated()) {
       Router.go(`/login`);
     }

@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { query, customElement, state } from 'lit/decorators.js';
+import { query, customElement, state, property } from 'lit/decorators.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { consume, ContextConsumer } from '@lit-labs/context';
 
@@ -15,13 +15,20 @@ import { Router } from '@vaadin/router';
 
 import * as mwcSnackBar from '@material/mwc-snackbar';
 
+import './noodle-app-card.js';
+
 import {
   NoodleApiApi,
   Tab,
   UsersApplicationItem,
   UserSession,
 } from './api/index.js';
-import { noodleApiContext, userSessionContext } from './noodle-context.js';
+import {
+  DataCache,
+  dataCacheContext,
+  noodleApiContext,
+  userSessionContext,
+} from './noodle-context.js';
 
 @customElement('noodle-dash')
 export class NoodleDash extends LitElement {
@@ -33,10 +40,17 @@ export class NoodleDash extends LitElement {
   @state()
   userSession!: UserSession;
 
-  private _userSession = new ContextConsumer(
+  @consume({ context: dataCacheContext })
+  @state()
+  dataCache!: DataCache;
+
+  @property({ type: Number })
+  public tabId?: number;
+
+  private _userSessionConsumer = new ContextConsumer(
     this,
     userSessionContext,
-    () => this.Refresh(),
+    () => this.RefreshUserApplications(),
     true
   );
 
@@ -44,19 +58,16 @@ export class NoodleDash extends LitElement {
   openDrawer = false;
 
   @state()
-  tabs: Tab[] = [];
-
-  @state()
   selectedTab: Tab | undefined;
 
   @state()
   errorMessage = '';
 
-  @state()
-  userApplications: UsersApplicationItem[] = [];
-
   @query('#error-snack')
   _errorSnack!: mwcSnackBar.Snackbar;
+
+  @state()
+  private _userApplications: UsersApplicationItem[] = [];
 
   static styles = css`
     :host {
@@ -73,24 +84,20 @@ export class NoodleDash extends LitElement {
     }
   `;
 
-  toggleHamburger() {
-    this.openDrawer = !this.openDrawer;
+  @state()
+  private _tabs: Tab[] = [];
+
+  firstUpdated() {
+    if (this.dataCache.router && this.dataCache.router!.location.params.tabId) {
+      this.tabId = parseInt(
+        this.dataCache.router!.location.params.tabId[0],
+        10
+      );
+    }
   }
 
-  private Refresh() {
-    this.noodleApi
-      .noodleTabsGet()
-      .then(value => {
-        this.tabs = value;
-        if (this.selectedTab == null && this.tabs.length > 0) {
-          this.selectedTab = this.tabs.at(0);
-        }
-
-        this.RefreshUserApplications();
-      })
-      .catch(reason => {
-        this.showError(reason);
-      });
+  toggleHamburger() {
+    this.openDrawer = !this.openDrawer;
   }
 
   private RefreshUserApplications() {
@@ -98,12 +105,32 @@ export class NoodleDash extends LitElement {
       this.noodleApi
         .noodleUserAllowedApplicationsGet({ userId: this.userSession.userId! })
         .then(value => {
-          this.userApplications = value;
+          this._userApplications = value;
+          this.dataCache.SetUserApplications(value);
+          // console.log(JSON.stringify(this._userApplications,null,2  ))
         })
         .catch(reason => {
           this.showError(reason);
         });
+      this.RefreshTabs();
     }
+  }
+
+  private RefreshTabs() {
+    // console.log("RefreshTabs")
+    this.noodleApi.noodleTabsGet().then(value => {
+      this._tabs = value;
+      if ((!this.tabId || this.tabId === -1) && this._tabs.length > 0) {
+        // console.log("Dash RefreshTabs Redirect")
+        Router.go(`/dash/${this._tabs[0].id}`);
+      }
+
+      this._tabs.forEach(tab => {
+        if (this.tabId === tab.id) {
+          this.selectedTab = tab;
+        }
+      });
+    });
   }
 
   showError(error: string) {
@@ -114,12 +141,13 @@ export class NoodleDash extends LitElement {
   tabListTemplate() {
     return html`
       <mwc-list activatable>
-        ${this.tabs.map(
+        ${this._tabs.map(
           tab => html`<mwc-list-item
               ?selected=${this.selectedTab === tab}
               ?activated=${this.selectedTab === tab}
               @click=${() => {
                 this.selectedTab = tab;
+                Router.go(`/dash/${tab.id}`);
                 this.openDrawer = false;
               }}
               >${tab.label}
@@ -132,15 +160,21 @@ export class NoodleDash extends LitElement {
 
   appListTemplate() {
     return html`
-      ${this.userApplications
-        .filter(value => value.tabId === this.selectedTab?.id)
-        .map(
-          app =>
-            html`<mwc-button
-              outlined
-              label="${app.application?.name}"
-            ></mwc-button>`
-        )}
+      ${this._tabs.map(
+        tab =>
+          html`
+            <div id="tab${tab.id}" ?hidden=${tab.id !== this.tabId}>
+              ${this._userApplications
+                .filter(value => value.tabId === tab.id)
+                .map(
+                  app =>
+                    html`<noodle-app-card
+                      appId="${app.application?.id}"
+                    ></noodle-app-card>`
+                )}
+            </div>
+          `
+      )}
     `;
   }
 
