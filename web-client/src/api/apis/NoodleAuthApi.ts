@@ -24,11 +24,11 @@ import {
 } from '../models';
 
 export interface AuthAuthenticatePostRequest {
-  login: UserLogin;
+  Login: UserLogin;
 }
 
 export interface AuthSessionGetRequest {
-  token: string;
+  Token: string;
 }
 
 /**
@@ -43,12 +43,12 @@ export class NoodleAuthApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<UserSession>> {
     if (
-      requestParameters.login === null ||
-      requestParameters.login === undefined
+      requestParameters.Login === null ||
+      requestParameters.Login === undefined
     ) {
       throw new runtime.RequiredError(
-        'login',
-        'Required parameter requestParameters.login was null or undefined when calling authAuthenticatePost.'
+        'Login',
+        'Required parameter requestParameters.Login was null or undefined when calling authAuthenticatePost.'
       );
     }
 
@@ -64,7 +64,7 @@ export class NoodleAuthApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: UserLoginToJSON(requestParameters.login),
+        body: UserLoginToJSON(requestParameters.Login),
       },
       initOverrides
     );
@@ -78,11 +78,11 @@ export class NoodleAuthApi extends runtime.BaseAPI {
    * Authenticates a User
    */
   async authAuthenticatePost(
-    requestParameters: AuthAuthenticatePostRequest,
+    Login: UserLogin,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<UserSession> {
     const response = await this.authAuthenticatePostRaw(
-      requestParameters,
+      { Login: Login },
       initOverrides
     );
     return await response.value();
@@ -132,19 +132,19 @@ export class NoodleAuthApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<UserSession>> {
     if (
-      requestParameters.token === null ||
-      requestParameters.token === undefined
+      requestParameters.Token === null ||
+      requestParameters.Token === undefined
     ) {
       throw new runtime.RequiredError(
-        'token',
-        'Required parameter requestParameters.token was null or undefined when calling authSessionGet.'
+        'Token',
+        'Required parameter requestParameters.Token was null or undefined when calling authSessionGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.token !== undefined) {
-      queryParameters['token'] = requestParameters.token;
+    if (requestParameters.Token !== undefined) {
+      queryParameters['token'] = requestParameters.Token;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -172,11 +172,11 @@ export class NoodleAuthApi extends runtime.BaseAPI {
    * Get Session for Token
    */
   async authSessionGet(
-    requestParameters: AuthSessionGetRequest,
+    Token: string,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<UserSession> {
     const response = await this.authSessionGetRaw(
-      requestParameters,
+      { Token: Token },
       initOverrides
     );
     return await response.value();

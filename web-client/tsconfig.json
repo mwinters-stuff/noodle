@@ -21,6 +21,7 @@
   },
   "include": [
     "**/*.ts",
-    "lit-css.js"
+    "lit-css.js",
+    "node_modules/@bundled-es-modules/"
   ]
 }

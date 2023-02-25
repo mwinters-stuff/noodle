@@ -284,7 +284,7 @@ func init() {
             "token": []
           }
         ],
-        "description": "Adds a new application in a  tab",
+        "description": "Adds a new application in a tab, changes tab, or display order",
         "consumes": [
           "application/json"
         ],
@@ -298,7 +298,8 @@ func init() {
           {
             "enum": [
               "insert",
-              "update"
+              "updateTab",
+              "updateDisplayOrder"
             ],
             "type": "string",
             "name": "action",
@@ -451,6 +452,16 @@ func init() {
           "noodle-api"
         ],
         "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
           {
             "name": "application",
             "in": "body",
@@ -1819,7 +1830,7 @@ func init() {
             "token": []
           }
         ],
-        "description": "Adds a new application in a  tab",
+        "description": "Adds a new application in a tab, changes tab, or display order",
         "consumes": [
           "application/json"
         ],
@@ -1833,7 +1844,8 @@ func init() {
           {
             "enum": [
               "insert",
-              "update"
+              "updateTab",
+              "updateDisplayOrder"
             ],
             "type": "string",
             "name": "action",
@@ -1986,6 +1998,16 @@ func init() {
           "noodle-api"
         ],
         "parameters": [
+          {
+            "enum": [
+              "insert",
+              "update"
+            ],
+            "type": "string",
+            "name": "action",
+            "in": "query",
+            "required": true
+          },
           {
             "name": "application",
             "in": "body",

@@ -24,13 +24,13 @@ export interface UserLogin {
    * @type {string}
    * @memberof UserLogin
    */
-  username?: string;
+  Username?: string;
   /**
    *
    * @type {string}
    * @memberof UserLogin
    */
-  password?: string;
+  Password?: string;
 }
 
 /**
@@ -54,8 +54,8 @@ export function UserLoginFromJSONTyped(
     return json;
   }
   return {
-    username: !exists(json, 'username') ? undefined : json['username'],
-    password: !exists(json, 'password') ? undefined : json['password'],
+    Username: !exists(json, 'username') ? undefined : json['username'],
+    Password: !exists(json, 'password') ? undefined : json['password'],
   };
 }
 
@@ -67,7 +67,7 @@ export function UserLoginToJSON(value?: UserLogin | null): any {
     return null;
   }
   return {
-    username: value.username,
-    password: value.password,
+    username: value.Username,
+    password: value.Password,
   };
 }

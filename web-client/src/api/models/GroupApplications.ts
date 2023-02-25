@@ -31,25 +31,25 @@ export interface GroupApplications {
    * @type {number}
    * @memberof GroupApplications
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {number}
    * @memberof GroupApplications
    */
-  applicationId?: number;
+  ApplicationId?: number;
   /**
    *
    * @type {number}
    * @memberof GroupApplications
    */
-  groupId?: number;
+  GroupId?: number;
   /**
    *
    * @type {Application}
    * @memberof GroupApplications
    */
-  application?: Application;
+  Application?: Application;
 }
 
 /**
@@ -73,12 +73,12 @@ export function GroupApplicationsFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    applicationId: !exists(json, 'ApplicationId')
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    ApplicationId: !exists(json, 'ApplicationId')
       ? undefined
       : json['ApplicationId'],
-    groupId: !exists(json, 'GroupId') ? undefined : json['GroupId'],
-    application: !exists(json, 'Application')
+    GroupId: !exists(json, 'GroupId') ? undefined : json['GroupId'],
+    Application: !exists(json, 'Application')
       ? undefined
       : ApplicationFromJSON(json['Application']),
   };
@@ -92,9 +92,9 @@ export function GroupApplicationsToJSON(value?: GroupApplications | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    ApplicationId: value.applicationId,
-    GroupId: value.groupId,
-    Application: ApplicationToJSON(value.application),
+    Id: value.Id,
+    ApplicationId: value.ApplicationId,
+    GroupId: value.GroupId,
+    Application: ApplicationToJSON(value.Application),
   };
 }

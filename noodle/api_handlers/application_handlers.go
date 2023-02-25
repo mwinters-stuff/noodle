@@ -35,10 +35,16 @@ func HandlerApplicationGet(db database.Database, params noodle_api.GetNoodleAppl
 }
 
 func HandlerApplicationPost(db database.Database, params noodle_api.PostNoodleApplicationsParams, principal *models.Principal) middleware.Responder {
-	err := db.Tables().ApplicationsTable().Insert(params.Application)
+	if params.Action == "insert" {
+		if err := db.Tables().ApplicationsTable().Insert(params.Application); err != nil {
+			return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
+		}
+	}
 
-	if err != nil {
-		return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
+	if params.Action == "update" {
+		if err := db.Tables().ApplicationsTable().Update(*params.Application); err != nil {
+			return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
+		}
 	}
 
 	return noodle_api.NewPostNoodleApplicationsOK().WithPayload(params.Application)

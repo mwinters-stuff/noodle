@@ -54,9 +54,9 @@ func (e *expectMessageStepX) Step(backend *pgproto3.Backend) error {
 		received = fmt.Sprintf("%#v", p)
 
 	}
-
+	// fmt.Printf("Expected => %s\nReceived => %s\n", expected, received)
 	if expected != received {
-		return fmt.Errorf("Expected => %s\nReceived => %s\n", expected, received)
+		return fmt.Errorf("expected => %s\nreceived => %s", expected, received)
 	}
 
 	return nil
@@ -163,6 +163,7 @@ func (i *TestFunctions) LoadDatabaseSteps(t require.TestingT, script *pgmock.Scr
 		frontend := stepjson[0] == 'F'
 		stepjson = stepjson[2:]
 		var msgType MsgType
+		// fmt.Println(stepjson)
 		err := json.Unmarshal([]byte(stepjson), &msgType)
 		require.NoError(t, err)
 

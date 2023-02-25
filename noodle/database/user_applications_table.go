@@ -16,9 +16,9 @@ const userApplicationsTableCreate = `CREATE TABLE IF NOT EXISTS user_application
 const userApplicationsTableInsertRow = `INSERT INTO user_applications (userid, applicationid) VALUES ($1, $2) RETURNING id`
 const userApplicationsTableDrop = `DROP TABLE user_applications`
 const userApplicationsTableDeleteRow = `DELETE FROM user_applications WHERE id = $1`
-const userApplicationsTableQueryAll = `SELECT ua.id, app.id, app.name,app.website,app.license,app.description,app.enhanced,app.tilebackground,app.icon FROM user_applications ua, applications app WHERE ua.userid = $1 AND app.id = ua.applicationid`
+const userApplicationsTableQueryAll = `SELECT ua.id, app.id, app.name,app.website,app.license,app.description,app.enhanced,app.tilebackground,app.icon,app.template_appid FROM user_applications ua, applications app WHERE ua.userid = $1 AND app.id = ua.applicationid`
 
-const userAllowedQuery = `SELECT d.tabid, d.displayorder, a.id as application_id,a.name,a.website,a.license,a.description,a.enhanced,a.tilebackground,a.icon
+const userAllowedQuery = `SELECT d.tabid, d.displayorder, a.id as application_id,a.name,a.website,a.license,a.description,a.enhanced,a.tilebackground,a.icon,a.template_appid
 FROM applications a ,
 (
   SELECT ua.applicationid, at.tabid, at.displayorder FROM user_applications ua, application_tabs at WHERE at.applicationid = ua.applicationid AND userid = $1
@@ -61,7 +61,7 @@ func (i *UserApplicationsTableImpl) GetUserAllowdApplications(userid int64) (mod
 	}
 	applist := models.UsersApplications{}
 	var applicationid, tabid, displayorder int64
-	var name, website, license, description, tilebackground, icon string
+	var name, website, license, description, tilebackground, icon, templateappid string
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
 		&tabid,
@@ -74,10 +74,20 @@ func (i *UserApplicationsTableImpl) GetUserAllowdApplications(userid int64) (mod
 		&enhanced,
 		&tilebackground,
 		&icon,
+		&templateappid,
 	}, func() error {
 
 		applist = append(applist, &models.UsersApplicationItem{
-			Application:  &models.Application{ID: applicationid, Name: name, Website: website, License: license, Description: description, Enhanced: enhanced, TileBackground: tilebackground, Icon: icon},
+			Application: &models.Application{
+				ID:             applicationid,
+				TemplateAppid:  templateappid,
+				Name:           name,
+				Website:        website,
+				License:        license,
+				Description:    description,
+				Enhanced:       enhanced,
+				TileBackground: tilebackground,
+				Icon:           icon},
 			DisplayOrder: displayorder,
 			TabID:        tabid,
 		})
@@ -103,7 +113,7 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApp
 	}
 	results := []*models.UserApplications{}
 	var id, applicationid int64
-	var name, website, license, description, tilebackground, icon string
+	var name, website, license, description, tilebackground, icon, templateappid string
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
 		&id,
@@ -115,6 +125,7 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApp
 		&enhanced,
 		&tilebackground,
 		&icon,
+		&templateappid,
 	}, func() error {
 
 		results = append(results, &models.UserApplications{
@@ -123,6 +134,7 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApp
 			ApplicationID: applicationid,
 			Application: &models.Application{
 				ID:             applicationid,
+				TemplateAppid:  templateappid,
 				Name:           name,
 				Website:        website,
 				License:        license,

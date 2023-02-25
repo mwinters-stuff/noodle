@@ -24,55 +24,55 @@ export interface Application {
    * @type {number}
    * @memberof Application
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  templateAppid?: string;
+  TemplateAppid?: string;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  name?: string;
+  Name?: string;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  website?: string;
+  Website?: string;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  license?: string;
+  License?: string;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  description?: string;
+  Description?: string;
   /**
    *
    * @type {boolean}
    * @memberof Application
    */
-  enhanced?: boolean;
+  Enhanced?: boolean;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  tileBackground?: string;
+  TileBackground?: string;
   /**
    *
    * @type {string}
    * @memberof Application
    */
-  icon?: string;
+  Icon?: string;
 }
 
 /**
@@ -96,19 +96,19 @@ export function ApplicationFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    templateAppid: !exists(json, 'TemplateAppid')
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    TemplateAppid: !exists(json, 'TemplateAppid')
       ? undefined
       : json['TemplateAppid'],
-    name: !exists(json, 'Name') ? undefined : json['Name'],
-    website: !exists(json, 'Website') ? undefined : json['Website'],
-    license: !exists(json, 'License') ? undefined : json['License'],
-    description: !exists(json, 'Description') ? undefined : json['Description'],
-    enhanced: !exists(json, 'Enhanced') ? undefined : json['Enhanced'],
-    tileBackground: !exists(json, 'TileBackground')
+    Name: !exists(json, 'Name') ? undefined : json['Name'],
+    Website: !exists(json, 'Website') ? undefined : json['Website'],
+    License: !exists(json, 'License') ? undefined : json['License'],
+    Description: !exists(json, 'Description') ? undefined : json['Description'],
+    Enhanced: !exists(json, 'Enhanced') ? undefined : json['Enhanced'],
+    TileBackground: !exists(json, 'TileBackground')
       ? undefined
       : json['TileBackground'],
-    icon: !exists(json, 'Icon') ? undefined : json['Icon'],
+    Icon: !exists(json, 'Icon') ? undefined : json['Icon'],
   };
 }
 
@@ -120,14 +120,14 @@ export function ApplicationToJSON(value?: Application | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    TemplateAppid: value.templateAppid,
-    Name: value.name,
-    Website: value.website,
-    License: value.license,
-    Description: value.description,
-    Enhanced: value.enhanced,
-    TileBackground: value.tileBackground,
-    Icon: value.icon,
+    Id: value.Id,
+    TemplateAppid: value.TemplateAppid,
+    Name: value.Name,
+    Website: value.Website,
+    License: value.License,
+    Description: value.Description,
+    Enhanced: value.Enhanced,
+    TileBackground: value.TileBackground,
+    Icon: value.Icon,
   };
 }

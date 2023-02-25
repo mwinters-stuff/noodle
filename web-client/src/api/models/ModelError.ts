@@ -24,19 +24,19 @@ export interface ModelError {
    * @type {number}
    * @memberof ModelError
    */
-  code?: number;
+  Code?: number;
   /**
    *
    * @type {string}
    * @memberof ModelError
    */
-  message?: string;
+  Message?: string;
   /**
    *
    * @type {string}
    * @memberof ModelError
    */
-  fields?: string;
+  Fields?: string;
 }
 
 /**
@@ -60,9 +60,9 @@ export function ModelErrorFromJSONTyped(
     return json;
   }
   return {
-    code: !exists(json, 'code') ? undefined : json['code'],
-    message: !exists(json, 'message') ? undefined : json['message'],
-    fields: !exists(json, 'fields') ? undefined : json['fields'],
+    Code: !exists(json, 'code') ? undefined : json['code'],
+    Message: !exists(json, 'message') ? undefined : json['message'],
+    Fields: !exists(json, 'fields') ? undefined : json['fields'],
   };
 }
 
@@ -74,8 +74,8 @@ export function ModelErrorToJSON(value?: ModelError | null): any {
     return null;
   }
   return {
-    code: value.code,
-    message: value.message,
-    fields: value.fields,
+    code: value.Code,
+    message: value.Message,
+    fields: value.Fields,
   };
 }

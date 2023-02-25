@@ -24,19 +24,19 @@ export interface Group {
    * @type {number}
    * @memberof Group
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {string}
    * @memberof Group
    */
-  dN?: string;
+  DN?: string;
   /**
    *
    * @type {string}
    * @memberof Group
    */
-  name?: string;
+  Name?: string;
 }
 
 /**
@@ -60,9 +60,9 @@ export function GroupFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    dN: !exists(json, 'DN') ? undefined : json['DN'],
-    name: !exists(json, 'Name') ? undefined : json['Name'],
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    DN: !exists(json, 'DN') ? undefined : json['DN'],
+    Name: !exists(json, 'Name') ? undefined : json['Name'],
   };
 }
 
@@ -74,8 +74,8 @@ export function GroupToJSON(value?: Group | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    DN: value.dN,
-    Name: value.name,
+    Id: value.Id,
+    DN: value.DN,
+    Name: value.Name,
   };
 }

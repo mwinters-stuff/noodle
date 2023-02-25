@@ -31,31 +31,31 @@ export interface ApplicationTab {
    * @type {number}
    * @memberof ApplicationTab
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {number}
    * @memberof ApplicationTab
    */
-  applicationId?: number;
+  ApplicationId?: number;
   /**
    *
    * @type {number}
    * @memberof ApplicationTab
    */
-  tabId?: number;
+  TabId?: number;
   /**
    *
    * @type {number}
    * @memberof ApplicationTab
    */
-  displayOrder?: number;
+  DisplayOrder?: number;
   /**
    *
    * @type {Application}
    * @memberof ApplicationTab
    */
-  application?: Application;
+  Application?: Application;
 }
 
 /**
@@ -79,15 +79,15 @@ export function ApplicationTabFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    applicationId: !exists(json, 'ApplicationId')
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    ApplicationId: !exists(json, 'ApplicationId')
       ? undefined
       : json['ApplicationId'],
-    tabId: !exists(json, 'TabId') ? undefined : json['TabId'],
-    displayOrder: !exists(json, 'DisplayOrder')
+    TabId: !exists(json, 'TabId') ? undefined : json['TabId'],
+    DisplayOrder: !exists(json, 'DisplayOrder')
       ? undefined
       : json['DisplayOrder'],
-    application: !exists(json, 'Application')
+    Application: !exists(json, 'Application')
       ? undefined
       : ApplicationFromJSON(json['Application']),
   };
@@ -101,10 +101,10 @@ export function ApplicationTabToJSON(value?: ApplicationTab | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    ApplicationId: value.applicationId,
-    TabId: value.tabId,
-    DisplayOrder: value.displayOrder,
-    Application: ApplicationToJSON(value.application),
+    Id: value.Id,
+    ApplicationId: value.ApplicationId,
+    TabId: value.TabId,
+    DisplayOrder: value.DisplayOrder,
+    Application: ApplicationToJSON(value.Application),
   };
 }

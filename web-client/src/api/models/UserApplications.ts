@@ -31,25 +31,25 @@ export interface UserApplications {
    * @type {number}
    * @memberof UserApplications
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {number}
    * @memberof UserApplications
    */
-  applicationId?: number;
+  ApplicationId?: number;
   /**
    *
    * @type {number}
    * @memberof UserApplications
    */
-  userId?: number;
+  UserId?: number;
   /**
    *
    * @type {Application}
    * @memberof UserApplications
    */
-  application?: Application;
+  Application?: Application;
 }
 
 /**
@@ -73,12 +73,12 @@ export function UserApplicationsFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    applicationId: !exists(json, 'ApplicationId')
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    ApplicationId: !exists(json, 'ApplicationId')
       ? undefined
       : json['ApplicationId'],
-    userId: !exists(json, 'UserId') ? undefined : json['UserId'],
-    application: !exists(json, 'Application')
+    UserId: !exists(json, 'UserId') ? undefined : json['UserId'],
+    Application: !exists(json, 'Application')
       ? undefined
       : ApplicationFromJSON(json['Application']),
   };
@@ -92,9 +92,9 @@ export function UserApplicationsToJSON(value?: UserApplications | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    ApplicationId: value.applicationId,
-    UserId: value.userId,
-    Application: ApplicationToJSON(value.application),
+    Id: value.Id,
+    ApplicationId: value.ApplicationId,
+    UserId: value.UserId,
+    Application: ApplicationToJSON(value.Application),
   };
 }

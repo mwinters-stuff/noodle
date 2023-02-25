@@ -52,83 +52,84 @@ import {
 } from '../models';
 
 export interface NoodleAppTemplatesGetRequest {
-  search: string;
+  Search: string;
 }
 
 export interface NoodleApplicationTabsDeleteRequest {
-  applicationTabId: number;
+  ApplicationTabId: number;
 }
 
 export interface NoodleApplicationTabsGetRequest {
-  tabId: number;
+  TabId: number;
 }
 
 export interface NoodleApplicationTabsPostRequest {
-  action: NoodleApplicationTabsPostActionEnum;
-  applicationTab: ApplicationTab;
+  Action: NoodleApplicationTabsPostActionEnum;
+  ApplicationTab: ApplicationTab;
 }
 
 export interface NoodleApplicationsDeleteRequest {
-  applicationId: number;
+  ApplicationId: number;
 }
 
 export interface NoodleApplicationsGetRequest {
-  applicationId?: number;
-  applicationTemplate?: string;
+  ApplicationId?: number;
+  ApplicationTemplate?: string;
 }
 
 export interface NoodleApplicationsPostRequest {
-  application: Application;
+  Action: NoodleApplicationsPostActionEnum;
+  Application: Application;
 }
 
 export interface NoodleGroupApplicationsDeleteRequest {
-  groupApplicationId: number;
+  GroupApplicationId: number;
 }
 
 export interface NoodleGroupApplicationsGetRequest {
-  groupId: number;
+  GroupId: number;
 }
 
 export interface NoodleGroupApplicationsPostRequest {
-  groupApplication: GroupApplications;
+  GroupApplication: GroupApplications;
 }
 
 export interface NoodleGroupsGetRequest {
-  groupid?: number;
+  Groupid?: number;
 }
 
 export interface NoodleTabsDeleteRequest {
-  tabid: number;
+  Tabid: number;
 }
 
 export interface NoodleTabsPostRequest {
-  action: NoodleTabsPostActionEnum;
-  tab: Tab;
+  Action: NoodleTabsPostActionEnum;
+  Tab: Tab;
 }
 
 export interface NoodleUserAllowedApplicationsGetRequest {
-  userId: number;
+  UserId: number;
 }
 
 export interface NoodleUserApplicationsDeleteRequest {
-  userApplicationId: number;
+  UserApplicationId: number;
 }
 
 export interface NoodleUserApplicationsGetRequest {
-  userId: number;
+  UserId: number;
 }
 
 export interface NoodleUserApplicationsPostRequest {
-  userApplication: UserApplications;
+  UserApplication: UserApplications;
 }
 
 export interface NoodleUserGroupsGetRequest {
-  userid?: number;
-  groupid?: number;
+  Userid?: number;
+  Groupid?: number;
 }
 
 export interface NoodleUsersGetRequest {
-  userid?: number;
+  Userid?: number;
 }
 
 /**
@@ -143,19 +144,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Array<ApplicationTemplate>>> {
     if (
-      requestParameters.search === null ||
-      requestParameters.search === undefined
+      requestParameters.Search === null ||
+      requestParameters.Search === undefined
     ) {
       throw new runtime.RequiredError(
-        'search',
-        'Required parameter requestParameters.search was null or undefined when calling noodleAppTemplatesGet.'
+        'Search',
+        'Required parameter requestParameters.Search was null or undefined when calling noodleAppTemplatesGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.search !== undefined) {
-      queryParameters['search'] = requestParameters.search;
+    if (requestParameters.Search !== undefined) {
+      queryParameters['search'] = requestParameters.Search;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -188,11 +189,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of application templates
    */
   async noodleAppTemplatesGet(
-    requestParameters: NoodleAppTemplatesGetRequest,
+    Search: string,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<ApplicationTemplate>> {
     const response = await this.noodleAppTemplatesGetRaw(
-      requestParameters,
+      { Search: Search },
       initOverrides
     );
     return await response.value();
@@ -206,20 +207,20 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<void>> {
     if (
-      requestParameters.applicationTabId === null ||
-      requestParameters.applicationTabId === undefined
+      requestParameters.ApplicationTabId === null ||
+      requestParameters.ApplicationTabId === undefined
     ) {
       throw new runtime.RequiredError(
-        'applicationTabId',
-        'Required parameter requestParameters.applicationTabId was null or undefined when calling noodleApplicationTabsDelete.'
+        'ApplicationTabId',
+        'Required parameter requestParameters.ApplicationTabId was null or undefined when calling noodleApplicationTabsDelete.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.applicationTabId !== undefined) {
+    if (requestParameters.ApplicationTabId !== undefined) {
       queryParameters['application_tab_id'] =
-        requestParameters.applicationTabId;
+        requestParameters.ApplicationTabId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -250,10 +251,13 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Deletes the application_tab
    */
   async noodleApplicationTabsDelete(
-    requestParameters: NoodleApplicationTabsDeleteRequest,
+    ApplicationTabId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<void> {
-    await this.noodleApplicationTabsDeleteRaw(requestParameters, initOverrides);
+    await this.noodleApplicationTabsDeleteRaw(
+      { ApplicationTabId: ApplicationTabId },
+      initOverrides
+    );
   }
 
   /**
@@ -264,19 +268,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Array<ApplicationTab>>> {
     if (
-      requestParameters.tabId === null ||
-      requestParameters.tabId === undefined
+      requestParameters.TabId === null ||
+      requestParameters.TabId === undefined
     ) {
       throw new runtime.RequiredError(
-        'tabId',
-        'Required parameter requestParameters.tabId was null or undefined when calling noodleApplicationTabsGet.'
+        'TabId',
+        'Required parameter requestParameters.TabId was null or undefined when calling noodleApplicationTabsGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.tabId !== undefined) {
-      queryParameters['tab_id'] = requestParameters.tabId;
+    if (requestParameters.TabId !== undefined) {
+      queryParameters['tab_id'] = requestParameters.TabId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -309,47 +313,47 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of applications under the tab
    */
   async noodleApplicationTabsGet(
-    requestParameters: NoodleApplicationTabsGetRequest,
+    TabId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<ApplicationTab>> {
     const response = await this.noodleApplicationTabsGetRaw(
-      requestParameters,
+      { TabId: TabId },
       initOverrides
     );
     return await response.value();
   }
 
   /**
-   * Adds a new application in a  tab
+   * Adds a new application in a tab, changes tab, or display order
    */
   async noodleApplicationTabsPostRaw(
     requestParameters: NoodleApplicationTabsPostRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<ApplicationTab>> {
     if (
-      requestParameters.action === null ||
-      requestParameters.action === undefined
+      requestParameters.Action === null ||
+      requestParameters.Action === undefined
     ) {
       throw new runtime.RequiredError(
-        'action',
-        'Required parameter requestParameters.action was null or undefined when calling noodleApplicationTabsPost.'
+        'Action',
+        'Required parameter requestParameters.Action was null or undefined when calling noodleApplicationTabsPost.'
       );
     }
 
     if (
-      requestParameters.applicationTab === null ||
-      requestParameters.applicationTab === undefined
+      requestParameters.ApplicationTab === null ||
+      requestParameters.ApplicationTab === undefined
     ) {
       throw new runtime.RequiredError(
-        'applicationTab',
-        'Required parameter requestParameters.applicationTab was null or undefined when calling noodleApplicationTabsPost.'
+        'ApplicationTab',
+        'Required parameter requestParameters.ApplicationTab was null or undefined when calling noodleApplicationTabsPost.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.action !== undefined) {
-      queryParameters['action'] = requestParameters.action;
+    if (requestParameters.Action !== undefined) {
+      queryParameters['action'] = requestParameters.Action;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -371,7 +375,7 @@ export class NoodleApiApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: ApplicationTabToJSON(requestParameters.applicationTab),
+        body: ApplicationTabToJSON(requestParameters.ApplicationTab),
       },
       initOverrides
     );
@@ -382,14 +386,15 @@ export class NoodleApiApi extends runtime.BaseAPI {
   }
 
   /**
-   * Adds a new application in a  tab
+   * Adds a new application in a tab, changes tab, or display order
    */
   async noodleApplicationTabsPost(
-    requestParameters: NoodleApplicationTabsPostRequest,
+    Action: NoodleApplicationTabsPostActionEnum,
+    ApplicationTab: ApplicationTab,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<ApplicationTab> {
     const response = await this.noodleApplicationTabsPostRaw(
-      requestParameters,
+      { Action: Action, ApplicationTab: ApplicationTab },
       initOverrides
     );
     return await response.value();
@@ -403,19 +408,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<void>> {
     if (
-      requestParameters.applicationId === null ||
-      requestParameters.applicationId === undefined
+      requestParameters.ApplicationId === null ||
+      requestParameters.ApplicationId === undefined
     ) {
       throw new runtime.RequiredError(
-        'applicationId',
-        'Required parameter requestParameters.applicationId was null or undefined when calling noodleApplicationsDelete.'
+        'ApplicationId',
+        'Required parameter requestParameters.ApplicationId was null or undefined when calling noodleApplicationsDelete.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.applicationId !== undefined) {
-      queryParameters['application_id'] = requestParameters.applicationId;
+    if (requestParameters.ApplicationId !== undefined) {
+      queryParameters['application_id'] = requestParameters.ApplicationId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -446,10 +451,13 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Deletes the application
    */
   async noodleApplicationsDelete(
-    requestParameters: NoodleApplicationsDeleteRequest,
+    ApplicationId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<void> {
-    await this.noodleApplicationsDeleteRaw(requestParameters, initOverrides);
+    await this.noodleApplicationsDeleteRaw(
+      { ApplicationId: ApplicationId },
+      initOverrides
+    );
   }
 
   /**
@@ -461,13 +469,13 @@ export class NoodleApiApi extends runtime.BaseAPI {
   ): Promise<runtime.ApiResponse<Array<Application>>> {
     const queryParameters: any = {};
 
-    if (requestParameters.applicationId !== undefined) {
-      queryParameters['application_id'] = requestParameters.applicationId;
+    if (requestParameters.ApplicationId !== undefined) {
+      queryParameters['application_id'] = requestParameters.ApplicationId;
     }
 
-    if (requestParameters.applicationTemplate !== undefined) {
+    if (requestParameters.ApplicationTemplate !== undefined) {
       queryParameters['application_template'] =
-        requestParameters.applicationTemplate;
+        requestParameters.ApplicationTemplate;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -500,11 +508,15 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets application by id or template_id
    */
   async noodleApplicationsGet(
-    requestParameters: NoodleApplicationsGetRequest = {},
+    ApplicationId?: number,
+    ApplicationTemplate?: string,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<Application>> {
     const response = await this.noodleApplicationsGetRaw(
-      requestParameters,
+      {
+        ApplicationId: ApplicationId,
+        ApplicationTemplate: ApplicationTemplate,
+      },
       initOverrides
     );
     return await response.value();
@@ -518,16 +530,30 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Application>> {
     if (
-      requestParameters.application === null ||
-      requestParameters.application === undefined
+      requestParameters.Action === null ||
+      requestParameters.Action === undefined
     ) {
       throw new runtime.RequiredError(
-        'application',
-        'Required parameter requestParameters.application was null or undefined when calling noodleApplicationsPost.'
+        'Action',
+        'Required parameter requestParameters.Action was null or undefined when calling noodleApplicationsPost.'
+      );
+    }
+
+    if (
+      requestParameters.Application === null ||
+      requestParameters.Application === undefined
+    ) {
+      throw new runtime.RequiredError(
+        'Application',
+        'Required parameter requestParameters.Application was null or undefined when calling noodleApplicationsPost.'
       );
     }
 
     const queryParameters: any = {};
+
+    if (requestParameters.Action !== undefined) {
+      queryParameters['action'] = requestParameters.Action;
+    }
 
     const headerParameters: runtime.HTTPHeaders = {};
 
@@ -548,7 +574,7 @@ export class NoodleApiApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: ApplicationToJSON(requestParameters.application),
+        body: ApplicationToJSON(requestParameters.Application),
       },
       initOverrides
     );
@@ -562,11 +588,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Adds a new application
    */
   async noodleApplicationsPost(
-    requestParameters: NoodleApplicationsPostRequest,
+    Action: NoodleApplicationsPostActionEnum,
+    Application: Application,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Application> {
     const response = await this.noodleApplicationsPostRaw(
-      requestParameters,
+      { Action: Action, Application: Application },
       initOverrides
     );
     return await response.value();
@@ -580,20 +607,20 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<void>> {
     if (
-      requestParameters.groupApplicationId === null ||
-      requestParameters.groupApplicationId === undefined
+      requestParameters.GroupApplicationId === null ||
+      requestParameters.GroupApplicationId === undefined
     ) {
       throw new runtime.RequiredError(
-        'groupApplicationId',
-        'Required parameter requestParameters.groupApplicationId was null or undefined when calling noodleGroupApplicationsDelete.'
+        'GroupApplicationId',
+        'Required parameter requestParameters.GroupApplicationId was null or undefined when calling noodleGroupApplicationsDelete.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.groupApplicationId !== undefined) {
+    if (requestParameters.GroupApplicationId !== undefined) {
       queryParameters['group_application_id'] =
-        requestParameters.groupApplicationId;
+        requestParameters.GroupApplicationId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -624,11 +651,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Deletes the group application
    */
   async noodleGroupApplicationsDelete(
-    requestParameters: NoodleGroupApplicationsDeleteRequest,
+    GroupApplicationId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<void> {
     await this.noodleGroupApplicationsDeleteRaw(
-      requestParameters,
+      { GroupApplicationId: GroupApplicationId },
       initOverrides
     );
   }
@@ -641,19 +668,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Array<GroupApplications>>> {
     if (
-      requestParameters.groupId === null ||
-      requestParameters.groupId === undefined
+      requestParameters.GroupId === null ||
+      requestParameters.GroupId === undefined
     ) {
       throw new runtime.RequiredError(
-        'groupId',
-        'Required parameter requestParameters.groupId was null or undefined when calling noodleGroupApplicationsGet.'
+        'GroupId',
+        'Required parameter requestParameters.GroupId was null or undefined when calling noodleGroupApplicationsGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.groupId !== undefined) {
-      queryParameters['group_id'] = requestParameters.groupId;
+    if (requestParameters.GroupId !== undefined) {
+      queryParameters['group_id'] = requestParameters.GroupId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -686,11 +713,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of group applications
    */
   async noodleGroupApplicationsGet(
-    requestParameters: NoodleGroupApplicationsGetRequest,
+    GroupId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<GroupApplications>> {
     const response = await this.noodleGroupApplicationsGetRaw(
-      requestParameters,
+      { GroupId: GroupId },
       initOverrides
     );
     return await response.value();
@@ -704,12 +731,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<GroupApplications>> {
     if (
-      requestParameters.groupApplication === null ||
-      requestParameters.groupApplication === undefined
+      requestParameters.GroupApplication === null ||
+      requestParameters.GroupApplication === undefined
     ) {
       throw new runtime.RequiredError(
-        'groupApplication',
-        'Required parameter requestParameters.groupApplication was null or undefined when calling noodleGroupApplicationsPost.'
+        'GroupApplication',
+        'Required parameter requestParameters.GroupApplication was null or undefined when calling noodleGroupApplicationsPost.'
       );
     }
 
@@ -734,7 +761,7 @@ export class NoodleApiApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: GroupApplicationsToJSON(requestParameters.groupApplication),
+        body: GroupApplicationsToJSON(requestParameters.GroupApplication),
       },
       initOverrides
     );
@@ -748,11 +775,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Adds a new group application
    */
   async noodleGroupApplicationsPost(
-    requestParameters: NoodleGroupApplicationsPostRequest,
+    GroupApplication: GroupApplications,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<GroupApplications> {
     const response = await this.noodleGroupApplicationsPostRaw(
-      requestParameters,
+      { GroupApplication: GroupApplication },
       initOverrides
     );
     return await response.value();
@@ -767,8 +794,8 @@ export class NoodleApiApi extends runtime.BaseAPI {
   ): Promise<runtime.ApiResponse<Array<Group>>> {
     const queryParameters: any = {};
 
-    if (requestParameters.groupid !== undefined) {
-      queryParameters['groupid'] = requestParameters.groupid;
+    if (requestParameters.Groupid !== undefined) {
+      queryParameters['groupid'] = requestParameters.Groupid;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -801,11 +828,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of groups
    */
   async noodleGroupsGet(
-    requestParameters: NoodleGroupsGetRequest = {},
+    Groupid?: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<Group>> {
     const response = await this.noodleGroupsGetRaw(
-      requestParameters,
+      { Groupid: Groupid },
       initOverrides
     );
     return await response.value();
@@ -901,19 +928,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<void>> {
     if (
-      requestParameters.tabid === null ||
-      requestParameters.tabid === undefined
+      requestParameters.Tabid === null ||
+      requestParameters.Tabid === undefined
     ) {
       throw new runtime.RequiredError(
-        'tabid',
-        'Required parameter requestParameters.tabid was null or undefined when calling noodleTabsDelete.'
+        'Tabid',
+        'Required parameter requestParameters.Tabid was null or undefined when calling noodleTabsDelete.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.tabid !== undefined) {
-      queryParameters['tabid'] = requestParameters.tabid;
+    if (requestParameters.Tabid !== undefined) {
+      queryParameters['tabid'] = requestParameters.Tabid;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -944,10 +971,10 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Deletes the tab
    */
   async noodleTabsDelete(
-    requestParameters: NoodleTabsDeleteRequest,
+    Tabid: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<void> {
-    await this.noodleTabsDeleteRaw(requestParameters, initOverrides);
+    await this.noodleTabsDeleteRaw({ Tabid: Tabid }, initOverrides);
   }
 
   /**
@@ -1002,26 +1029,26 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Tab>> {
     if (
-      requestParameters.action === null ||
-      requestParameters.action === undefined
+      requestParameters.Action === null ||
+      requestParameters.Action === undefined
     ) {
       throw new runtime.RequiredError(
-        'action',
-        'Required parameter requestParameters.action was null or undefined when calling noodleTabsPost.'
+        'Action',
+        'Required parameter requestParameters.Action was null or undefined when calling noodleTabsPost.'
       );
     }
 
-    if (requestParameters.tab === null || requestParameters.tab === undefined) {
+    if (requestParameters.Tab === null || requestParameters.Tab === undefined) {
       throw new runtime.RequiredError(
-        'tab',
-        'Required parameter requestParameters.tab was null or undefined when calling noodleTabsPost.'
+        'Tab',
+        'Required parameter requestParameters.Tab was null or undefined when calling noodleTabsPost.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.action !== undefined) {
-      queryParameters['action'] = requestParameters.action;
+    if (requestParameters.Action !== undefined) {
+      queryParameters['action'] = requestParameters.Action;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1043,7 +1070,7 @@ export class NoodleApiApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: TabToJSON(requestParameters.tab),
+        body: TabToJSON(requestParameters.Tab),
       },
       initOverrides
     );
@@ -1057,11 +1084,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Adds a new tab
    */
   async noodleTabsPost(
-    requestParameters: NoodleTabsPostRequest,
+    Action: NoodleTabsPostActionEnum,
+    Tab: Tab,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Tab> {
     const response = await this.noodleTabsPostRaw(
-      requestParameters,
+      { Action: Action, Tab: Tab },
       initOverrides
     );
     return await response.value();
@@ -1075,19 +1103,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Array<UsersApplicationItem>>> {
     if (
-      requestParameters.userId === null ||
-      requestParameters.userId === undefined
+      requestParameters.UserId === null ||
+      requestParameters.UserId === undefined
     ) {
       throw new runtime.RequiredError(
-        'userId',
-        'Required parameter requestParameters.userId was null or undefined when calling noodleUserAllowedApplicationsGet.'
+        'UserId',
+        'Required parameter requestParameters.UserId was null or undefined when calling noodleUserAllowedApplicationsGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.userId !== undefined) {
-      queryParameters['user_id'] = requestParameters.userId;
+    if (requestParameters.UserId !== undefined) {
+      queryParameters['user_id'] = requestParameters.UserId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1120,11 +1148,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of the applications the user can see
    */
   async noodleUserAllowedApplicationsGet(
-    requestParameters: NoodleUserAllowedApplicationsGetRequest,
+    UserId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<UsersApplicationItem>> {
     const response = await this.noodleUserAllowedApplicationsGetRaw(
-      requestParameters,
+      { UserId: UserId },
       initOverrides
     );
     return await response.value();
@@ -1138,20 +1166,20 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<void>> {
     if (
-      requestParameters.userApplicationId === null ||
-      requestParameters.userApplicationId === undefined
+      requestParameters.UserApplicationId === null ||
+      requestParameters.UserApplicationId === undefined
     ) {
       throw new runtime.RequiredError(
-        'userApplicationId',
-        'Required parameter requestParameters.userApplicationId was null or undefined when calling noodleUserApplicationsDelete.'
+        'UserApplicationId',
+        'Required parameter requestParameters.UserApplicationId was null or undefined when calling noodleUserApplicationsDelete.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.userApplicationId !== undefined) {
+    if (requestParameters.UserApplicationId !== undefined) {
       queryParameters['user_application_id'] =
-        requestParameters.userApplicationId;
+        requestParameters.UserApplicationId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1182,11 +1210,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Deletes the user application
    */
   async noodleUserApplicationsDelete(
-    requestParameters: NoodleUserApplicationsDeleteRequest,
+    UserApplicationId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<void> {
     await this.noodleUserApplicationsDeleteRaw(
-      requestParameters,
+      { UserApplicationId: UserApplicationId },
       initOverrides
     );
   }
@@ -1199,19 +1227,19 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<Array<UserApplications>>> {
     if (
-      requestParameters.userId === null ||
-      requestParameters.userId === undefined
+      requestParameters.UserId === null ||
+      requestParameters.UserId === undefined
     ) {
       throw new runtime.RequiredError(
-        'userId',
-        'Required parameter requestParameters.userId was null or undefined when calling noodleUserApplicationsGet.'
+        'UserId',
+        'Required parameter requestParameters.UserId was null or undefined when calling noodleUserApplicationsGet.'
       );
     }
 
     const queryParameters: any = {};
 
-    if (requestParameters.userId !== undefined) {
-      queryParameters['user_id'] = requestParameters.userId;
+    if (requestParameters.UserId !== undefined) {
+      queryParameters['user_id'] = requestParameters.UserId;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1244,11 +1272,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of user applications
    */
   async noodleUserApplicationsGet(
-    requestParameters: NoodleUserApplicationsGetRequest,
+    UserId: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<UserApplications>> {
     const response = await this.noodleUserApplicationsGetRaw(
-      requestParameters,
+      { UserId: UserId },
       initOverrides
     );
     return await response.value();
@@ -1262,12 +1290,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<runtime.ApiResponse<UserApplications>> {
     if (
-      requestParameters.userApplication === null ||
-      requestParameters.userApplication === undefined
+      requestParameters.UserApplication === null ||
+      requestParameters.UserApplication === undefined
     ) {
       throw new runtime.RequiredError(
-        'userApplication',
-        'Required parameter requestParameters.userApplication was null or undefined when calling noodleUserApplicationsPost.'
+        'UserApplication',
+        'Required parameter requestParameters.UserApplication was null or undefined when calling noodleUserApplicationsPost.'
       );
     }
 
@@ -1292,7 +1320,7 @@ export class NoodleApiApi extends runtime.BaseAPI {
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: UserApplicationsToJSON(requestParameters.userApplication),
+        body: UserApplicationsToJSON(requestParameters.UserApplication),
       },
       initOverrides
     );
@@ -1306,11 +1334,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Adds a new user application
    */
   async noodleUserApplicationsPost(
-    requestParameters: NoodleUserApplicationsPostRequest,
+    UserApplication: UserApplications,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<UserApplications> {
     const response = await this.noodleUserApplicationsPostRaw(
-      requestParameters,
+      { UserApplication: UserApplication },
       initOverrides
     );
     return await response.value();
@@ -1325,12 +1353,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
   ): Promise<runtime.ApiResponse<Array<UserGroup>>> {
     const queryParameters: any = {};
 
-    if (requestParameters.userid !== undefined) {
-      queryParameters['userid'] = requestParameters.userid;
+    if (requestParameters.Userid !== undefined) {
+      queryParameters['userid'] = requestParameters.Userid;
     }
 
-    if (requestParameters.groupid !== undefined) {
-      queryParameters['groupid'] = requestParameters.groupid;
+    if (requestParameters.Groupid !== undefined) {
+      queryParameters['groupid'] = requestParameters.Groupid;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1363,11 +1391,12 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of Groups for a user or users for a group
    */
   async noodleUserGroupsGet(
-    requestParameters: NoodleUserGroupsGetRequest = {},
+    Userid?: number,
+    Groupid?: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<UserGroup>> {
     const response = await this.noodleUserGroupsGetRaw(
-      requestParameters,
+      { Userid: Userid, Groupid: Groupid },
       initOverrides
     );
     return await response.value();
@@ -1382,8 +1411,8 @@ export class NoodleApiApi extends runtime.BaseAPI {
   ): Promise<runtime.ApiResponse<Array<User>>> {
     const queryParameters: any = {};
 
-    if (requestParameters.userid !== undefined) {
-      queryParameters['userid'] = requestParameters.userid;
+    if (requestParameters.Userid !== undefined) {
+      queryParameters['userid'] = requestParameters.Userid;
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -1416,11 +1445,11 @@ export class NoodleApiApi extends runtime.BaseAPI {
    * Gets the list of users or a single user
    */
   async noodleUsersGet(
-    requestParameters: NoodleUsersGetRequest = {},
+    Userid?: number,
     initOverrides?: RequestInit | runtime.InitOverrideFunction
   ): Promise<Array<User>> {
     const response = await this.noodleUsersGetRaw(
-      requestParameters,
+      { Userid: Userid },
       initOverrides
     );
     return await response.value();
@@ -1432,10 +1461,20 @@ export class NoodleApiApi extends runtime.BaseAPI {
  */
 export const NoodleApplicationTabsPostActionEnum = {
   Insert: 'insert',
-  Update: 'update',
+  UpdateTab: 'updateTab',
+  UpdateDisplayOrder: 'updateDisplayOrder',
 } as const;
 export type NoodleApplicationTabsPostActionEnum =
   (typeof NoodleApplicationTabsPostActionEnum)[keyof typeof NoodleApplicationTabsPostActionEnum];
+/**
+ * @export
+ */
+export const NoodleApplicationsPostActionEnum = {
+  Insert: 'insert',
+  Update: 'update',
+} as const;
+export type NoodleApplicationsPostActionEnum =
+  (typeof NoodleApplicationsPostActionEnum)[keyof typeof NoodleApplicationsPostActionEnum];
 /**
  * @export
  */

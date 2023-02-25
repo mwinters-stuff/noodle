@@ -31,19 +31,19 @@ export interface UsersApplicationItem {
    * @type {number}
    * @memberof UsersApplicationItem
    */
-  tabId?: number;
+  TabId?: number;
   /**
    *
    * @type {number}
    * @memberof UsersApplicationItem
    */
-  displayOrder?: number;
+  DisplayOrder?: number;
   /**
    *
    * @type {Application}
    * @memberof UsersApplicationItem
    */
-  application?: Application;
+  Application?: Application;
 }
 
 /**
@@ -67,11 +67,11 @@ export function UsersApplicationItemFromJSONTyped(
     return json;
   }
   return {
-    tabId: !exists(json, 'TabId') ? undefined : json['TabId'],
-    displayOrder: !exists(json, 'DisplayOrder')
+    TabId: !exists(json, 'TabId') ? undefined : json['TabId'],
+    DisplayOrder: !exists(json, 'DisplayOrder')
       ? undefined
       : json['DisplayOrder'],
-    application: !exists(json, 'Application')
+    Application: !exists(json, 'Application')
       ? undefined
       : ApplicationFromJSON(json['Application']),
   };
@@ -87,8 +87,8 @@ export function UsersApplicationItemToJSON(
     return null;
   }
   return {
-    TabId: value.tabId,
-    DisplayOrder: value.displayOrder,
-    Application: ApplicationToJSON(value.application),
+    TabId: value.TabId,
+    DisplayOrder: value.DisplayOrder,
+    Application: ApplicationToJSON(value.Application),
   };
 }

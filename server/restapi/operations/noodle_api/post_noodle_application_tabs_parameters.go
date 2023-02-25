@@ -124,7 +124,7 @@ func (o *PostNoodleApplicationTabsParams) bindAction(rawData []string, hasKey bo
 // validateAction carries on validations for parameter Action
 func (o *PostNoodleApplicationTabsParams) validateAction(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("action", "query", o.Action, []interface{}{"insert", "update"}, true); err != nil {
+	if err := validate.EnumCase("action", "query", o.Action, []interface{}{"insert", "updateTab", "updateDisplayOrder"}, true); err != nil {
 		return err
 	}
 

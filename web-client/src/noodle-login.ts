@@ -7,7 +7,7 @@ import { Router } from '@vaadin/router';
 import '@material/mwc-button';
 import '@material/mwc-textfield';
 import * as mwcTextfield from '@material/mwc-textfield';
-import { NoodleAuthApi, AuthAuthenticatePostRequest } from './api/index.js';
+import { NoodleAuthApi, UserLogin } from './api/index.js';
 
 @customElement('noodle-login')
 export class NoodleLogin extends LitElement {
@@ -69,18 +69,16 @@ export class NoodleLogin extends LitElement {
       return;
     }
 
-    const params: AuthAuthenticatePostRequest = {
-      login: {
-        username: this._usernameField.value,
-        password: this._passwordField.value,
-      },
+    const userLogin: UserLogin = {
+      Username: this._usernameField.value,
+      Password: this._passwordField.value,
     };
 
     api
-      .authAuthenticatePost(params)
+      .authAuthenticatePost(userLogin)
       .then(value => {
-        const expires = value.expires?.toUTCString();
-        document.cookie = `noodle-auth=${value.token}; expires=${expires}; Secure`;
+        const expires = value.Expires?.toUTCString();
+        document.cookie = `noodle-auth=${value.Token}; expires=${expires}; Secure`;
         Router.go('/dash/-1');
       })
       .catch(reason => {

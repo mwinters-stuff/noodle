@@ -24,43 +24,43 @@ export interface User {
    * @type {number}
    * @memberof User
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {string}
    * @memberof User
    */
-  username?: string;
+  Username?: string;
   /**
    *
    * @type {string}
    * @memberof User
    */
-  dN?: string;
+  DN?: string;
   /**
    *
    * @type {string}
    * @memberof User
    */
-  displayName?: string;
+  DisplayName?: string;
   /**
    *
    * @type {string}
    * @memberof User
    */
-  givenName?: string;
+  GivenName?: string;
   /**
    *
    * @type {string}
    * @memberof User
    */
-  surname?: string;
+  Surname?: string;
   /**
    *
    * @type {number}
    * @memberof User
    */
-  uidNumber?: number;
+  UidNumber?: number;
 }
 
 /**
@@ -84,13 +84,13 @@ export function UserFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    username: !exists(json, 'Username') ? undefined : json['Username'],
-    dN: !exists(json, 'DN') ? undefined : json['DN'],
-    displayName: !exists(json, 'DisplayName') ? undefined : json['DisplayName'],
-    givenName: !exists(json, 'GivenName') ? undefined : json['GivenName'],
-    surname: !exists(json, 'Surname') ? undefined : json['Surname'],
-    uidNumber: !exists(json, 'UidNumber') ? undefined : json['UidNumber'],
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    Username: !exists(json, 'Username') ? undefined : json['Username'],
+    DN: !exists(json, 'DN') ? undefined : json['DN'],
+    DisplayName: !exists(json, 'DisplayName') ? undefined : json['DisplayName'],
+    GivenName: !exists(json, 'GivenName') ? undefined : json['GivenName'],
+    Surname: !exists(json, 'Surname') ? undefined : json['Surname'],
+    UidNumber: !exists(json, 'UidNumber') ? undefined : json['UidNumber'],
   };
 }
 
@@ -102,12 +102,12 @@ export function UserToJSON(value?: User | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    Username: value.username,
-    DN: value.dN,
-    DisplayName: value.displayName,
-    GivenName: value.givenName,
-    Surname: value.surname,
-    UidNumber: value.uidNumber,
+    Id: value.Id,
+    Username: value.Username,
+    DN: value.DN,
+    DisplayName: value.DisplayName,
+    GivenName: value.GivenName,
+    Surname: value.Surname,
+    UidNumber: value.UidNumber,
   };
 }

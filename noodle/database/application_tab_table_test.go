@@ -134,18 +134,18 @@ func (suite *ApplicationTabTableTestSuite) TestInsert() {
 
 }
 
-func (suite *ApplicationTabTableTestSuite) TestUpdate() {
+func (suite *ApplicationTabTableTestSuite) TestUpdateTab() {
 	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
 
 	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
-		`F {"Type":"Parse","Name":"stmtcache_8","Query":"UPDATE application_tabs SET displayorder = $2 WHERE id = $1","ParameterOIDs":null}`,
+		`F {"Type":"Parse","Name":"stmtcache_8","Query":"UPDATE application_tabs SET tabid = $2 WHERE applicationid = $1","ParameterOIDs":null}`,
 		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_8"}`,
 		`F {"Type":"Sync"}`,
 		`B {"Type":"ParseComplete"}`,
 		`B {"Type":"ParameterDescription","ParameterOIDs":[23,23]}`,
 		`B {"Type":"NoData"}`,
 		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
-		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_8","ParameterFormatCodes":[1,1],"Parameters":[{"binary":"00000003"},{"binary":"00000001"}],"ResultFormatCodes":[]}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_8","ParameterFormatCodes":[1,1],"Parameters":[{"binary":"00000002"},{"binary":"00000002"}],"ResultFormatCodes":[]}`,
 		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
 		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
 		`F {"Type":"Sync"}`,
@@ -162,14 +162,49 @@ func (suite *ApplicationTabTableTestSuite) TestUpdate() {
 	err := db.Connect()
 	require.NoError(suite.T(), err)
 	at3 := models.ApplicationTab{
-		ID:            3,
 		TabID:         2,
 		ApplicationID: 2,
-		DisplayOrder:  1,
 	}
 	table := database.NewApplicationTabTable(db)
 
-	err = table.Update(at3)
+	err = table.UpdateTab(at3)
+	require.NoError(suite.T(), err)
+}
+
+func (suite *ApplicationTabTableTestSuite) TestUpdateDisplayOrder() {
+	suite.testFunctions.SetupConnectionSteps(suite.T(), suite.script)
+
+	suite.testFunctions.LoadDatabaseSteps(suite.T(), suite.script, []string{
+		`F {"Type":"Parse","Name":"stmtcache_8","Query":"UPDATE application_tabs SET displayorder = $2 WHERE id = $1","ParameterOIDs":null}`,
+		`F {"Type":"Describe","ObjectType":"S","Name":"stmtcache_8"}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"ParseComplete"}`,
+		`B {"Type":"ParameterDescription","ParameterOIDs":[23,23]}`,
+		`B {"Type":"NoData"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+		`F {"Type":"Bind","DestinationPortal":"","PreparedStatement":"stmtcache_8","ParameterFormatCodes":[1,1],"Parameters":[{"binary":"00000003"},{"binary":"0000000a"}],"ResultFormatCodes":[]}`,
+		`F {"Type":"Describe","ObjectType":"P","Name":""}`,
+		`F {"Type":"Execute","Portal":"","MaxRows":0}`,
+		`F {"Type":"Sync"}`,
+		`B {"Type":"BindComplete"}`,
+		`B {"Type":"NoData"}`,
+		`B {"Type":"CommandComplete","CommandTag":"UPDATE 1"}`,
+		`B {"Type":"ReadyForQuery","TxStatus":"I"}`,
+	})
+
+	db := database.NewDatabase(suite.appConfig.PostgresOptions)
+	assert.NotNil(suite.T(), db)
+	defer db.Close()
+
+	err := db.Connect()
+	require.NoError(suite.T(), err)
+	at3 := models.ApplicationTab{
+		ID:           3,
+		DisplayOrder: 10,
+	}
+	table := database.NewApplicationTabTable(db)
+
+	err = table.UpdateDisplayOrder(at3)
 	require.NoError(suite.T(), err)
 }
 

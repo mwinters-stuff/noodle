@@ -12,6 +12,7 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/validate"
 
 	"github.com/mwinters-stuff/noodle/server/models"
@@ -36,6 +37,11 @@ type PostNoodleApplicationsParams struct {
 
 	/*
 	  Required: true
+	  In: query
+	*/
+	Action string
+	/*
+	  Required: true
 	  In: body
 	*/
 	Application *models.Application
@@ -49,6 +55,13 @@ func (o *PostNoodleApplicationsParams) BindRequest(r *http.Request, route *middl
 	var res []error
 
 	o.HTTPRequest = r
+
+	qs := runtime.Values(r.URL.Query())
+
+	qAction, qhkAction, _ := qs.GetOK("action")
+	if err := o.bindAction(qAction, qhkAction, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	if runtime.HasBody(r) {
 		defer r.Body.Close()
@@ -80,5 +93,40 @@ func (o *PostNoodleApplicationsParams) BindRequest(r *http.Request, route *middl
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindAction binds and validates parameter Action from query.
+func (o *PostNoodleApplicationsParams) bindAction(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	if !hasKey {
+		return errors.Required("action", "query", rawData)
+	}
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: true
+	// AllowEmptyValue: false
+
+	if err := validate.RequiredString("action", "query", raw); err != nil {
+		return err
+	}
+	o.Action = raw
+
+	if err := o.validateAction(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateAction carries on validations for parameter Action
+func (o *PostNoodleApplicationsParams) validateAction(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("action", "query", o.Action, []interface{}{"insert", "update"}, true); err != nil {
+		return err
+	}
+
 	return nil
 }

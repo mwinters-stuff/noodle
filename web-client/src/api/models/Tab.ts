@@ -24,19 +24,19 @@ export interface Tab {
    * @type {number}
    * @memberof Tab
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {string}
    * @memberof Tab
    */
-  label?: string;
+  Label?: string;
   /**
    *
    * @type {number}
    * @memberof Tab
    */
-  displayOrder?: number;
+  DisplayOrder?: number;
 }
 
 /**
@@ -57,9 +57,9 @@ export function TabFromJSONTyped(json: any, ignoreDiscriminator: boolean): Tab {
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    label: !exists(json, 'Label') ? undefined : json['Label'],
-    displayOrder: !exists(json, 'DisplayOrder')
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    Label: !exists(json, 'Label') ? undefined : json['Label'],
+    DisplayOrder: !exists(json, 'DisplayOrder')
       ? undefined
       : json['DisplayOrder'],
   };
@@ -73,8 +73,8 @@ export function TabToJSON(value?: Tab | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    Label: value.label,
-    DisplayOrder: value.displayOrder,
+    Id: value.Id,
+    Label: value.Label,
+    DisplayOrder: value.DisplayOrder,
   };
 }

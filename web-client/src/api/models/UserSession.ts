@@ -24,31 +24,31 @@ export interface UserSession {
    * @type {number}
    * @memberof UserSession
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {number}
    * @memberof UserSession
    */
-  userId?: number;
+  UserId?: number;
   /**
    *
    * @type {string}
    * @memberof UserSession
    */
-  token?: string;
+  Token?: string;
   /**
    *
    * @type {Date}
    * @memberof UserSession
    */
-  issued?: Date;
+  Issued?: Date;
   /**
    *
    * @type {Date}
    * @memberof UserSession
    */
-  expires?: Date;
+  Expires?: Date;
 }
 
 /**
@@ -72,11 +72,11 @@ export function UserSessionFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    userId: !exists(json, 'UserId') ? undefined : json['UserId'],
-    token: !exists(json, 'Token') ? undefined : json['Token'],
-    issued: !exists(json, 'Issued') ? undefined : new Date(json['Issued']),
-    expires: !exists(json, 'Expires') ? undefined : new Date(json['Expires']),
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    UserId: !exists(json, 'UserId') ? undefined : json['UserId'],
+    Token: !exists(json, 'Token') ? undefined : json['Token'],
+    Issued: !exists(json, 'Issued') ? undefined : new Date(json['Issued']),
+    Expires: !exists(json, 'Expires') ? undefined : new Date(json['Expires']),
   };
 }
 
@@ -88,11 +88,11 @@ export function UserSessionToJSON(value?: UserSession | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    UserId: value.userId,
-    Token: value.token,
-    Issued: value.issued === undefined ? undefined : value.issued.toISOString(),
+    Id: value.Id,
+    UserId: value.UserId,
+    Token: value.Token,
+    Issued: value.Issued === undefined ? undefined : value.Issued.toISOString(),
     Expires:
-      value.expires === undefined ? undefined : value.expires.toISOString(),
+      value.Expires === undefined ? undefined : value.Expires.toISOString(),
   };
 }

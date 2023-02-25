@@ -24,43 +24,43 @@ export interface UserGroup {
    * @type {number}
    * @memberof UserGroup
    */
-  id?: number;
+  Id?: number;
   /**
    *
    * @type {number}
    * @memberof UserGroup
    */
-  groupId?: number;
+  GroupId?: number;
   /**
    *
    * @type {string}
    * @memberof UserGroup
    */
-  groupDN?: string;
+  GroupDN?: string;
   /**
    *
    * @type {string}
    * @memberof UserGroup
    */
-  groupName?: string;
+  GroupName?: string;
   /**
    *
    * @type {number}
    * @memberof UserGroup
    */
-  userId?: number;
+  UserId?: number;
   /**
    *
    * @type {string}
    * @memberof UserGroup
    */
-  userDN?: string;
+  UserDN?: string;
   /**
    *
    * @type {string}
    * @memberof UserGroup
    */
-  userName?: string;
+  UserName?: string;
 }
 
 /**
@@ -84,13 +84,13 @@ export function UserGroupFromJSONTyped(
     return json;
   }
   return {
-    id: !exists(json, 'Id') ? undefined : json['Id'],
-    groupId: !exists(json, 'GroupId') ? undefined : json['GroupId'],
-    groupDN: !exists(json, 'GroupDN') ? undefined : json['GroupDN'],
-    groupName: !exists(json, 'GroupName') ? undefined : json['GroupName'],
-    userId: !exists(json, 'UserId') ? undefined : json['UserId'],
-    userDN: !exists(json, 'UserDN') ? undefined : json['UserDN'],
-    userName: !exists(json, 'UserName') ? undefined : json['UserName'],
+    Id: !exists(json, 'Id') ? undefined : json['Id'],
+    GroupId: !exists(json, 'GroupId') ? undefined : json['GroupId'],
+    GroupDN: !exists(json, 'GroupDN') ? undefined : json['GroupDN'],
+    GroupName: !exists(json, 'GroupName') ? undefined : json['GroupName'],
+    UserId: !exists(json, 'UserId') ? undefined : json['UserId'],
+    UserDN: !exists(json, 'UserDN') ? undefined : json['UserDN'],
+    UserName: !exists(json, 'UserName') ? undefined : json['UserName'],
   };
 }
 
@@ -102,12 +102,12 @@ export function UserGroupToJSON(value?: UserGroup | null): any {
     return null;
   }
   return {
-    Id: value.id,
-    GroupId: value.groupId,
-    GroupDN: value.groupDN,
-    GroupName: value.groupName,
-    UserId: value.userId,
-    UserDN: value.userDN,
-    UserName: value.userName,
+    Id: value.Id,
+    GroupId: value.GroupId,
+    GroupDN: value.GroupDN,
+    GroupName: value.GroupName,
+    UserId: value.UserId,
+    UserDN: value.UserDN,
+    UserName: value.UserName,
   };
 }

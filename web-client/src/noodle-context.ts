@@ -31,7 +31,8 @@ export interface DataCache {
 
   SetTabs(value: Tab[]): void;
 
-  getApplication(id: number): Application;
+  GetApplication(id: number): Application;
+  GetTabIndex(tabId: number): number;
 }
 
 export const dataCacheContext = createContext<DataCache>('dataCache');

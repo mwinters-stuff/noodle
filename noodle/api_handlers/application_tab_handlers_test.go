@@ -179,8 +179,8 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsInsertEr
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
 
-func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdate() {
-	suite.mockApplicationTabTable.EXPECT().Update(models.ApplicationTab{
+func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateTab() {
+	suite.mockApplicationTabTable.EXPECT().UpdateTab(models.ApplicationTab{
 		ID:            1,
 		TabID:         1,
 		ApplicationID: 1,
@@ -196,7 +196,7 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdate()
 		ApplicationID: 1,
 		DisplayOrder:  2,
 	}
-	params.Action = "update"
+	params.Action = "updateTab"
 
 	response := suite.api.NoodleAPIPostNoodleApplicationTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)
@@ -209,8 +209,8 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdate()
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
 
-func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateError() {
-	suite.mockApplicationTabTable.EXPECT().Update(models.ApplicationTab{
+func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateTabError() {
+	suite.mockApplicationTabTable.EXPECT().UpdateTab(models.ApplicationTab{
 		ID:            1,
 		TabID:         1,
 		ApplicationID: 1,
@@ -226,7 +226,65 @@ func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateEr
 		ApplicationID: 1,
 		DisplayOrder:  2,
 	}
-	params.Action = "update"
+	params.Action = "updateTab"
+
+	response := suite.api.NoodleAPIPostNoodleApplicationTabsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(409).Once()
+	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateDisplayOrder() {
+	suite.mockApplicationTabTable.EXPECT().UpdateDisplayOrder(models.ApplicationTab{
+		ID:            1,
+		TabID:         1,
+		ApplicationID: 1,
+		DisplayOrder:  2,
+	}).Return(nil)
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewPostNoodleApplicationTabsParams()
+	params.ApplicationTab = &models.ApplicationTab{
+		ID:            1,
+		TabID:         1,
+		ApplicationID: 1,
+		DisplayOrder:  2,
+	}
+	params.Action = "updateDisplayOrder"
+
+	response := suite.api.NoodleAPIPostNoodleApplicationTabsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(200).Once()
+
+	mockWriter.EXPECT().Write([]byte(`{"ApplicationId":1,"DisplayOrder":2,"Id":1,"TabId":1}`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *ApplicationTabHandlersTestSuite) TestHandlerApplicationTabsUpdateDisplayOrderError() {
+	suite.mockApplicationTabTable.EXPECT().UpdateDisplayOrder(models.ApplicationTab{
+		ID:            1,
+		TabID:         1,
+		ApplicationID: 1,
+		DisplayOrder:  2,
+	}).Return(errors.New("failed"))
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewPostNoodleApplicationTabsParams()
+	params.ApplicationTab = &models.ApplicationTab{
+		ID:            1,
+		TabID:         1,
+		ApplicationID: 1,
+		DisplayOrder:  2,
+	}
+	params.Action = "updateDisplayOrder"
 
 	response := suite.api.NoodleAPIPostNoodleApplicationTabsHandler.Handle(params, &pr)
 	require.NotNil(suite.T(), response)

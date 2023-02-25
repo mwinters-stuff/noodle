@@ -29,8 +29,15 @@ func HandlerApplicationTabPost(db database.Database, params noodle_api.PostNoodl
 			return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
 		}
 	}
-	if params.Action == "update" {
-		err := db.Tables().ApplicationTabTable().Update(*params.ApplicationTab)
+	if params.Action == "updateTab" {
+		err := db.Tables().ApplicationTabTable().UpdateTab(*params.ApplicationTab)
+
+		if err != nil {
+			return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})
+		}
+	}
+	if params.Action == "updateDisplayOrder" {
+		err := db.Tables().ApplicationTabTable().UpdateDisplayOrder(*params.ApplicationTab)
 
 		if err != nil {
 			return noodle_api.NewPostNoodleTabsConflict().WithPayload(&models.Error{Message: err.Error()})

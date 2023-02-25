@@ -13,7 +13,11 @@ import (
 
 // PostNoodleApplicationsURL generates an URL for the post noodle applications operation
 type PostNoodleApplicationsURL struct {
+	Action string
+
 	_basePath string
+	// avoid unkeyed usage
+	_ struct{}
 }
 
 // WithBasePath sets the base path for this url builder, only required when it's different from the
@@ -42,6 +46,15 @@ func (o *PostNoodleApplicationsURL) Build() (*url.URL, error) {
 		_basePath = "/api"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
+
+	qs := make(url.Values)
+
+	actionQ := o.Action
+	if actionQ != "" {
+		qs.Set("action", actionQ)
+	}
+
+	_result.RawQuery = qs.Encode()
 
 	return &_result, nil
 }

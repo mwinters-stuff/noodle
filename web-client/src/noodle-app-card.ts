@@ -16,7 +16,7 @@ export class NoodleAppCard extends LitElement {
     this,
     dataCacheContext,
     () => {
-      this.application = this.dataCache.getApplication(this.appId);
+      this.application = this.dataCache.GetApplication(this.appId);
       // console.log("App Card: ", this.appId, JSON.stringify(this.application, null, 2))
     },
     true
@@ -31,10 +31,10 @@ export class NoodleAppCard extends LitElement {
   render() {
     return html`
       <div>
-        <mwc-button outlined label="${this.application?.name}"> </mwc-button>
+        <mwc-button outlined label="${this.application?.Name}"> </mwc-button>
         <img
-          src="/out-tsc/icons/${this.application?.icon}"
-          alt="${this.application?.icon}"
+          src="/out-tsc/icons/${this.application?.Icon}"
+          alt="${this.application?.Icon}"
           width="64px"
           height="64px"
         />

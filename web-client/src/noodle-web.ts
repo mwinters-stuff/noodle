@@ -12,7 +12,6 @@ import * as mwcSnackBar from '@material/mwc-snackbar';
 import { provide } from '@lit-labs/context';
 import {
   Application,
-  AuthSessionGetRequest,
   Configuration,
   ConfigurationParameters,
   NoodleApiApi,
@@ -55,7 +54,7 @@ export class NoodleWeb extends LitElement {
       // this._userApplications = uai;
       this._applications = [];
       uai.forEach(userApp => {
-        this._applications.push(userApp.application!);
+        this._applications.push(userApp.Application!);
       });
     },
 
@@ -65,8 +64,8 @@ export class NoodleWeb extends LitElement {
     Tabs(): Tab[] {
       return this._tabs;
     },
-    getApplication(id: number): Application {
-      return this.Applications().find(value => value.id === id)!;
+    GetApplication(id: number): Application {
+      return this.Applications().find(value => value.Id === id)!;
     },
     // UserApplications(): UsersApplicationItem[] {
     //   return this._userApplications;
@@ -74,6 +73,9 @@ export class NoodleWeb extends LitElement {
 
     SetTabs(value: Tab[]): void {
       this._tabs = value;
+    },
+    GetTabIndex(tabId: number): number {
+      return this._tabs.findIndex(tab => tab.Id === tabId);
     },
   };
 
@@ -125,13 +127,11 @@ export class NoodleWeb extends LitElement {
     this.noodleApi = new NoodleApiApi(config);
     this.authApi = new NoodleAuthApi(config);
 
-    const params: AuthSessionGetRequest = {
-      token: NoodleWeb.getAuthToken(),
-    };
+    const token = NoodleWeb.getAuthToken();
 
-    if (params.token !== '') {
+    if (token !== '') {
       this.authApi
-        .authSessionGet(params)
+        .authSessionGet(token)
         .then(value => {
           this.userSession = value;
           this.RefreshTabs();

@@ -382,14 +382,15 @@ paths:
     post:
       consumes:
       - application/json
-      description: Adds a new application in a  tab
+      description: Adds a new application in a tab, changes tab, or display order
       parameters:
         - name: action
           in: query
           type: string
           enum:
             - insert
-            - update
+            - updateTab
+            - updateDisplayOrder
           required: true
         - name: application_tab
           in: body
@@ -714,6 +715,13 @@ paths:
       - application/json
       description: Adds a new application
       parameters:
+        - name: action
+          in: query
+          type: string
+          enum:
+            - insert
+            - update
+          required: true
         - name: application
           in: body
           required: true

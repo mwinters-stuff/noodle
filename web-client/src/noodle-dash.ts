@@ -101,9 +101,9 @@ export class NoodleDash extends LitElement {
   }
 
   private RefreshUserApplications() {
-    if (this.userSession != null && this.userSession.userId != null) {
+    if (this.userSession != null && this.userSession.UserId != null) {
       this.noodleApi
-        .noodleUserAllowedApplicationsGet({ userId: this.userSession.userId! })
+        .noodleUserAllowedApplicationsGet(this.userSession.UserId!)
         .then(value => {
           this._userApplications = value;
           this.dataCache.SetUserApplications(value);
@@ -122,11 +122,11 @@ export class NoodleDash extends LitElement {
       this._tabs = value;
       if ((!this.tabId || this.tabId === -1) && this._tabs.length > 0) {
         // console.log("Dash RefreshTabs Redirect")
-        Router.go(`/dash/${this._tabs[0].id}`);
+        Router.go(`/dash/${this._tabs[0].Id}`);
       }
 
       this._tabs.forEach(tab => {
-        if (this.tabId === tab.id) {
+        if (this.tabId === tab.Id) {
           this.selectedTab = tab;
         }
       });
@@ -147,10 +147,10 @@ export class NoodleDash extends LitElement {
               ?activated=${this.selectedTab === tab}
               @click=${() => {
                 this.selectedTab = tab;
-                Router.go(`/dash/${tab.id}`);
+                Router.go(`/dash/${tab.Id}`);
                 this.openDrawer = false;
               }}
-              >${tab.label}
+              >${tab.Label}
             </mwc-list-item>
             <li divider padded role="separator"></li>`
         )}
@@ -163,13 +163,13 @@ export class NoodleDash extends LitElement {
       ${this._tabs.map(
         tab =>
           html`
-            <div id="tab${tab.id}" ?hidden=${tab.id !== this.tabId}>
+            <div id="tab${tab.Id}" ?hidden=${tab.Id !== this.tabId}>
               ${this._userApplications
-                .filter(value => value.tabId === tab.id)
+                .filter(value => value.TabId === tab.Id)
                 .map(
                   app =>
                     html`<noodle-app-card
-                      appId="${app.application?.id}"
+                      appId="${app.Application?.Id}"
                     ></noodle-app-card>`
                 )}
             </div>
@@ -186,7 +186,7 @@ export class NoodleDash extends LitElement {
           icon="menu"
           @click=${() => this.toggleHamburger()}
         ></mwc-icon-button>
-        <div slot="title" id="title">Noodle - ${this.selectedTab?.label}</div>
+        <div slot="title" id="title">Noodle - ${this.selectedTab?.Label}</div>
 
         <mwc-icon-button
           icon="apps"

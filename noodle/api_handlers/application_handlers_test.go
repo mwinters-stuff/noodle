@@ -213,6 +213,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsert() {
 	pr := models.Principal("")
 
 	params := noodle_api.NewPostNoodleApplicationsParams()
+	params.Action = "insert"
 	params.Application = &models.Application{
 		TemplateAppid:  "",
 		Name:           "AdGuard Home",
@@ -252,6 +253,86 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsertError()
 	pr := models.Principal("")
 
 	params := noodle_api.NewPostNoodleApplicationsParams()
+	params.Action = "insert"
+	params.Application = &models.Application{
+		TemplateAppid:  "",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+	}
+
+	response := suite.api.NoodleAPIPostNoodleApplicationsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(409).Once()
+	mockWriter.EXPECT().Write([]byte(`{"message":"failed"}`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdate() {
+	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Once()
+	suite.mockTables.EXPECT().ApplicationsTable().Return(suite.mockApplicationsTable).Once()
+	suite.mockApplicationsTable.EXPECT().Update(models.Application{
+		TemplateAppid:  "",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+	}).Return(nil)
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewPostNoodleApplicationsParams()
+	params.Action = "update"
+	params.Application = &models.Application{
+		TemplateAppid:  "",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+	}
+
+	response := suite.api.NoodleAPIPostNoodleApplicationsHandler.Handle(params, &pr)
+	require.NotNil(suite.T(), response)
+
+	mockWriter := handler_mocks.NewResponseWriter(suite.T())
+	mockWriter.EXPECT().WriteHeader(200).Once()
+
+	mockWriter.EXPECT().Write([]byte(`{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}`)).Once().Return(1, nil)
+
+	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
+}
+
+func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdateError() {
+	suite.mockDatabase.EXPECT().Tables().Return(suite.mockTables).Once()
+	suite.mockTables.EXPECT().ApplicationsTable().Return(suite.mockApplicationsTable).Once()
+	suite.mockApplicationsTable.EXPECT().Update(models.Application{
+		TemplateAppid:  "",
+		Name:           "AdGuard Home",
+		Website:        "https://github.com/AdguardTeam/AdGuardHome",
+		License:        "GNU General Public License v3.0 only",
+		Description:    "AdGuard Home is a network-wide software for blocking ads.",
+		Enhanced:       true,
+		TileBackground: "light",
+		Icon:           "adguardhome.png",
+	}).Return(errors.New("failed"))
+
+	pr := models.Principal("")
+
+	params := noodle_api.NewPostNoodleApplicationsParams()
+	params.Action = "update"
 	params.Application = &models.Application{
 		TemplateAppid:  "",
 		Name:           "AdGuard Home",

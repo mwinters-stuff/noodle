@@ -24,55 +24,55 @@ export interface ApplicationTemplate {
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  appid?: string;
+  Appid?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  name?: string;
+  Name?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  website?: string;
+  Website?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  license?: string;
+  License?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  description?: string;
+  Description?: string;
   /**
    *
    * @type {boolean}
    * @memberof ApplicationTemplate
    */
-  enhanced?: boolean;
+  Enhanced?: boolean;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  tileBackground?: string;
+  TileBackground?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  icon?: string;
+  Icon?: string;
   /**
    *
    * @type {string}
    * @memberof ApplicationTemplate
    */
-  sHA?: string;
+  SHA?: string;
 }
 
 /**
@@ -96,17 +96,17 @@ export function ApplicationTemplateFromJSONTyped(
     return json;
   }
   return {
-    appid: !exists(json, 'Appid') ? undefined : json['Appid'],
-    name: !exists(json, 'Name') ? undefined : json['Name'],
-    website: !exists(json, 'Website') ? undefined : json['Website'],
-    license: !exists(json, 'License') ? undefined : json['License'],
-    description: !exists(json, 'Description') ? undefined : json['Description'],
-    enhanced: !exists(json, 'Enhanced') ? undefined : json['Enhanced'],
-    tileBackground: !exists(json, 'tile_background')
+    Appid: !exists(json, 'Appid') ? undefined : json['Appid'],
+    Name: !exists(json, 'Name') ? undefined : json['Name'],
+    Website: !exists(json, 'Website') ? undefined : json['Website'],
+    License: !exists(json, 'License') ? undefined : json['License'],
+    Description: !exists(json, 'Description') ? undefined : json['Description'],
+    Enhanced: !exists(json, 'Enhanced') ? undefined : json['Enhanced'],
+    TileBackground: !exists(json, 'tile_background')
       ? undefined
       : json['tile_background'],
-    icon: !exists(json, 'Icon') ? undefined : json['Icon'],
-    sHA: !exists(json, 'SHA') ? undefined : json['SHA'],
+    Icon: !exists(json, 'Icon') ? undefined : json['Icon'],
+    SHA: !exists(json, 'SHA') ? undefined : json['SHA'],
   };
 }
 
@@ -120,14 +120,14 @@ export function ApplicationTemplateToJSON(
     return null;
   }
   return {
-    Appid: value.appid,
-    Name: value.name,
-    Website: value.website,
-    License: value.license,
-    Description: value.description,
-    Enhanced: value.enhanced,
-    tile_background: value.tileBackground,
-    Icon: value.icon,
-    SHA: value.sHA,
+    Appid: value.Appid,
+    Name: value.Name,
+    Website: value.Website,
+    License: value.License,
+    Description: value.Description,
+    Enhanced: value.Enhanced,
+    tile_background: value.TileBackground,
+    Icon: value.Icon,
+    SHA: value.SHA,
   };
 }

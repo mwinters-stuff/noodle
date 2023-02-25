@@ -34,7 +34,7 @@ func NewPostNoodleApplicationTabs(ctx *middleware.Context, handler PostNoodleApp
 /*
 	PostNoodleApplicationTabs swagger:route POST /noodle/application-tabs noodle-api postNoodleApplicationTabs
 
-Adds a new application in a  tab
+Adds a new application in a tab, changes tab, or display order
 */
 type PostNoodleApplicationTabs struct {
 	Context *middleware.Context

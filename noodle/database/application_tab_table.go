@@ -16,7 +16,8 @@ const applicationTabTableCreate = `CREATE TABLE IF NOT EXISTS application_tabs (
 
 const applicationTabTableInsertRow = `INSERT INTO application_tabs (tabid, applicationid, displayorder) VALUES ($1, $2, $3) RETURNING id`
 const applicationTabTableDrop = `DROP TABLE application_tabs`
-const applicationTabTableUpdateRow = `UPDATE application_tabs SET displayorder = $2 WHERE id = $1`
+const applicationTabTableUpdateTabRow = `UPDATE application_tabs SET tabid = $2 WHERE applicationid = $1`
+const applicationTabTableUpdateDisplayOrderRow = `UPDATE application_tabs SET displayorder = $2 WHERE id = $1`
 const applicationTabTableDeleteRow = `DELETE FROM application_tabs WHERE id = $1`
 const applicationTabTableQueryAll = `SELECT at.id, at.displayorder, app.id, app.name,app.website,app.license,app.description,app.enhanced,app.tilebackground,app.icon FROM application_tabs at, applications app WHERE at.tabid = $1 AND app.id = at.applicationid ORDER BY at.displayorder`
 
@@ -31,7 +32,8 @@ type ApplicationTabTable interface {
 	Drop() error
 
 	Insert(tab *models.ApplicationTab) error
-	Update(tab models.ApplicationTab) error
+	UpdateTab(tab models.ApplicationTab) error
+	UpdateDisplayOrder(tab models.ApplicationTab) error
 	Delete(id int64) error
 
 	GetTabApps(tabid int64) ([]*models.ApplicationTab, error)
@@ -118,8 +120,16 @@ func (i *ApplicationTabTableImpl) Insert(tab *models.ApplicationTab) error {
 }
 
 // Update implements ApplicationTabTable
-func (i *ApplicationTabTableImpl) Update(tab models.ApplicationTab) error {
-	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableUpdateRow,
+func (i *ApplicationTabTableImpl) UpdateTab(tab models.ApplicationTab) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableUpdateTabRow,
+		tab.ApplicationID,
+		tab.TabID,
+	)
+	return err
+}
+
+func (i *ApplicationTabTableImpl) UpdateDisplayOrder(tab models.ApplicationTab) error {
+	_, err := i.database.Pool().Exec(context.Background(), applicationTabTableUpdateDisplayOrderRow,
 		tab.ID,
 		tab.DisplayOrder,
 	)

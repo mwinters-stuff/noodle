@@ -1,12 +1,12 @@
 import { html, css, LitElement } from 'lit';
-import { query, customElement, state } from 'lit/decorators.js';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { query, customElement, state, property } from 'lit/decorators.js';
+
 import * as mwcButton from '@material/mwc-button';
 import * as mwcDialog from '@material/mwc-dialog';
 import * as mwcTextField from '@material/mwc-textfield';
 import * as mwcSelect from '@material/mwc-select';
 
-import { consume, ContextConsumer } from '@lit-labs/context';
+import { consume } from '@lit-labs/context';
 import {
   DataCache,
   dataCacheContext,
@@ -14,6 +14,7 @@ import {
   userSessionContext,
 } from './noodle-context.js';
 import {
+  Application,
   ApplicationTemplate,
   NoodleApiApi,
   NoodleApplicationsPostActionEnum,
@@ -28,8 +29,8 @@ import '@material/mwc-textfield';
 import '@material/mwc-formfield';
 import '@material/mwc-select';
 
-@customElement('noodle-add-user-application')
-export class NoodleAddUserApplication extends LitElement {
+@customElement('noodle-edit-user-application')
+export class NoodleEditUserApplication extends LitElement {
   @consume({ context: noodleApiContext })
   @state()
   noodleApi!: NoodleApiApi;
@@ -49,7 +50,13 @@ export class NoodleAddUserApplication extends LitElement {
   _icon!: string;
 
   @state()
+  selectedTabIndex: number = 0;
+
+  @state()
   errorText: string = '';
+
+  @property()
+  application: Application = {};
 
   @query('#primary-action-button')
   _primaryButton!: mwcButton.Button;
@@ -68,9 +75,6 @@ export class NoodleAddUserApplication extends LitElement {
 
   @query('#text-field-application-icon')
   _textFieldIcon!: mwcTextField.TextField;
-
-  @query('#select-template')
-  _selectTemplate!: mwcSelect.Select;
 
   @query('#select-tab')
   _selectTab!: mwcSelect.Select;
@@ -94,23 +98,10 @@ export class NoodleAddUserApplication extends LitElement {
     }
   `;
 
-  private _userSession = new ContextConsumer(
-    this,
-    userSessionContext,
-    () => this.Reload(),
-    true
-  );
-
-  private Reload() {
-    // eslint-disable-next-line no-console
-
-    this.noodleApi.noodleAppTemplatesGet('A').then(value => {
-      this._appTemplates = value;
-    });
-  }
-
-  public show() {
-    // this._textFieldApplicationName.value = '';
+  public show(application: Application, tabId: number) {
+    this.application = application;
+    // this._textFieldApplicationName.textContent = application.name!;
+    this._selectTab.select(this.dataCache.GetTabIndex(tabId));
     this._dialog.show();
   }
 
@@ -118,51 +109,41 @@ export class NoodleAddUserApplication extends LitElement {
     this.errorText = '';
     const isValid = this._textFieldApplicationName.checkValidity();
     if (isValid) {
-      let templateAppId: string | undefined;
-      if (this._selectTemplate.index > 0) {
-        templateAppId =
-          this._appTemplates[this._selectTemplate.index - 1].Appid;
+      this.application.Name = this._textFieldApplicationName.value;
+      this.application.Website = this._textFieldApplicationUrl.value;
+      this.application.Description = this._textFieldApplicationName.value;
+      this.application.TileBackground = this._textFieldBackground.value;
+      this.application.Icon = this._textFieldIcon.value;
+      if (this.application.TemplateAppid === '') {
+        this.application.TemplateAppid = undefined;
       }
 
       this.noodleApi
-        .noodleApplicationsPost(NoodleApplicationsPostActionEnum.Insert, {
-          TemplateAppid: templateAppId,
-          Name: this._textFieldApplicationName.value,
-          Website: this._textFieldApplicationUrl.value,
-          License: '',
-          Description: this._textFieldApplicationName.value,
-          TileBackground: this._textFieldBackground.value,
-          Icon: this._textFieldIcon.value,
-          Enhanced: false,
-        })
+        .noodleApplicationsPost(
+          NoodleApplicationsPostActionEnum.Update,
+          this.application
+        )
         .then(appResult => {
-          this.noodleApi
-            .noodleUserApplicationsPost({
-              ApplicationId: appResult.Id,
-              UserId: this._userSession.value?.UserId,
-            })
-            .then(() => {
-              const selectedTabId =
-                this.dataCache.Tabs()[this._selectTab.index]!.Id;
+          const selectedTabId =
+            this.dataCache.Tabs()[this._selectTab.index]!.Id;
 
-              this.noodleApi
-                .noodleApplicationTabsPost(
-                  NoodleApplicationTabsPostActionEnum.Insert,
-                  {
-                    ApplicationId: appResult.Id!,
-                    TabId: selectedTabId,
-                  }
-                )
-                .then(() => {
-                  this._dialog.close();
-                })
-                .catch(reason => {
-                  this.showError(reason);
-                });
+          this.noodleApi
+            .noodleApplicationTabsPost(
+              NoodleApplicationTabsPostActionEnum.UpdateTab,
+              {
+                ApplicationId: appResult.Id!,
+                TabId: selectedTabId,
+              }
+            )
+            .then(() => {
+              this._dialog.close();
             })
             .catch(reason => {
               this.showError(reason);
             });
+        })
+        .catch(reason => {
+          this.showError(reason);
         });
 
       return;
@@ -180,31 +161,8 @@ export class NoodleAddUserApplication extends LitElement {
   private dialogClosed(event: Event) {
     if (event.target === event.currentTarget) {
       this.errorText = '';
-      this.dispatchEvent(new Event('add-user-application-dialog-closed'));
+      this.dispatchEvent(new Event('edit-user-application-dialog-closed'));
     }
-  }
-
-  private applicationTemplateSelected() {
-    if (this._selectTemplate.index > 0) {
-      const template = this._appTemplates[this._selectTemplate.index - 1];
-      this._textFieldApplicationName.value = template.Name!;
-      this._textFieldApplicationUrl.value = template.Website!;
-      this._textFieldBackground.value = template.TileBackground!;
-      this._textFieldIcon.value = template.Icon!;
-      this._icon = template.Icon!;
-    }
-  }
-
-  private appTemplatesListTemplate() {
-    if (this._appTemplates != null) {
-      return html`
-        <mwc-list-item></mwc-list-item>
-        ${this._appTemplates.map(
-          at => html`<mwc-list-item><b>${at.Name}</b> </mwc-list-item>`
-        )}
-      `;
-    }
-    return html``;
   }
 
   private tabsListTemplate() {
@@ -219,19 +177,11 @@ export class NoodleAddUserApplication extends LitElement {
     return html`
       <mwc-dialog
         id="dialog"
-        heading="Add User Application"
+        heading="Edit User Application"
         scrimClickAction=""
         @closed=${this.dialogClosed}
       >
         <div class="vertical">
-          <mwc-select
-            outlined
-            id="select-template"
-            @selected=${this.applicationTemplateSelected}
-            label="Application Template"
-          >
-            ${this.appTemplatesListTemplate()}
-          </mwc-select>
           <mwc-select outlined id="select-tab" label="Tab">
             ${this.tabsListTemplate()}
           </mwc-select>
@@ -242,6 +192,7 @@ export class NoodleAddUserApplication extends LitElement {
             maxlength="50"
             label="Application name"
             required
+            value="${this.application.Name!}"
           >
           </mwc-textfield>
           <mwc-textfield
@@ -251,6 +202,7 @@ export class NoodleAddUserApplication extends LitElement {
             maxlength="246"
             label="Url"
             required
+            value="${this.application.Website!}"
           >
           </mwc-textfield>
           <mwc-textfield
@@ -260,6 +212,7 @@ export class NoodleAddUserApplication extends LitElement {
             maxlength="246"
             label="Background Colour"
             required
+            value="${this.application.TileBackground!}"
           >
           </mwc-textfield>
           <mwc-textfield
@@ -269,12 +222,13 @@ export class NoodleAddUserApplication extends LitElement {
             maxlength="246"
             label="Icon"
             required
+            value="${this.application.Icon!}"
           >
           </mwc-textfield>
           <img
             width="128px"
             height="128px"
-            src="/out-tsc/icons/${this._icon}"
+            src="/out-tsc/icons/${this.application.Icon}"
             alt="icon"
           />
           <div>${this.errorText}</div>
