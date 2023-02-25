@@ -9,15 +9,18 @@ import '@material/mwc-list';
 import '@material/mwc-snackbar';
 import './noodle-add-user-application.js';
 import './noodle-edit-user-application.js';
+import './noodle-delete-user-application.js';
 
 import * as mwcSnackBar from '@material/mwc-snackbar';
 import * as aua from './noodle-add-user-application.js';
 import * as eua from './noodle-edit-user-application.js';
+import * as dua from './noodle-delete-user-application.js';
 
 import {
   Application,
   ApplicationTab,
   NoodleApiApi,
+  NoodleApplicationTabsPostActionEnum,
   Tab,
   UserApplications,
   UserSession,
@@ -65,6 +68,9 @@ export class NoodleUserApplications extends LitElement {
   @query('#edit-user-application')
   _editUserApplication!: eua.NoodleEditUserApplication;
 
+  @query('#delete-user-application')
+  _deleteUserApplication!: dua.NoodleDeleteUserApplication;
+
   static styles = css`
     :host {
       display: block;
@@ -83,6 +89,9 @@ export class NoodleUserApplications extends LitElement {
       flex-direction: row;
       justify-content: flex-end;
       align-items: center;
+    }
+    mwc-icon-button[disabled] {
+      opacity: 0.5; /* reduce opacity to create a disabled effect */
     }
   `;
 
@@ -135,6 +144,18 @@ export class NoodleUserApplications extends LitElement {
     return result;
   }
 
+  private getAppTabIDForAppInTab(tabid: number, applicationId: number): number {
+    if (this.applicationTabs[tabid]) {
+      const apptab = this.applicationTabs[tabid].find(
+        value => value.ApplicationId === applicationId
+      );
+      if (apptab != null) {
+        return apptab.Id!;
+      }
+    }
+    return -1;
+  }
+
   applicationsListTemplate() {
     return html`
       <mwc-list>
@@ -144,7 +165,7 @@ export class NoodleUserApplications extends LitElement {
             </mwc-list-item>
             <li divider padded role="separator"></li>
             ${this.getAppsForTab(tab.Id!).map(
-              app =>
+              (app, index, array) =>
                 html`<mwc-list-item graphic="avatar" twoLine hasMeta>
                   <span>${app.Application?.Name}</span>
                   <span slot="secondary">${app.Application?.Website}</span>
@@ -164,8 +185,19 @@ export class NoodleUserApplications extends LitElement {
                     ></mwc-icon-button>
                     <mwc-icon-button
                       icon="delete"
+                      @click=${() => this.deleteUserApplicationDialog(app)}
+                    ></mwc-icon-button>
+                    <mwc-icon-button
+                      icon="arrow_upward"
+                      ?disabled=${index === 0}
                       @click=${() =>
-                        this.deleteUserApplication(app.Application!)}
+                        this.moveApp(app.Application!, tab.Id!, index, -1)}
+                    ></mwc-icon-button>
+                    <mwc-icon-button
+                      icon="arrow_downward"
+                      ?disabled=${index === array.length - 1}
+                      @click=${() =>
+                        this.moveApp(app.Application!, tab.Id!, index, 1)}
                     ></mwc-icon-button>
                   </div>
                 </mwc-list-item> `
@@ -175,14 +207,56 @@ export class NoodleUserApplications extends LitElement {
     `;
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
   private editUserApplicationDialog(application: Application, tabId: number) {
     this._editUserApplication.show(application, tabId);
   }
 
-  // eslint-disable-next-line class-methods-use-this, @typescript-eslint/no-unused-vars
-  private deleteUserApplication(application: Application) {
-    throw new Error('Method not implemented.');
+  private deleteUserApplicationDialog(userApplication: UserApplications) {
+    this._deleteUserApplication.show(userApplication);
+  }
+
+  private static swapElements(
+    array: UserApplications[],
+    index1: number,
+    index2: number
+  ): UserApplications[] {
+    const temp = array[index1];
+    const a2 = array;
+    // Swap the values of the properties of the two items
+    a2[index1] = array[index2];
+    a2[index2] = temp;
+    return a2;
+  }
+
+  private moveApp(
+    application: Application,
+    tabid: number,
+    index: number,
+    by: number
+  ) {
+    const apps = NoodleUserApplications.swapElements(
+      this.getAppsForTab(tabid),
+      index,
+      index + by
+    );
+    // update tab indexes.
+    apps.forEach((value: UserApplications, indexInList: number) => {
+      const apptabid = this.getAppTabIDForAppInTab(tabid, value.ApplicationId!);
+      if (apptabid > -1) {
+        this.noodleApi
+          .noodleApplicationTabsPost(
+            NoodleApplicationTabsPostActionEnum.UpdateDisplayOrder,
+            {
+              Id: apptabid,
+              DisplayOrder: indexInList,
+            }
+          )
+          .catch(reason => {
+            this.showError(reason);
+          });
+      }
+    });
+    this.refreshUserApplications();
   }
 
   private showAddUserApplicationDialog() {
@@ -210,10 +284,17 @@ export class NoodleUserApplications extends LitElement {
         id="add-user-application"
         @add-user-application-dialog-closed=${this.refreshUserApplications}
       ></noodle-add-user-application>
+
       <noodle-edit-user-application
         id="edit-user-application"
         @edit-user-application-dialog-closed=${this.refreshUserApplications}
-      ></noodle-add-user-application>      
+      ></noodle-edit-user-application>
+
+      <noodle-delete-user-application
+        id="delete-user-application"
+        @delete-user-application-dialog-closed=${this.refreshUserApplications}
+      ></noodle-delete-user-application>
+
       <mwc-snackbar id="error-snack" labelText="${this.errorMessage}">
         <mwc-icon-button icon="close" slot="dismiss"></mwc-icon-button>
       </mwc-snackbar>

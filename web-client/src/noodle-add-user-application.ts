@@ -1,6 +1,5 @@
 import { html, css, LitElement } from 'lit';
 import { query, customElement, state } from 'lit/decorators.js';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import * as mwcButton from '@material/mwc-button';
 import * as mwcDialog from '@material/mwc-dialog';
 import * as mwcTextField from '@material/mwc-textfield';
@@ -102,15 +101,12 @@ export class NoodleAddUserApplication extends LitElement {
   );
 
   private Reload() {
-    // eslint-disable-next-line no-console
-
     this.noodleApi.noodleAppTemplatesGet('A').then(value => {
       this._appTemplates = value;
     });
   }
 
   public show() {
-    // this._textFieldApplicationName.value = '';
     this._dialog.show();
   }
 

@@ -965,10 +965,10 @@
     globby "^11.0.4"
     typescript "^4.3.2"
 
-"@esbuild/linux-x64@0.17.8":
-  version "0.17.8"
-  resolved "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.17.8.tgz"
-  integrity sha512-mM/9S0SbAFDBc4OPoyP6SEOo5324LpUxdpeIUUSrSTOfhHU9hEfqRngmKgqILqwx/0DVJBzeNW7HmLEWp9vcOA==
+"@esbuild/linux-x64@0.17.9":
+  version "0.17.9"
+  resolved "https://registry.npmjs.org/@esbuild/linux-x64/-/linux-x64-0.17.9.tgz"
+  integrity sha512-jVa5NKqwBmq57aNDZOSnNuRTV5GrI93HdjTlyQyRrOs7OSEQq2r9NyaGd6KmzuxLz19XTanFt4WeGoLnjFT1Ug==
 
 "@eslint/eslintrc@^1.4.1":
   version "1.4.1"
@@ -1879,6 +1879,14 @@
     "@material/feature-targeting" "14.0.0-canary.53b3cad2f.0"
     "@material/theme" "14.0.0-canary.53b3cad2f.0"
     tslib "^2.1.0"
+
+"@material/web@^1.0.0-pre.3":
+  version "1.0.0-pre.3"
+  resolved "https://registry.npmjs.org/@material/web/-/web-1.0.0-pre.3.tgz"
+  integrity sha512-E1Ia0H44iTods3nV7qjpP97TF54rFtWKRsSCRZ9Ue5Lv+pU7PTnSdQOPO2qI7x9Ku34p3s30zGwwhlQoSNot8A==
+  dependencies:
+    lit "^2.3.0"
+    tslib "^2.4.0"
 
 "@nicolo-ribaudo/eslint-scope-5-internals@5.1.1-v1":
   version "5.1.1-v1"
@@ -3832,32 +3840,32 @@ es-to-primitive@^1.2.1:
     is-symbol "^1.0.2"
 
 esbuild@>=0.10.1:
-  version "0.17.8"
-  resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.17.8.tgz"
-  integrity sha512-g24ybC3fWhZddZK6R3uD2iF/RIPnRpwJAqLov6ouX3hMbY4+tKolP0VMF3zuIYCaXun+yHwS5IPQ91N2BT191g==
+  version "0.17.9"
+  resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.17.9.tgz"
+  integrity sha512-m3b2MR76QkwKPw/KQBlBJVaIncfQhhXsDMCFPoyqEOIziV+O7BAKqOYT1NbHsnFUX0/98CLWxUfM5stzh4yq4Q==
   optionalDependencies:
-    "@esbuild/android-arm" "0.17.8"
-    "@esbuild/android-arm64" "0.17.8"
-    "@esbuild/android-x64" "0.17.8"
-    "@esbuild/darwin-arm64" "0.17.8"
-    "@esbuild/darwin-x64" "0.17.8"
-    "@esbuild/freebsd-arm64" "0.17.8"
-    "@esbuild/freebsd-x64" "0.17.8"
-    "@esbuild/linux-arm" "0.17.8"
-    "@esbuild/linux-arm64" "0.17.8"
-    "@esbuild/linux-ia32" "0.17.8"
-    "@esbuild/linux-loong64" "0.17.8"
-    "@esbuild/linux-mips64el" "0.17.8"
-    "@esbuild/linux-ppc64" "0.17.8"
-    "@esbuild/linux-riscv64" "0.17.8"
-    "@esbuild/linux-s390x" "0.17.8"
-    "@esbuild/linux-x64" "0.17.8"
-    "@esbuild/netbsd-x64" "0.17.8"
-    "@esbuild/openbsd-x64" "0.17.8"
-    "@esbuild/sunos-x64" "0.17.8"
-    "@esbuild/win32-arm64" "0.17.8"
-    "@esbuild/win32-ia32" "0.17.8"
-    "@esbuild/win32-x64" "0.17.8"
+    "@esbuild/android-arm" "0.17.9"
+    "@esbuild/android-arm64" "0.17.9"
+    "@esbuild/android-x64" "0.17.9"
+    "@esbuild/darwin-arm64" "0.17.9"
+    "@esbuild/darwin-x64" "0.17.9"
+    "@esbuild/freebsd-arm64" "0.17.9"
+    "@esbuild/freebsd-x64" "0.17.9"
+    "@esbuild/linux-arm" "0.17.9"
+    "@esbuild/linux-arm64" "0.17.9"
+    "@esbuild/linux-ia32" "0.17.9"
+    "@esbuild/linux-loong64" "0.17.9"
+    "@esbuild/linux-mips64el" "0.17.9"
+    "@esbuild/linux-ppc64" "0.17.9"
+    "@esbuild/linux-riscv64" "0.17.9"
+    "@esbuild/linux-s390x" "0.17.9"
+    "@esbuild/linux-x64" "0.17.9"
+    "@esbuild/netbsd-x64" "0.17.9"
+    "@esbuild/openbsd-x64" "0.17.9"
+    "@esbuild/sunos-x64" "0.17.9"
+    "@esbuild/win32-arm64" "0.17.9"
+    "@esbuild/win32-ia32" "0.17.9"
+    "@esbuild/win32-x64" "0.17.9"
 
 escalade@^3.1.1:
   version "3.1.1"
@@ -5243,7 +5251,7 @@ lit-html@^2.0.0, lit-html@^2.2.0, lit-html@^2.6.0:
   dependencies:
     "@types/trusted-types" "^2.0.2"
 
-lit@^2.0.0, lit@^2.0.2, lit@^2.5.0:
+lit@^2.0.0, lit@^2.0.2, lit@^2.3.0, lit@^2.5.0:
   version "2.6.1"
   resolved "https://registry.npmjs.org/lit/-/lit-2.6.1.tgz"
   integrity sha512-DT87LD64f8acR7uVp7kZfhLRrHkfC/N4BVzAtnw9Yg8087mbBJ//qedwdwX0kzDbxgPccWRW6mFwGbRQIxy0pw==
@@ -6671,7 +6679,7 @@ tslib@^1.9.0:
   resolved "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
 
-tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1:
+tslib@^2.0.1, tslib@^2.0.3, tslib@^2.1.0, tslib@^2.3.1, tslib@^2.4.0:
   version "2.5.0"
   resolved "https://registry.npmjs.org/tslib/-/tslib-2.5.0.tgz"
   integrity sha512-336iVw3rtn2BUK7ORdIAHTyxHGRIHVReokCR3XjbckJMK7ms8FysBfhLR8IXnAgy7T0PTPNBWKiH514FOW/WSg==
