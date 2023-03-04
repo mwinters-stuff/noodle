@@ -70,6 +70,8 @@ func (suite *HandlersTestSuite) TestRegisterAPIHandlers() {
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUserGroupsHandler)
 
 	require.NotNil(suite.T(), suite.api.NoodleAPIGetNoodleUsersHandler)
+
+	require.NotNil(suite.T(), suite.api.NoodleAPIPostNoodleUploadIconHandler)
 }
 
 func TestHandlersTestSuite(t *testing.T) {

@@ -2,6 +2,9 @@ package heimdall_test
 
 import (
 	"errors"
+	"io"
+	"os"
+	"strings"
 	"testing"
 
 	"github.com/h2non/gock"
@@ -43,6 +46,7 @@ func (suite *HeimdallAppsTestSuite) SetupTest() {
 }
 
 func (suite *HeimdallAppsTestSuite) TearDownTest() {
+	os.Remove("/tmp/abc.def")
 	database.NewAppTemplateTable = database.NewAppTemplateTableImpl
 }
 
@@ -424,6 +428,66 @@ func (suite *HeimdallAppsTestSuite) TestDownloadIconWriteFileError() {
 
 	err := h.UpdateFromServer()
 	require.ErrorContains(suite.T(), err, "open /somepath/that/doesnt/exist/adguardhome.png: no such file or directory")
+
+}
+
+func (suite *HeimdallAppsTestSuite) TestListIcons() {
+	suite.testOptions.IconSavePath = "/tmp"
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	files, err := h.ListIcons()
+
+	require.NoError(suite.T(), err)
+	require.NotEmpty(suite.T(), files)
+}
+
+func (suite *HeimdallAppsTestSuite) TestListIconsErr() {
+	suite.testOptions.IconSavePath = "/tmptemp"
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	files, err := h.ListIcons()
+
+	require.Error(suite.T(), err)
+	require.Empty(suite.T(), files)
+}
+
+func (suite *HeimdallAppsTestSuite) TestUploadIcon() {
+	suite.testOptions.IconSavePath = "/tmp"
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	reader := io.NopCloser(strings.NewReader("hello world"))
+
+	err := h.UploadIcon("abc.def", reader)
+
+	require.NoError(suite.T(), err)
+
+	require.FileExists(suite.T(), "/tmp/abc.def")
+
+	content, err := os.ReadFile("/tmp/abc.def")
+	require.NoError(suite.T(), err)
+	require.Equal(suite.T(), "hello world", string(content))
+
+}
+
+func (suite *HeimdallAppsTestSuite) TestUploadIconError() {
+	suite.testOptions.IconSavePath = "/tmptemp"
+
+	h := heimdall.NewHeimdall(suite.mockDatabase, suite.testOptions)
+	require.NotNil(suite.T(), h)
+
+	reader := io.NopCloser(strings.NewReader("hello world"))
+
+	err := h.UploadIcon("abc.def", reader)
+
+	require.Error(suite.T(), err)
+
+	require.NoFileExists(suite.T(), "/tmp/abc.def")
 
 }
 

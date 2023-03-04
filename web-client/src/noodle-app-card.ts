@@ -32,12 +32,7 @@ export class NoodleAppCard extends LitElement {
     return html`
       <div>
         <mwc-button outlined label="${this.application?.Name}"> </mwc-button>
-        <img
-          src="/out-tsc/icons/${this.application?.Icon}"
-          alt="${this.application?.Icon}"
-          width="64px"
-          height="64px"
-        />
+        <img src="/out-tsc/icons/${this.application?.Icon}" alt="${this.application?.Icon}" width="64px" height="64px" />
       </div>
     `;
   }

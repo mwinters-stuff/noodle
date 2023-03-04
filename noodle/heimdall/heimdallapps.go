@@ -21,11 +21,42 @@ var (
 //go:generate go run github.com/vektra/mockery/v2 --with-expecter --case underscore --name Heimdall
 type Heimdall interface {
 	UpdateFromServer() error
+	UploadIcon(filename string, data io.ReadCloser) error
+	ListIcons() ([]string, error)
 }
 
 type HeimdallImpl struct {
 	database database.Database
 	options  options.NoodleOptions
+}
+
+// ListIcons implements Heimdall
+func (i *HeimdallImpl) ListIcons() ([]string, error) {
+	files, err := os.ReadDir(i.options.IconSavePath)
+	if err != nil {
+		Logger.Error().Msgf("ListIcons: %s", err.Error())
+		return nil, err
+	}
+
+	filenames := []string{}
+
+	for _, file := range files {
+		if !file.IsDir() {
+			filenames = append(filenames, file.Name())
+		}
+	}
+	return filenames, nil
+}
+
+// UploadIcon implements Heimdall
+func (i *HeimdallImpl) UploadIcon(filename string, reader io.ReadCloser) error {
+	data, _ := io.ReadAll(reader)
+	err := os.WriteFile(path.Join(i.options.IconSavePath, filename), data, 0644)
+	if err != nil {
+		Logger.Error().Msgf("Download Icon Write: %s", err.Error())
+		return err
+	}
+	return nil
 }
 
 // UpdateFromServer implements Heimdall

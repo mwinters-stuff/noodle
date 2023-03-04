@@ -43,7 +43,8 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
 
-		JSONConsumer: runtime.JSONConsumer(),
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
 
 		JSONProducer: runtime.JSONProducer(),
 
@@ -95,6 +96,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		NoodleAPIGetNoodleTabsHandler: noodle_api.GetNoodleTabsHandlerFunc(func(params noodle_api.GetNoodleTabsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleTabs has not yet been implemented")
 		}),
+		NoodleAPIGetNoodleUploadIconHandler: noodle_api.GetNoodleUploadIconHandlerFunc(func(params noodle_api.GetNoodleUploadIconParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.GetNoodleUploadIcon has not yet been implemented")
+		}),
 		NoodleAPIGetNoodleUserAllowedApplicationsHandler: noodle_api.GetNoodleUserAllowedApplicationsHandlerFunc(func(params noodle_api.GetNoodleUserAllowedApplicationsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.GetNoodleUserAllowedApplications has not yet been implemented")
 		}),
@@ -124,6 +128,9 @@ func NewNoodleAPI(spec *loads.Document) *NoodleAPI {
 		}),
 		NoodleAPIPostNoodleTabsHandler: noodle_api.PostNoodleTabsHandlerFunc(func(params noodle_api.PostNoodleTabsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.PostNoodleTabs has not yet been implemented")
+		}),
+		NoodleAPIPostNoodleUploadIconHandler: noodle_api.PostNoodleUploadIconHandlerFunc(func(params noodle_api.PostNoodleUploadIconParams, principal *models.Principal) middleware.Responder {
+			return middleware.NotImplemented("operation noodle_api.PostNoodleUploadIcon has not yet been implemented")
 		}),
 		NoodleAPIPostNoodleUserApplicationsHandler: noodle_api.PostNoodleUserApplicationsHandlerFunc(func(params noodle_api.PostNoodleUserApplicationsParams, principal *models.Principal) middleware.Responder {
 			return middleware.NotImplemented("operation noodle_api.PostNoodleUserApplications has not yet been implemented")
@@ -170,6 +177,9 @@ type NoodleAPI struct {
 	// JSONConsumer registers a consumer for the following mime types:
 	//   - application/json
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for the following mime types:
+	//   - multipart/form-data
+	MultipartformConsumer runtime.Consumer
 
 	// JSONProducer registers a producer for the following mime types:
 	//   - application/json
@@ -218,6 +228,8 @@ type NoodleAPI struct {
 	NoodleAPIGetNoodleLdapReloadHandler noodle_api.GetNoodleLdapReloadHandler
 	// NoodleAPIGetNoodleTabsHandler sets the operation handler for the get noodle tabs operation
 	NoodleAPIGetNoodleTabsHandler noodle_api.GetNoodleTabsHandler
+	// NoodleAPIGetNoodleUploadIconHandler sets the operation handler for the get noodle upload icon operation
+	NoodleAPIGetNoodleUploadIconHandler noodle_api.GetNoodleUploadIconHandler
 	// NoodleAPIGetNoodleUserAllowedApplicationsHandler sets the operation handler for the get noodle user allowed applications operation
 	NoodleAPIGetNoodleUserAllowedApplicationsHandler noodle_api.GetNoodleUserAllowedApplicationsHandler
 	// NoodleAPIGetNoodleUserApplicationsHandler sets the operation handler for the get noodle user applications operation
@@ -238,6 +250,8 @@ type NoodleAPI struct {
 	NoodleAPIPostNoodleGroupApplicationsHandler noodle_api.PostNoodleGroupApplicationsHandler
 	// NoodleAPIPostNoodleTabsHandler sets the operation handler for the post noodle tabs operation
 	NoodleAPIPostNoodleTabsHandler noodle_api.PostNoodleTabsHandler
+	// NoodleAPIPostNoodleUploadIconHandler sets the operation handler for the post noodle upload icon operation
+	NoodleAPIPostNoodleUploadIconHandler noodle_api.PostNoodleUploadIconHandler
 	// NoodleAPIPostNoodleUserApplicationsHandler sets the operation handler for the post noodle user applications operation
 	NoodleAPIPostNoodleUserApplicationsHandler noodle_api.PostNoodleUserApplicationsHandler
 
@@ -312,6 +326,9 @@ func (o *NoodleAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
 
 	if o.JSONProducer == nil {
 		unregistered = append(unregistered, "JSONProducer")
@@ -372,6 +389,9 @@ func (o *NoodleAPI) Validate() error {
 	if o.NoodleAPIGetNoodleTabsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleTabsHandler")
 	}
+	if o.NoodleAPIGetNoodleUploadIconHandler == nil {
+		unregistered = append(unregistered, "noodle_api.GetNoodleUploadIconHandler")
+	}
 	if o.NoodleAPIGetNoodleUserAllowedApplicationsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.GetNoodleUserAllowedApplicationsHandler")
 	}
@@ -401,6 +421,9 @@ func (o *NoodleAPI) Validate() error {
 	}
 	if o.NoodleAPIPostNoodleTabsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.PostNoodleTabsHandler")
+	}
+	if o.NoodleAPIPostNoodleUploadIconHandler == nil {
+		unregistered = append(unregistered, "noodle_api.PostNoodleUploadIconHandler")
 	}
 	if o.NoodleAPIPostNoodleUserApplicationsHandler == nil {
 		unregistered = append(unregistered, "noodle_api.PostNoodleUserApplicationsHandler")
@@ -453,6 +476,8 @@ func (o *NoodleAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -577,6 +602,10 @@ func (o *NoodleAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/noodle/upload-icon"] = noodle_api.NewGetNoodleUploadIcon(o.context, o.NoodleAPIGetNoodleUploadIconHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/noodle/user-allowed-applications"] = noodle_api.NewGetNoodleUserAllowedApplications(o.context, o.NoodleAPIGetNoodleUserAllowedApplicationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -614,6 +643,10 @@ func (o *NoodleAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/noodle/tabs"] = noodle_api.NewPostNoodleTabs(o.context, o.NoodleAPIPostNoodleTabsHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/noodle/upload-icon"] = noodle_api.NewPostNoodleUploadIcon(o.context, o.NoodleAPIPostNoodleUploadIconHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

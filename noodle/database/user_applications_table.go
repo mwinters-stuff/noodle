@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/mwinters-stuff/noodle/server/models"
@@ -113,7 +114,7 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApp
 	}
 	results := []*models.UserApplications{}
 	var id, applicationid int64
-	var name, website, license, description, tilebackground, icon, templateappid string
+	var name, website, license, description, tilebackground, icon, templateappid sql.NullString
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{
 		&id,
@@ -134,14 +135,14 @@ func (i *UserApplicationsTableImpl) GetUserApps(userid int64) ([]*models.UserApp
 			ApplicationID: applicationid,
 			Application: &models.Application{
 				ID:             applicationid,
-				TemplateAppid:  templateappid,
-				Name:           name,
-				Website:        website,
-				License:        license,
-				Description:    description,
+				TemplateAppid:  templateappid.String,
+				Name:           name.String,
+				Website:        website.String,
+				License:        license.String,
+				Description:    description.String,
 				Enhanced:       enhanced,
-				TileBackground: tilebackground,
-				Icon:           icon,
+				TileBackground: tilebackground.String,
+				Icon:           icon.String,
 			},
 		})
 		return nil

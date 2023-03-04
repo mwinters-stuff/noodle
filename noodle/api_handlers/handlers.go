@@ -43,4 +43,8 @@ func RegisterApiHandlers(api *operations.NoodleAPI, db database.Database, ldap l
 
 	// APPLICATIONS
 	RegisterApplicationsApiHandlers(api, db)
+
+	// UPLOAD ICONS
+	RegisterUploadIconApiHandlers(api, heimdall)
+
 }

@@ -276,7 +276,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -313,7 +313,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -338,11 +338,11 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Invalid Input
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
         - noodle-api
       security: 
@@ -369,7 +369,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -407,7 +407,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -432,11 +432,11 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Invalid Input
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
         - noodle-api
       security: 
@@ -463,7 +463,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -493,7 +493,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -518,11 +518,11 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Invalid Input
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
         - noodle-api
       security: 
@@ -547,7 +547,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -578,7 +578,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -608,7 +608,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -633,11 +633,11 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Invalid Input
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
         - noodle-api
       security: 
@@ -665,7 +665,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -700,7 +700,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -737,7 +737,7 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Failed
           schema:
@@ -762,17 +762,68 @@ paths:
         '401':
           description: unauthorized
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
         '409':
           description: Invalid Input
           schema:
-            $ref: "#/definitions/error"
+            $ref: '#/definitions/error'
       tags:
         - noodle-api
       security: 
        - remote-user: []
        - token: []
 
+  /noodle/upload-icon:
+    get:
+      description: Gets list of upload icon filenames
+      produces:
+      - application/json
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: array
+            items:
+              type: string
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+       - remote-user: []
+       - token: []
+
+    post:
+      description: Uploads an icon file
+      consumes:
+         - multipart/form-data
+      parameters:
+         - in: formData
+           name: upfile
+           type: file
+           description: The file to upload.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: unauthorized
+          schema:
+            $ref: '#/definitions/error'
+        '409':
+          description: Failed
+          schema:
+            $ref: '#/definitions/error'
+      tags:
+        - noodle-api
+      security: 
+       - remote-user: []
+       - token: []
 
 schemes:
 - http

@@ -1,3 +1,6 @@
 {
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "html.customData": [
+    "./web-client/node_modules/@shoelace-style/shoelace/dist/vscode.html-custom-data.json"
+  ]
 }

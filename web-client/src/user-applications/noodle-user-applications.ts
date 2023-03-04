@@ -3,10 +3,17 @@ import { query, customElement, state } from 'lit/decorators.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { consume, ContextConsumer } from '@lit-labs/context';
 
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+
+
 import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
 import '@material/mwc-snackbar';
+
 import './noodle-add-user-application.js';
 import './noodle-edit-user-application.js';
 import './noodle-delete-user-application.js';
@@ -24,8 +31,8 @@ import {
   Tab,
   UserApplications,
   UserSession,
-} from './api/index.js';
-import { noodleApiContext, userSessionContext } from './noodle-context.js';
+} from '../api/index.js';
+import { noodleApiContext, userSessionContext } from '../noodle-context.js';
 
 @customElement('noodle-user-applications')
 export class NoodleUserApplications extends LitElement {
@@ -95,7 +102,10 @@ export class NoodleUserApplications extends LitElement {
     }
   `;
 
-  firstUpdated() {}
+  firstUpdated() {
+    // Set the base path to the folder you copied Shoelace's assets to
+    setBasePath('node_modules/@shoelace-style/shoelace/dist');
+  }
 
   refreshUserApplications() {
     if (this.userSession != null && this.userSession.UserId != null) {

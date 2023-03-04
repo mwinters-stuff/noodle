@@ -5,7 +5,10 @@ import { customElement, query, state } from 'lit/decorators.js';
 
 import './noodle-login.js';
 import './noodle-dash.js';
-import './noodle-user-applications.js';
+import './user-applications/noodle-user-applications.js';
+import './settings/noodle-settings.js';
+
+// import '@shoelace-style/shoelace/dist/themes/light.css';
 
 import * as mwcSnackBar from '@material/mwc-snackbar';
 
@@ -201,6 +204,7 @@ export class NoodleWeb extends LitElement {
       { path: '/login', component: 'noodle-login' },
       { path: '/logout', action: this.logout },
       { path: '/user-applications', component: 'noodle-user-applications' },
+      { path: '/settings', component: 'noodle-settings' },
       {
         path: '(.*)',
         redirect: '/dash',

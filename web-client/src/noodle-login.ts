@@ -4,9 +4,13 @@ import { property, customElement, query } from 'lit/decorators.js';
 
 import { Router } from '@vaadin/router';
 
-import '@material/mwc-button';
-import '@material/mwc-textfield';
-import * as mwcTextfield from '@material/mwc-textfield';
+import '@shoelace-style/shoelace/dist/themes/light.styles.js';
+import '@shoelace-style/shoelace/dist/themes/dark.styles.js';
+
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
+
+import SlInput from '@shoelace-style/shoelace/dist/components/input/input';
 import { NoodleAuthApi, UserLogin } from './api/index.js';
 
 @customElement('noodle-login')
@@ -14,10 +18,10 @@ export class NoodleLogin extends LitElement {
   @property({ type: String }) header = 'Noodle';
 
   @query('#username')
-  _usernameField!: mwcTextfield.TextField;
+  _usernameField!: SlInput;
 
   @query('#password')
-  _passwordField!: mwcTextfield.TextField;
+  _passwordField!: SlInput;
 
   @property({ type: String }) _errorMessage: string = '';
 
@@ -43,9 +47,13 @@ export class NoodleLogin extends LitElement {
       align-items: center;
       flex-direction: column;
     }
-    mwc-textfield {
+    sl-input{
+      text-align: start;
       margin-bottom: 16px;
     }
+    // mwc-textfield {
+    //   margin-bottom: 16px;
+    // }
     div.error {
       margin-top: 10px;
       color: red;
@@ -62,10 +70,14 @@ export class NoodleLogin extends LitElement {
     this._errorMessage = '';
     const api = new NoodleAuthApi();
 
-    if (
-      !this._usernameField.checkValidity() ||
-      !this._passwordField.checkValidity()
-    ) {
+    if (!this._usernameField.checkValidity()) {
+      this._usernameField.reportValidity();
+      this._usernameField.focus();
+      return;
+    }
+    if(!this._passwordField.checkValidity()) {
+      this._usernameField.reportValidity();
+      this._passwordField.focus();
       return;
     }
 
@@ -82,15 +94,19 @@ export class NoodleLogin extends LitElement {
         Router.go('/dash/-1');
       })
       .catch(reason => {
+        this._usernameField.focus();
         if (reason.response.statusText) {
           console.error(reason.response.statusText);
           this._errorMessage = reason.response.statusText;
         } else {
           console.error(reason);
           this._errorMessage = reason;
+
         }
       });
   }
+
+
 
   render() {
     return html`
@@ -98,20 +114,19 @@ export class NoodleLogin extends LitElement {
         <div align="center" class="middle">
           <img width="250px" height="250px" src="../../assets/noodle-icon.svg" alt="Noodle Logo"></img>
           <h1>${this.header}</h1>
+          <div align="left">
+            <sl-input id="username" autofocus minlength="3" maxlength="64" label="Username" required @keyup=${(ev:
+              KeyboardEvent)=> this.keyEvent(ev)}>
+            </sl-input>
       
-          <mwc-textfield outlined id="username" minlength="3" maxlength="64" label="Username" required @keyup=${(
-            ev: KeyboardEvent
-          ) => this.keyEvent(ev)}>
-          </mwc-textfield>
-      
-          <mwc-textfield outlined id="password" minlength="3" maxlength="64" label="Password" required type="password"
-            @keyup=${(ev: KeyboardEvent) => this.keyEvent(ev)}>
-          </mwc-textfield>
-      
-          <mwc-button type="submit" id="login-button" raised @click=${() =>
-            this.login()}>
+            <sl-input id="password" minlength="3" maxlength="64" label="Password" required type="password" password-toggle
+              @keyup=${(ev: KeyboardEvent)=> this.keyEvent(ev)}>
+            </sl-input>
+          </div>
+          <sl-button id="login-button" variant="primary" outline @click=${()=>
+                  this.login()}>
             Login
-          </mwc-button>
+          </sl-button>
           <div class="error">${this._errorMessage}</div>
         </div>
       </main>

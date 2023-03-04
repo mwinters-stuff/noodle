@@ -5,6 +5,8 @@ import { importMetaAssets } from '@web/rollup-plugin-import-meta-assets';
 import esbuild from 'rollup-plugin-esbuild';
 import { generateSW } from 'rollup-plugin-workbox';
 import path from 'path';
+// import copy from 'rollup-plugin-copy';
+// import css from 'rollup-plugin-css-only';
 
 export default {
   input: 'index.html',
@@ -29,10 +31,24 @@ export default {
     /** Minify JS, compile JS to a lower language target */
     esbuild({
       minify: true,
-      target: ['chrome64', 'firefox67', 'safari11.1'],
+      target: ['chrome100', 'firefox100'],
     }),    
     /** Bundle assets references via import.meta.url */
     importMetaAssets(),
+    // Bundle styles into dist/bundle.css
+    // css({
+    //   output: 'bundle.css' 
+    // }),
+    // // Copy Shoelace assets to dist/shoelace
+    // copy({
+    //   copyOnce: true,
+    //   targets: [
+    //     {
+    //       src: path.resolve(__dirname, 'node_modules/@shoelace-style/shoelace/dist/assets'),
+    //       dest: path.resolve(__dirname, 'dist/shoelace')
+    //     }
+    //   ]
+    // }),
     /** Minify html and css tagged template literals */
     babel({
       plugins: [
@@ -51,6 +67,7 @@ export default {
             },
           },
         ],
+        
       ],
     }),
     /** Create and inject a service worker */
