@@ -1,6 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { query, customElement, state, property } from 'lit/decorators.js';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { customElement, state, property } from 'lit/decorators.js';
 import { consume, ContextConsumer } from '@lit-labs/context';
 
 import '@material/mwc-top-app-bar-fixed';
@@ -8,17 +7,14 @@ import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-drawer';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
-import '@material/mwc-snackbar';
-import '@material/mwc-fab';
 import '@material/mwc-tab-bar';
 import '@material/mwc-tab';
 import '@material/mwc-tab-indicator';
 
 import { Router } from '@vaadin/router';
 
-import * as mwcSnackBar from '@material/mwc-snackbar';
 
-import './noodle-app-card.js';
+import './noodle-dash-app-card.js';
 
 import {
   NoodleApiApi,
@@ -32,6 +28,7 @@ import {
   noodleApiContext,
   userSessionContext,
 } from './noodle-context.js';
+import { Functions } from './common/functions.js';
 
 @customElement('noodle-dash')
 export class NoodleDash extends LitElement {
@@ -65,12 +62,6 @@ export class NoodleDash extends LitElement {
 
   @state()
   selectedTabIndex: number = 0;
-
-  @state()
-  errorMessage = '';
-
-  @query('#error-snack')
-  _errorSnack!: mwcSnackBar.Snackbar;
 
   @state()
   private _userApplications: UsersApplicationItem[] = [];
@@ -116,7 +107,7 @@ export class NoodleDash extends LitElement {
           // console.log(JSON.stringify(this._userApplications,null,2  ))
         })
         .catch(reason => {
-          this.showError(reason);
+          Functions.showWebResponseError(reason);
         });
       this.RefreshTabs();
     }
@@ -140,11 +131,6 @@ export class NoodleDash extends LitElement {
       }
 
     });
-  }
-
-  showError(error: string) {
-    this.errorMessage = error;
-    this._errorSnack.show();
   }
 
   tabListTemplate() {
@@ -174,9 +160,9 @@ export class NoodleDash extends LitElement {
                 .filter(value => value.TabId === tab.Id)
                 .map(
                   app =>
-                    html`<noodle-app-card
+                    html`<noodle-dash-app-card
                       appId="${app.Application?.Id}"
-                    ></noodle-app-card>`
+                    ></noodle-dash-app-card>`
                 )}
             </div>
           `
@@ -220,12 +206,6 @@ export class NoodleDash extends LitElement {
   }
 
   render() {
-    return html`
-        ${this.topBarTemplate()}
-
-      <mwc-snackbar id="error-snack" labelText="${this.errorMessage}">
-        <mwc-icon-button icon="close" slot="dismiss"></mwc-icon-button>
-      </mwc-snackbar>
-    `;
+    return html`${this.topBarTemplate()}`;
   }
 }

@@ -3,7 +3,7 @@ import { query, customElement, state } from 'lit/decorators.js';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { consume, ContextConsumer } from '@lit-labs/context';
 
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
 
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
@@ -12,13 +12,11 @@ import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
-import '@material/mwc-snackbar';
 
 import './noodle-add-user-application.js';
 import './noodle-edit-user-application.js';
 import './noodle-delete-user-application.js';
 
-import * as mwcSnackBar from '@material/mwc-snackbar';
 import * as aua from './noodle-add-user-application.js';
 import * as eua from './noodle-edit-user-application.js';
 import * as dua from './noodle-delete-user-application.js';
@@ -33,6 +31,7 @@ import {
   UserSession,
 } from '../api/index.js';
 import { noodleApiContext, userSessionContext } from '../noodle-context.js';
+import { Functions } from '../common/functions.js';
 
 @customElement('noodle-user-applications')
 export class NoodleUserApplications extends LitElement {
@@ -61,13 +60,7 @@ export class NoodleUserApplications extends LitElement {
   applicationTabs: ApplicationTab[][] = [];
 
   @state()
-  errorMessage = '';
-
-  @state()
   userApplications: UserApplications[] = [];
-
-  @query('#error-snack')
-  _errorSnack!: mwcSnackBar.Snackbar;
 
   @query('#add-user-application')
   _addUserApplication!: aua.NoodleAddUserApplication;
@@ -103,8 +96,6 @@ export class NoodleUserApplications extends LitElement {
   `;
 
   firstUpdated() {
-    // Set the base path to the folder you copied Shoelace's assets to
-    setBasePath('node_modules/@shoelace-style/shoelace/dist');
   }
 
   refreshUserApplications() {
@@ -124,20 +115,15 @@ export class NoodleUserApplications extends LitElement {
                   this.requestUpdate();
                 })
                 .catch(reason => {
-                  this.showError(reason);
+                  Functions.showWebResponseError(reason);
                 });
             });
           });
         })
         .catch(reason => {
-          this.showError(reason);
+          Functions.showWebResponseError(reason);
         });
     }
-  }
-
-  showError(error: string) {
-    this.errorMessage = error;
-    this._errorSnack.show();
   }
 
   private getAppsForTab(tabid: number): UserApplications[] {
@@ -262,7 +248,7 @@ export class NoodleUserApplications extends LitElement {
             }
           )
           .catch(reason => {
-            this.showError(reason);
+            Functions.showWebResponseError(reason);
           });
       }
     });
@@ -304,10 +290,6 @@ export class NoodleUserApplications extends LitElement {
         id="delete-user-application"
         @delete-user-application-dialog-closed=${this.refreshUserApplications}
       ></noodle-delete-user-application>
-
-      <mwc-snackbar id="error-snack" labelText="${this.errorMessage}">
-        <mwc-icon-button icon="close" slot="dismiss"></mwc-icon-button>
-      </mwc-snackbar>
     `;
   }
 }

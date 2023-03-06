@@ -9,7 +9,7 @@ info:
   title: Noodle
   version: "2.0"
 basePath: /api
-host: localhost:8081
+host: localhost:9081
 securityDefinitions:
   remote-user:
     type: apiKey
@@ -947,6 +947,8 @@ definitions:
       Enhanced:
         type: boolean
       TileBackground:
+        type: string
+      TextColor:
         type: string
       Icon:
         type: string

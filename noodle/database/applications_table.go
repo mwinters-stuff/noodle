@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"database/sql"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -17,12 +18,13 @@ const applicationsTableCreate = `CREATE TABLE IF NOT EXISTS applications (
   description VARCHAR(1000),
   enhanced BOOL,
   tilebackground VARCHAR(256),
+  textcolor VARCHAR(256),
   icon VARCHAR(256)
 )`
 const applicationsTableDrop = `DROP TABLE applications`
-const applicationsTableInsertRow1 = `INSERT INTO applications (template_appid,name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
-const applicationsTableInsertRow2 = `INSERT INTO applications (name,website,license,description,enhanced,tilebackground,icon) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-const applicationsTableUpdateRow = `UPDATE applications SET template_appid = $2, name = $3, website = $4, license = $5, description = $6, enhanced = $7,tilebackground = $8,icon = $9 WHERE id = $1`
+const applicationsTableInsertRow1 = `INSERT INTO applications (template_appid,name,website,license,description,enhanced,tilebackground,textcolor,icon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`
+const applicationsTableInsertRow2 = `INSERT INTO applications (name,website,license,description,enhanced,tilebackground,textcolor,icon) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+const applicationsTableUpdateRow = `UPDATE applications SET template_appid = $2, name = $3, website = $4, license = $5, description = $6, enhanced = $7,tilebackground = $8,textcolor = $9,icon = $10 WHERE id = $1`
 const applicationsTableDeleteRow = `DELETE FROM applications WHERE id = $1`
 const applicationsTableQueryID = `SELECT * FROM applications WHERE id = $1`
 const applicationsTableQueryTemplateID = `SELECT * FROM applications WHERE template_appid = $1`
@@ -58,7 +60,7 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]*models.App
 
 	var id int64
 	var templateappid pgtype.Text
-	var name, website, license, description, tilebackground, icon string
+	var name, website, license, description, tilebackground, textcolor, icon sql.NullString
 	var enhanced bool
 	_, err = pgx.ForEachRow(rows, []any{&id,
 		&templateappid,
@@ -68,19 +70,21 @@ func (i *ApplicationsTableImpl) getQuery(query string, value any) ([]*models.App
 		&description,
 		&enhanced,
 		&tilebackground,
+		&textcolor,
 		&icon,
 	}, func() error {
 
 		results = append(results, &models.Application{
 			ID:             id,
 			TemplateAppid:  templateappid.String,
-			Name:           name,
-			Website:        website,
-			License:        license,
-			Description:    description,
+			Name:           name.String,
+			Website:        website.String,
+			License:        license.String,
+			Description:    description.String,
 			Enhanced:       enhanced,
-			TileBackground: tilebackground,
-			Icon:           icon,
+			TileBackground: tilebackground.String,
+			TextColor:      textcolor.String,
+			Icon:           icon.String,
 		})
 		return nil
 	})
@@ -130,6 +134,7 @@ func (i *ApplicationsTableImpl) Insert(app *models.Application) error {
 			app.Description,
 			app.Enhanced,
 			app.TileBackground,
+			app.TextColor,
 			app.Icon,
 		).Scan(&app.ID)
 
@@ -141,6 +146,7 @@ func (i *ApplicationsTableImpl) Insert(app *models.Application) error {
 			app.Description,
 			app.Enhanced,
 			app.TileBackground,
+			app.TextColor,
 			app.Icon,
 		).Scan(&app.ID)
 	}
@@ -158,6 +164,7 @@ func (i *ApplicationsTableImpl) Update(app models.Application) error {
 		app.Description,
 		app.Enhanced,
 		app.TileBackground,
+		app.TextColor,
 		app.Icon)
 	return err
 }

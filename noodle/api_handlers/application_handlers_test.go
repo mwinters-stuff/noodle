@@ -65,6 +65,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsGetID() {
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}, nil)
 
@@ -79,7 +80,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsGetID() {
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`[{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}]`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`[{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TextColor":"dark","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}]`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
@@ -98,6 +99,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsGetTemplate()
 			Description:    "AdGuard Home is a network-wide software for blocking ads.",
 			Enhanced:       true,
 			TileBackground: "light",
+			TextColor:      "dark",
 			Icon:           "adguardhome.png",
 		},
 	}, nil)
@@ -114,7 +116,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsGetTemplate()
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`[{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TemplateAppid":"ABCDEF","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}]`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`[{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TemplateAppid":"ABCDEF","TextColor":"dark","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}]`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
@@ -207,6 +209,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsert() {
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}).Return(nil)
 
@@ -222,6 +225,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsert() {
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}
 
@@ -231,7 +235,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsert() {
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TextColor":"dark","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
@@ -247,6 +251,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsertError()
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}).Return(errors.New("failed"))
 
@@ -262,6 +267,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsInsertError()
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}
 
@@ -286,6 +292,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdate() {
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}).Return(nil)
 
@@ -301,6 +308,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdate() {
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}
 
@@ -310,7 +318,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdate() {
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TextColor":"dark","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"}`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
@@ -326,7 +334,9 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdateError()
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
-		Icon:           "adguardhome.png",
+		TextColor:      "dark",
+
+		Icon: "adguardhome.png",
 	}).Return(errors.New("failed"))
 
 	pr := models.Principal("")
@@ -341,6 +351,7 @@ func (suite *ApplicationsHandlersTestSuite) TestHandlerApplicationsUpdateError()
 		Description:    "AdGuard Home is a network-wide software for blocking ads.",
 		Enhanced:       true,
 		TileBackground: "light",
+		TextColor:      "dark",
 		Icon:           "adguardhome.png",
 	}
 

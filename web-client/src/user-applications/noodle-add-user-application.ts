@@ -4,6 +4,7 @@ import {
   NoodleApplicationsPostActionEnum,
   NoodleApplicationTabsPostActionEnum,
 } from '../api/index.js';
+import { Functions } from '../common/functions.js';
 
 import { NoodleUserApplicationDialog } from './noodle-user-application-dialog.js';
 
@@ -42,6 +43,12 @@ export class NoodleAddUserApplication extends NoodleUserApplicationDialog {
       return;
     }
 
+    if (!this._colorPickerText.checkValidity()) {
+      this._colorPickerText.reportValidity();
+      this._colorPickerText.focus();
+      return;
+    }
+
     if (!this._textFieldIcon.checkValidity()) {
       this._textFieldIcon.reportValidity();
       this._textFieldIcon.focus();
@@ -63,6 +70,7 @@ export class NoodleAddUserApplication extends NoodleUserApplicationDialog {
         License: '',
         Description: this._textFieldApplicationName.value,
         TileBackground: this._colorPickerBackground.value,
+        TextColor: this._colorPickerText.value,
         Icon: this._textFieldIcon.value,
         Enhanced: false,
       })
@@ -87,11 +95,11 @@ export class NoodleAddUserApplication extends NoodleUserApplicationDialog {
                 this._dialog.hide();
               })
               .catch(reason => {
-                this.showError(reason);
+                Functions.showWebResponseError(reason);
               });
           })
           .catch(reason => {
-            this.showError(reason);
+            Functions.showWebResponseError(reason);
           });
       });
 

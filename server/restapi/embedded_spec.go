@@ -1368,6 +1368,9 @@ func init() {
         "TemplateAppid": {
           "type": "string"
         },
+        "TextColor": {
+          "type": "string"
+        },
         "TileBackground": {
           "type": "string"
         },
@@ -2996,6 +2999,9 @@ func init() {
           "type": "string"
         },
         "TemplateAppid": {
+          "type": "string"
+        },
+        "TextColor": {
           "type": "string"
         },
         "TileBackground": {

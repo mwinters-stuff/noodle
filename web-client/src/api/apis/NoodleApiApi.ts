@@ -801,6 +801,40 @@ export class NoodleApiApi extends runtime.BaseAPI {
     }
 
     /**
+     * Gets list of upload icon filenames
+     */
+    async noodleUploadIconGetRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<string>>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["Remote-User"] = this.configuration.apiKey("Remote-User"); // remote-user authentication
+        }
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["X-Token"] = this.configuration.apiKey("X-Token"); // token authentication
+        }
+
+        const response = await this.request({
+            path: `/noodle/upload-icon`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     * Gets list of upload icon filenames
+     */
+    async noodleUploadIconGet(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<string>> {
+        const response = await this.noodleUploadIconGetRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Uploads an icon file
      */
     async noodleUploadIconPostRaw(requestParameters: NoodleUploadIconPostRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {

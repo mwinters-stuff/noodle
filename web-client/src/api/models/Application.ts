@@ -72,6 +72,12 @@ export interface Application {
      * @type {string}
      * @memberof Application
      */
+    TextColor?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Application
+     */
     Icon?: string;
 }
 
@@ -102,6 +108,7 @@ export function ApplicationFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'Description': !exists(json, 'Description') ? undefined : json['Description'],
         'Enhanced': !exists(json, 'Enhanced') ? undefined : json['Enhanced'],
         'TileBackground': !exists(json, 'TileBackground') ? undefined : json['TileBackground'],
+        'TextColor': !exists(json, 'TextColor') ? undefined : json['TextColor'],
         'Icon': !exists(json, 'Icon') ? undefined : json['Icon'],
     };
 }
@@ -123,6 +130,7 @@ export function ApplicationToJSON(value?: Application | null): any {
         'Description': value.Description,
         'Enhanced': value.Enhanced,
         'TileBackground': value.TileBackground,
+        'TextColor': value.TextColor,
         'Icon': value.Icon,
     };
 }

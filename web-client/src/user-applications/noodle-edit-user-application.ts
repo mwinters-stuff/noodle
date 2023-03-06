@@ -5,6 +5,7 @@ import {
   NoodleApplicationsPostActionEnum,
   NoodleApplicationTabsPostActionEnum,
 } from '../api/index.js';
+import { Functions } from '../common/functions.js';
 
 import { NoodleUserApplicationDialog } from './noodle-user-application-dialog.js';
 
@@ -25,6 +26,7 @@ export class NoodleEditUserApplication extends NoodleUserApplicationDialog {
       this.application.Website = this._textFieldApplicationUrl.value;
       this.application.Description = this._textFieldApplicationName.value;
       this.application.TileBackground = this._colorPickerBackground.value;
+      this.application.TextColor = this._colorPickerText.value;
       this.application.Icon = this._textFieldIcon.value;
       if (this.application.TemplateAppid === '') {
         this.application.TemplateAppid = undefined;
@@ -50,11 +52,11 @@ export class NoodleEditUserApplication extends NoodleUserApplicationDialog {
               this._dialog.hide();
             })
             .catch(reason => {
-              this.showError(reason);
+              Functions.showWebResponseError(reason);
             });
         })
         .catch(reason => {
-          this.showError(reason);
+          Functions.showWebResponseError(reason);
         });
 
       return;

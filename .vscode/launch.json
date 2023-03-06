@@ -10,6 +10,7 @@
       "request": "launch",
       "type": "node-terminal",
       "cwd": "${workspaceFolder}/web-client",
+      "preLaunchTask": "run-server",
     },
     {
       "name": "Launch Server Package",
@@ -19,7 +20,7 @@
       "program": "${workspaceFolder}/server/cmd/noodle-server/main.go",
       "args": [
         "--port",
-        "8081",
+        "9081",
       ],
       "env": {
         "NOODLE_DEBUG": "true",

@@ -12,6 +12,7 @@ import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog';
 import { consume } from '@lit-labs/context';
 import { noodleApiContext } from '../noodle-context.js';
 import { NoodleApiApi, ResponseError, UserApplications } from '../api/index.js';
+import { Functions } from '../common/functions.js';
 
 @customElement('noodle-delete-user-application')
 export class NoodleDeleteUserApplication extends LitElement {
@@ -46,8 +47,6 @@ export class NoodleDeleteUserApplication extends LitElement {
         </sl-button>
         <sl-button slot="footer" variant="default" @click=${this.secondaryButtonClick}>No
         </sl-button>
-      
-      
       </sl-dialog>
     `;
   }
@@ -88,13 +87,9 @@ export class NoodleDeleteUserApplication extends LitElement {
         this._dialog.hide();
       })
       .catch(reason => {
-        this.showError(reason);
+        Functions.showWebResponseError(reason);
       });
   }
 
-  private showError(reason: ResponseError) {
-    reason.response.json().then((value: any) => {
-      this.errorText = value.message;
-    });
-  }
+
 }

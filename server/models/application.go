@@ -38,6 +38,9 @@ type Application struct {
 	// template appid
 	TemplateAppid string `json:"TemplateAppid,omitempty"`
 
+	// text color
+	TextColor string `json:"TextColor,omitempty"`
+
 	// tile background
 	TileBackground string `json:"TileBackground,omitempty"`
 

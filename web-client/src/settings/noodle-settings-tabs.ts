@@ -2,12 +2,10 @@ import { html, css, LitElement } from 'lit';
 import { query, customElement, state } from 'lit/decorators.js';
 import { consume, ContextConsumer } from '@lit-labs/context';
 
-import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
-import '@material/mwc-snackbar';
 
-import * as mwcSnackBar from '@material/mwc-snackbar';
+
 
 import {
   NoodleApiApi,
@@ -15,6 +13,7 @@ import {
   UserSession,
 } from '../api/index.js';
 import { noodleApiContext, userSessionContext } from '../noodle-context.js';
+import { Functions } from '../common/functions.js';
 
 @customElement('noodle-settings-tabs')
 export class NoodleSettingsTabs extends LitElement {
@@ -38,12 +37,6 @@ export class NoodleSettingsTabs extends LitElement {
 
   @state()
   selectedTab: Tab | undefined;
-
-  @state()
-  errorMessage = '';
-
-  @query('#error-snack')
-  _errorSnack!: mwcSnackBar.Snackbar;
 
   static styles = css`
     :host {
@@ -69,7 +62,8 @@ export class NoodleSettingsTabs extends LitElement {
     }
   `;
 
-  firstUpdated() {}
+  firstUpdated() {
+  }
 
   refreshTabs() {
     if (this.userSession != null && this.userSession.UserId != null) {
@@ -79,16 +73,10 @@ export class NoodleSettingsTabs extends LitElement {
           this.tabs = value;
         })
         .catch(reason => {
-          this.showError(reason);
+          Functions.showWebResponseError(reason);
         });
     }
   }
-
-  showError(error: string) {
-    this.errorMessage = error;
-    this._errorSnack.show();
-  }
-
 
   TabsListTemplate() {
     return html`
@@ -130,10 +118,12 @@ export class NoodleSettingsTabs extends LitElement {
 
   private editTabDialog(tab: Tab) {
     // this._editUserApplication.show(application, tabId);
+    Functions.showError(`Edit Ooops ${tab.Label}`)
   }
 
   private deleteTabDialog(tab:Tab) {
     // this._deleteUserApplication.show(userApplication);
+    Functions.showError(`Delete Ooops ${tab.Label}`)
   }
 
   private static swapElements(
@@ -181,14 +171,12 @@ export class NoodleSettingsTabs extends LitElement {
 
   private showAddTabDialog() {
     // this._addUserApplication.show();
+    Functions.showError("Add tab");
   }
 
   render() {
     return html`
       <div id="Tabcontent">${this.TabsListTemplate()}</div>
-      <mwc-snackbar id="error-snack" labelText="${this.errorMessage}">
-        <mwc-icon-button icon="close" slot="dismiss"></mwc-icon-button>
-      </mwc-snackbar>
     `;
   }
 }

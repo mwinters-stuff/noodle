@@ -70,6 +70,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsGet()
 				Description:    "AdGuard Home is a network-wide software for blocking ads.",
 				Enhanced:       true,
 				TileBackground: "light",
+				TextColor:      "dark",
 				Icon:           "adguardhome.png",
 			},
 		},
@@ -86,6 +87,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsGet()
 				Description:    "Adminer.",
 				Enhanced:       false,
 				TileBackground: "light",
+				TextColor:      "dark",
 				Icon:           "adminer.svg",
 			},
 		},
@@ -101,7 +103,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserApplicationsGet()
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"},"ApplicationId":1,"Id":1,"UserId":1},{"Application":{"Description":"Adminer.","Icon":"adminer.svg","Id":2,"License":"Apache License 2.0","Name":"Adminer","TileBackground":"light","Website":"https://www.adminer.org"},"ApplicationId":2,"Id":2,"UserId":1}]`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"AdGuard Home is a network-wide software for blocking ads.","Enhanced":true,"Icon":"adguardhome.png","Id":1,"License":"GNU General Public License v3.0 only","Name":"AdGuard Home","TextColor":"dark","TileBackground":"light","Website":"https://github.com/AdguardTeam/AdGuardHome"},"ApplicationId":1,"Id":1,"UserId":1},{"Application":{"Description":"Adminer.","Icon":"adminer.svg","Id":2,"License":"Apache License 2.0","Name":"Adminer","TextColor":"dark","TileBackground":"light","Website":"https://www.adminer.org"},"ApplicationId":2,"Id":2,"UserId":1}]`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }
@@ -219,6 +221,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserAllowedApplicatio
 				Name:           "applicationtab1",
 				TemplateAppid:  "",
 				TileBackground: "string",
+				TextColor:      "dark",
 				Website:        "string",
 			},
 			DisplayOrder: 0,
@@ -234,6 +237,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserAllowedApplicatio
 				Name:           "usercustomapp",
 				TemplateAppid:  "",
 				TileBackground: "string",
+				TextColor:      "dark",
 				Website:        "string",
 			},
 			DisplayOrder: 6,
@@ -251,7 +255,7 @@ func (suite *UserApplicationsHandlersTestSuite) TestHandlerUserAllowedApplicatio
 	mockWriter := handler_mocks.NewResponseWriter(suite.T())
 	mockWriter.EXPECT().WriteHeader(200).Once()
 
-	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"application_tab_1","Icon":"string","Id":2,"License":"string","Name":"applicationtab1","TileBackground":"string","Website":"string"},"TabId":1},{"Application":{"Description":"user custom app","Icon":"string","Id":1,"License":"string","Name":"usercustomapp","TileBackground":"string","Website":"string"},"DisplayOrder":6,"TabId":1}]`)).Once().Return(1, nil)
+	mockWriter.EXPECT().Write([]byte(`[{"Application":{"Description":"application_tab_1","Icon":"string","Id":2,"License":"string","Name":"applicationtab1","TextColor":"dark","TileBackground":"string","Website":"string"},"TabId":1},{"Application":{"Description":"user custom app","Icon":"string","Id":1,"License":"string","Name":"usercustomapp","TextColor":"dark","TileBackground":"string","Website":"string"},"DisplayOrder":6,"TabId":1}]`)).Once().Return(1, nil)
 
 	response.WriteResponse(mockWriter, runtime.ByteStreamProducer())
 }

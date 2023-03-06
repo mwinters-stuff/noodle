@@ -1,6 +1,8 @@
 import { css, html, LitElement } from 'lit';
 import { query, state } from 'lit/decorators.js';
 
+import './noodle-user-application-dialog-app-card.js';
+
 import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
@@ -30,6 +32,8 @@ import {
   Tab,
   UserSession,
 } from '../api/index.js';
+import { Functions } from '../common/functions.js';
+import { NoodleUserApplicationDialogAppCard } from './noodle-user-application-dialog-app-card.js';
 
 export abstract class NoodleUserApplicationDialog extends LitElement {
   @consume({ context: noodleApiContext })
@@ -45,7 +49,7 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
   dataCache!: DataCache;
 
   @state()
-  application: Application = {};
+  application!: Application;
 
   @state()
   tabId!: string;
@@ -66,7 +70,22 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
   _title: string = "";
 
   @state()
-  _backgroundColor: string = "#161b1f";
+  _backgroundColor: string = Functions.DarkColor;
+
+  @state()
+  _textColor: string = Functions.LightColor;
+
+  @state()
+  _appTemplateId: string = "";
+
+  @state()
+  _appName: string = "";
+  
+  @state()
+  _appUrl: string = "";
+
+  @state()
+  _iconName: string = "";
 
   @query('#dialog')
   _dialog!: SlDialog;
@@ -80,6 +99,9 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
   @query('#text-field-application-background')
   _colorPickerBackground!: SlColorPicker;
 
+  @query('#text-field-text-color')
+  _colorPickerText!: SlColorPicker;
+
   @query('#text-field-application-icon')
   _textFieldIcon!: SlInput;
 
@@ -92,45 +114,44 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
   @query('#icon-file-select')
   _iconFileSelect!: HTMLInputElement;
 
-  @query('#icon-image')
-  _iconImage!: HTMLImageElement;
+  @query('#app-card')
+  _appCard!: NoodleUserApplicationDialogAppCard;
 
   private Reload() {
     this._tabs = this.dataCache.Tabs()
     this.noodleApi.noodleAppTemplatesGet('A').then(value => {
       this._appTemplates = value;
-      this._selectTemplate.value = this.application.TemplateAppid || "";
+      if(this.application){
+        this._selectTemplate.value = this.application.TemplateAppid || "";
+      }
     });
     
   }
 
   public showDialog(title: string) {
+    this._backgroundColor = Functions.DarkColor;
+    this._textColor = Functions.LightColor;
+    
     this._title = title;
     this.Reload();
-    this.updateColor(this.application.TileBackground!);
+    if(this.application){
+      this._appTemplateId = this.application.TemplateAppid || "";
+      this._appName = this.application.Name || "";
+      this._appUrl = this.application.Website || "";
+      this._iconName = this.application.Icon || "";
+
+      this._backgroundColor = Functions.modifyColor(this.application.TileBackground!);
+      this._textColor = Functions.modifyColor(this.application.TextColor!);
+    }
+    this.initAppCard();
     this._dialog.show();
   }
 
-  private updateColor(color: String){
-    if(color === "dark"){
-      this._backgroundColor = "rgb(22,33,37)"
-    }else if(color === "light"){
-      this._backgroundColor = "rgb(250,250,250)"
-    }else if(color !== ""){
-      this._backgroundColor = this.application.TileBackground!;
-    }else{
-      this._backgroundColor = "rgb(22,33,37)"
-    }
-    console.log("Color -> ", color, this._backgroundColor)
+  firstUpdated() {
+    this.initAppCard();
   }
 
   protected abstract primaryButtonClick(): void;
-
-  protected showError(reason: ResponseError) {
-    reason.response.json().then((value: any) => {
-      this.errorText = value.message;
-    });
-  }
 
   private applicationTemplateSelected() {
     if (this._selectTemplate.value != "") {
@@ -138,9 +159,16 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
       if(template){
         this._textFieldApplicationName.value = template.Name!;
         this._textFieldApplicationUrl.value = template.Website!;
-        this.updateColor(template.TileBackground!);
+        this._backgroundColor = Functions.modifyColor(template.TileBackground!);
+        if(template.TileBackground! === "dark"){
+          this._textColor = Functions.modifyColor("light");
+        }else {
+          this._textColor = Functions.modifyColor("dark");
+        }
         this._textFieldIcon.value = template.Icon!;
         this._icon = template.Icon!;
+
+        this.updateAppCard();
       }
     }
   }
@@ -188,17 +216,32 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
 
   }
 
+  private initAppCard(){
+    this._appCard.appTitle = this._appName;
+    this._appCard.appIconUrl = this._iconName;
+    this._appCard.appUrl = this._appUrl;
+    this._appCard.backgroundColor = this._backgroundColor;
+    this._appCard.textColor = this._textColor;
+    
+  }
+
+  private updateAppCard(){
+    this._appCard.appTitle = this._textFieldApplicationName.value;
+    this._appCard.appIconUrl = this._textFieldIcon.value;
+    this._appCard.appUrl = this._textFieldApplicationUrl.value;
+    this._appCard.backgroundColor = this._colorPickerBackground.value;
+    this._appCard.textColor = this._colorPickerText.value;
+    
+  }
+
   private handleIconFileSelectChange(event: Event){
     if (this._iconFileSelect!.files && this._iconFileSelect!.files!.length == 1) {
-      const img = this._iconImage;
+      
       const file = this._iconFileSelect!.files![0];
       this._textFieldIcon.value = file.name;
-      img.src = URL.createObjectURL(file);
-      img.onload = () => {
-        URL.revokeObjectURL(img.src);
-      };
+      this._appCard.uploadIcon(file);
       this.noodleApi.noodleUploadIconPost(file).catch(reason => {
-        this.showError(reason);
+        Functions.showWebResponseError(reason);
       });
     }
   }
@@ -230,7 +273,7 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
             clearable
             @sl-change=${this.applicationTemplateSelected}
             label="Application Template"
-            value="${this.application.TemplateAppid}">
+            value="${this._appTemplateId}">
             ${this.appTemplatesListTemplate()}
           </sl-select>
           <sl-select id="select-tab" label="Tab" required value="${this.tabId}">
@@ -242,7 +285,8 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
             maxlength="50"
             label="Application name"
             required
-            value="${this.application.Name}">
+            @sl-input=${this.updateAppCard}
+            value="${this._appName}">
           </sl-input>
           <sl-input
             id="text-field-application-url"
@@ -252,19 +296,34 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
             required
             type="url"
             inputmode="url"
-            value="${this.application.Website}">
+            @sl-input=${this.updateAppCard}
+            value="${this._appUrl}">
           </sl-input>
           <div style="display: flex; flex-direction: column;">
-          <label part="form-control-label" class="form-control__label" for="input" aria-hidden="false">
-              Background Colour
-          </label>
-          <sl-color-picker
-            id="text-field-application-background"
-            label="Background Colour"
-            format="hex"
-            swatches="rgb(22,33,37); rgb(250,250,250);"
-            value="${this._backgroundColor}">
-          </sl-color-picker>
+            <label part="form-control-label" class="form-control__label" for="input" aria-hidden="false">
+                Background Colour
+            </label>
+            <sl-color-picker
+              id="text-field-application-background"
+              label="Background Colour"
+              format="hex"
+              swatches="rgb(22,33,37); rgb(250,250,250);"
+              @sl-change=${this.updateAppCard}
+              value="${this._backgroundColor}">
+            </sl-color-picker>
+          </div>
+          <div style="display: flex; flex-direction: column;">
+            <label part="form-control-label" class="form-control__label" for="input" aria-hidden="false">
+                Text Colour
+            </label>
+            <sl-color-picker
+              id="text-field-text-color"
+              label="Text Colour"
+              format="hex"
+              swatches="rgb(22,33,37); rgb(250,250,250);"
+              @sl-change=${this.updateAppCard}
+              value="${this._textColor}">
+            </sl-color-picker>
           </div>
           <sl-input
             id="text-field-application-icon"
@@ -272,16 +331,11 @@ export abstract class NoodleUserApplicationDialog extends LitElement {
             maxlength="246"
             label="Icon"
             required
-            value="${this.application.Icon}">
+            value="${this._iconName}">
             <sl-icon-button name="file-earmark-arrow-up" slot="suffix" @click=${this.fileUploadClick} ></sl-icon-button>
           </sl-input>
-          <img
-            id="icon-image"
-            width="128px"
-            height="128px"
-            src="/out-tsc/icons/${this._icon}"
-            alt="icon"
-          />
+          <noodle-user-application-dialog-app-card id="app-card">
+          </noodle-user-application-dialog-app-card>
           <div>${this.errorText}</div>
         <sl-button id="primary-action-button" slot="footer" variant="primary" @click=${this.primaryButtonClick}>OK</sl-button>
         <sl-button slot="footer" variant="default" @click=${this.secondaryButtonClick}>Cancel</sl-button>
