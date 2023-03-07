@@ -19,13 +19,14 @@ export interface DataCache {
   _applications: Application[];
   _tabs: Tab[];
   router?: Router;
-  // _userApplications: UsersApplicationItem[]
+  _userApplications: UsersApplicationItem[]
 
   Applications(): Application[];
 
-  // UserApplications(): UsersApplicationItem[];
+  UserApplications(): UsersApplicationItem[];
 
   SetUserApplications(uai: UsersApplicationItem[]): void;
+  GetUserApplicationsForTab(tabId: number): UsersApplicationItem[];
 
   Tabs(): Tab[];
 

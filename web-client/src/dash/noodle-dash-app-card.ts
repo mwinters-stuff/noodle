@@ -1,9 +1,9 @@
 import { customElement, property, state } from 'lit/decorators.js';
 import { consume, ContextConsumer } from '@lit-labs/context';
-import { Application } from './api/index.js';
-import { DataCache, dataCacheContext } from './noodle-context.js';
-import { NoodleAppCard } from './common/noodle-app-card.js';
-import { Functions } from './common/functions.js';
+import { Application } from '../api/index.js';
+import { DataCache, dataCacheContext } from '../noodle-context.js';
+import { NoodleAppCard } from '../common/noodle-app-card.js';
+import { Functions } from '../common/functions.js';
 
 
 @customElement('noodle-dash-app-card')

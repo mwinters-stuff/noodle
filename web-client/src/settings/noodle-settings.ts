@@ -1,12 +1,11 @@
 import { html, css, LitElement } from 'lit';
-import { query, customElement, state, property } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { consume } from '@lit-labs/context';
 
 import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
-import '@material/mwc-tab-bar';
-import '@material/mwc-tab';
+
 import '@material/mwc-tab-indicator';
 import '@shoelace-style/shoelace/dist/components/tab/tab.js';
 import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';

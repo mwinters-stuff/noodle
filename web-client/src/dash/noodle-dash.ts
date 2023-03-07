@@ -1,5 +1,5 @@
 import { html, css, LitElement } from 'lit';
-import { customElement, state, property } from 'lit/decorators.js';
+import { customElement, state, property, query } from 'lit/decorators.js';
 import { consume, ContextConsumer } from '@lit-labs/context';
 
 import '@material/mwc-top-app-bar-fixed';
@@ -7,28 +7,32 @@ import '@material/mwc-top-app-bar-fixed';
 import '@material/mwc-drawer';
 import '@material/mwc-icon-button';
 import '@material/mwc-list';
-import '@material/mwc-tab-bar';
-import '@material/mwc-tab';
-import '@material/mwc-tab-indicator';
+
+import '@shoelace-style/shoelace/dist/components/tab/tab.js';
+import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
+import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
+
+import SlTabGroup from '@shoelace-style/shoelace/dist/components/tab-group/tab-group';
+// import SlTabPanel from '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel';
 
 import { Router } from '@vaadin/router';
 
 
-import './noodle-dash-app-card.js';
+
+import './noodle-dash-tab.js';
 
 import {
   NoodleApiApi,
   Tab,
-  UsersApplicationItem,
   UserSession,
-} from './api/index.js';
+} from '../api/index.js';
 import {
   DataCache,
   dataCacheContext,
   noodleApiContext,
   userSessionContext,
-} from './noodle-context.js';
-import { Functions } from './common/functions.js';
+} from '../noodle-context.js';
+import { Functions } from '../common/functions.js';
 
 @customElement('noodle-dash')
 export class NoodleDash extends LitElement {
@@ -54,18 +58,6 @@ export class NoodleDash extends LitElement {
     true
   );
 
-  @state()
-  openDrawer = false;
-
-  @state()
-  selectedTab: Tab | undefined;
-
-  @state()
-  selectedTabIndex: number = 0;
-
-  @state()
-  private _userApplications: UsersApplicationItem[] = [];
-
   static styles = css`
     :host {
       display: block;
@@ -84,6 +76,12 @@ export class NoodleDash extends LitElement {
   @state()
   private _tabs: Tab[] = [];
 
+  @state()
+  private _selectedTabIndex: number = 0;
+
+  @state()
+  private _selectedTabLabel: string = "";
+
   firstUpdated() {
     if (this.dataCache.router && this.dataCache.router!.location.params.tabId) {
       this.tabId = parseInt(
@@ -93,18 +91,12 @@ export class NoodleDash extends LitElement {
     }
   }
 
-  toggleHamburger() {
-    this.openDrawer = !this.openDrawer;
-  }
-
   private RefreshUserApplications() {
     if (this.userSession != null && this.userSession.UserId != null) {
       this.noodleApi
         .noodleUserAllowedApplicationsGet(this.userSession.UserId!)
         .then(value => {
-          this._userApplications = value;
           this.dataCache.SetUserApplications(value);
-          // console.log(JSON.stringify(this._userApplications,null,2  ))
         })
         .catch(reason => {
           Functions.showWebResponseError(reason);
@@ -120,53 +112,43 @@ export class NoodleDash extends LitElement {
 
       this._tabs.forEach((tab: Tab, index: number) => {
         if (this.tabId === tab.Id) {
-          this.selectedTab = tab;
-          this.selectedTabIndex = index;
+          this._selectedTabLabel = tab.Label!;
+          this._selectedTabIndex = index;
         }
       });
 
       if ((!this.tabId || this.tabId === -1) && this._tabs.length > 0) {
-        // console.log("Dash RefreshTabs Redirect")
         Router.go(`/dash/${this._tabs[0].Id}`);
       }
 
     });
   }
 
+  // @query("#tabgroup")
+  // _tabBar!: SlTabGroup
+
+  tabShow(event: CustomEvent){
+    const tabId = Number.parseInt(event.detail.name,10);
+    const tab = this._tabs.find((value: Tab) => value.Id === tabId)
+    this._selectedTabLabel = tab?.Label || "";
+    // this._tabBar.show(event.detail.name)
+    history.replaceState(null,"",`/dash/${tabId}`)
+  }
+
   tabListTemplate() {
     return html`
-         <mwc-tab-bar activeIndex="${this.selectedTabIndex}" @MDCTabBar:activated=${(event:CustomEvent) => this.showTabIndex(event.detail.index)}>
-         ${this._tabs.map(
-          (tab) => html`<mwc-tab label="${tab.Label}"></mwc-tab>`
-        )}
-
-         </mwc-tab-bar>
-
-     
-    `;
-  }
-
-  private showTabIndex(index: number) {
-    Router.go(`/dash/${this._tabs[index].Id}`);
-  }
-
-  appListTemplate() {
-    return html`
-      ${this._tabs.map(
-        tab =>
-          html`
-            <div id="tab${tab.Id}" ?hidden=${tab.Id !== this.tabId}>
-              ${this._userApplications
-                .filter(value => value.TabId === tab.Id)
-                .map(
-                  app =>
-                    html`<noodle-dash-app-card
-                      appId="${app.Application?.Id}"
-                    ></noodle-dash-app-card>`
-                )}
-            </div>
-          `
+    <sl-tab-group id="tabbar" 
+     @sl-tab-show=${this.tabShow}
+    >
+      ${this._tabs.map((tab: Tab) => 
+        html`
+          <sl-tab slot="nav" panel="${tab.Id}" ?active="${this.tabId === tab.Id}">${tab.Label}</sl-tab>
+          <sl-tab-panel name="${tab.Id}" ?active="${this.tabId === tab.Id}">
+            <noodle-dash-tab tabId="${tab.Id}"></noodle-dash-tab>
+          </sl-tab-panel>
+        `
       )}
+    </sl-tab-group>
     `;
   }
 
@@ -174,32 +156,19 @@ export class NoodleDash extends LitElement {
     return html`
       <mwc-top-app-bar-fixed id="top-app-bar">
       
-        <div slot="title" id="title">Noodle - ${this.selectedTab?.Label}</div>
-
-        <mwc-icon-button
-          icon="apps"
-          slot="actionItems"
-          class="notCenter"
-          @click=${() => Router.go('/user-applications')}
-        ></mwc-icon-button>
-
-        <mwc-icon-button
-          icon="settings"
-          slot="actionItems"
-          class="notCenter"
-          @click=${() => Router.go('/settings')}
-        ></mwc-icon-button>
-        <mwc-icon-button
-          icon="logout"
-          slot="actionItems"
-          class="notCenter"
-          @click=${() => Router.go('/logout')}
-        >
+        <div slot="title" id="title">Noodle - ${this._selectedTabLabel}</div>
+      
+        <mwc-icon-button icon="apps" slot="actionItems" class="notCenter" @click=${()=> Router.go('/user-applications')}
+          ></mwc-icon-button>
+      
+        <mwc-icon-button icon="settings" slot="actionItems" class="notCenter" @click=${()=> Router.go('/settings')}
+          ></mwc-icon-button>
+        <mwc-icon-button icon="logout" slot="actionItems" class="notCenter" @click=${()=> Router.go('/logout')}
+          >
         </mwc-icon-button>
-
+      
         <div id="content">
           ${this.tabListTemplate()}
-          ${this.appListTemplate()}
         </div>
       </mwc-top-app-bar-fixed>
     `;

@@ -4,7 +4,7 @@ import { Commands, Context, Router } from '@vaadin/router';
 import { customElement, state } from 'lit/decorators.js';
 
 import './noodle-login.js';
-import './noodle-dash.js';
+import './dash/noodle-dash.js';
 import './user-applications/noodle-user-applications.js';
 import './settings/noodle-settings.js';
 
@@ -50,14 +50,18 @@ export class NoodleWeb extends LitElement {
     _applications: [],
     _tabs: [],
     router: undefined,
-    // _userApplications: [],
+    _userApplications: [],
 
     SetUserApplications(uai: UsersApplicationItem[]): void {
-      // this._userApplications = uai;
+      this._userApplications = uai;
       this._applications = [];
       uai.forEach(userApp => {
         this._applications.push(userApp.Application!);
       });
+    },
+
+    GetUserApplicationsForTab(tabId: number): UsersApplicationItem[] {
+      return this._userApplications.filter((value) => value.TabId === tabId);
     },
 
     Applications(): Application[] {
@@ -69,9 +73,10 @@ export class NoodleWeb extends LitElement {
     GetApplication(id: number): Application {
       return this.Applications().find(value => value.Id === id)!;
     },
-    // UserApplications(): UsersApplicationItem[] {
-    //   return this._userApplications;
-    // },
+    UserApplications(): UsersApplicationItem[] {
+      return this._userApplications;
+    },
+
 
     SetTabs(value: Tab[]): void {
       this._tabs = value;
